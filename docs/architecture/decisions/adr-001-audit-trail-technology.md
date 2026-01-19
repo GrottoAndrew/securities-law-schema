@@ -23,7 +23,122 @@ This audit trail must:
 
 ## Decision
 
-We adopt a **technology-agnostic, pluggable audit trail architecture** with the following approved implementation options:
+We adopt a **technology-agnostic, pluggable audit trail architecture** with the following approved implementation options.
+
+---
+
+## Explicitly Rejected: Blockchain / Distributed Ledger
+
+**This architecture explicitly rejects blockchain and distributed ledger technology (DLT) for audit trail implementation.**
+
+### Why Blockchain is Not Recommended
+
+Blockchain and distributed ledger technologies are frequently proposed for audit trails based on a superficial understanding of "immutability." However, for a single-tenant compliance system handling sensitive financial data, **distributed ledger architectures multiplicatively increase the attack surface** without providing proportional security benefits.
+
+#### Attack Surface Multiplication
+
+| Attack Vector | Centralized Audit Trail | Distributed Ledger |
+|---------------|------------------------|-------------------|
+| **Network endpoints** | 1 (database) | N nodes × M peers |
+| **Authentication points** | 1 | N nodes + consensus protocol |
+| **Key management** | 1 signing key | N node keys + validator keys |
+| **Consensus vulnerabilities** | N/A | BFT attacks, 51% attacks, selfish mining |
+| **Smart contract bugs** | N/A | Reentrancy, overflow, logic errors |
+| **P2P protocol attacks** | N/A | Eclipse attacks, Sybil attacks, routing attacks |
+| **State synchronization** | N/A | Fork resolution, chain reorganization |
+| **Dependency chain** | Database + OS | Blockchain client + P2P stack + consensus + crypto libraries + VM |
+
+**Each additional node and protocol layer creates new opportunities for exploitation.**
+
+#### Specific Concerns
+
+1. **Consensus Protocol Vulnerabilities**
+   - Byzantine fault tolerance requires 3f+1 nodes to tolerate f failures
+   - Consensus bugs have caused major incidents (e.g., Ethereum DAO hack, Bitcoin value overflow)
+   - Permissioned blockchains still require complex leader election and view change protocols
+
+2. **Key Management Complexity**
+   - Each node requires secure key storage
+   - Validator key compromise affects entire network
+   - Key rotation across distributed nodes is operationally complex
+
+3. **Smart Contract Risk**
+   - If using programmable ledgers, smart contract vulnerabilities become audit trail vulnerabilities
+   - Formal verification of smart contracts remains immature
+   - Upgrade mechanisms introduce additional attack vectors
+
+4. **Network Partition Handling**
+   - Distributed systems must handle network splits
+   - CAP theorem tradeoffs affect consistency guarantees
+   - Split-brain scenarios can create conflicting audit histories
+
+5. **Operational Complexity**
+   - Node patching requires coordination
+   - Version upgrades must be synchronized
+   - Monitoring and alerting across distributed nodes
+   - Incident response is more complex
+
+6. **False Sense of Security**
+   - "Immutability" in blockchain means expensive to change, not impossible
+   - 51% attacks, governance attacks, and protocol-level changes can alter history
+   - Single-tenant systems don't benefit from distributed trust—you already trust yourself
+
+#### When Blockchain Might Be Appropriate (Not This System)
+
+Blockchain/DLT may be justified when:
+- Multiple **mutually distrusting parties** must share a ledger
+- No single party can be trusted to maintain the authoritative record
+- Regulatory mandate **specifically requires** distributed ledger (rare)
+- The use case is **inherently multi-party** (e.g., interbank settlement)
+
+**None of these conditions apply to a single-tenant compliance evidence system.** The organization maintaining the system is the single source of truth. A properly implemented centralized audit trail with cryptographic verification provides equivalent integrity guarantees with a fraction of the attack surface.
+
+#### Recommended Alternative
+
+For cryptographic integrity without blockchain complexity:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│            CENTRALIZED CRYPTOGRAPHIC AUDIT TRAIL                │
+│                                                                 │
+│   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐       │
+│   │ Event 1 │──▶│ Event 2 │──▶│ Event 3 │──▶│ Event 4 │       │
+│   │ H(prev) │   │ H(prev) │   │ H(prev) │   │ H(prev) │       │
+│   └─────────┘   └─────────┘   └─────────┘   └─────────┘       │
+│        │                                          │            │
+│        └──────────── Hash Chain ──────────────────┘            │
+│                           │                                    │
+│                           ▼                                    │
+│                  ┌─────────────────┐                          │
+│                  │  Signed Daily   │  ◀── HSM-backed key      │
+│                  │   Checkpoint    │                          │
+│                  └─────────────────┘                          │
+│                           │                                    │
+│                           ▼                                    │
+│                  ┌─────────────────┐                          │
+│                  │ Published Root  │  ◀── Optional: publish   │
+│                  │  (newspaper,    │      to external witness │
+│                  │   public log)   │                          │
+│                  └─────────────────┘                          │
+└─────────────────────────────────────────────────────────────────┘
+
+Attack surface: 1 database + 1 HSM + 1 application
+Immutability: Cryptographic (hash chain + signatures)
+Verifiability: Full (any auditor can verify chain)
+Complexity: Low
+```
+
+This approach provides:
+- **Equivalent cryptographic integrity** to blockchain
+- **Smaller attack surface** (single database, single signing key)
+- **Simpler operations** (standard database administration)
+- **Better performance** (no consensus overhead)
+- **Lower cost** (no node infrastructure)
+- **Optional external witnessing** (publish checkpoints to public transparency logs if desired)
+
+---
+
+## Approved Implementation Options
 
 ### Option A: Amazon QLDB (Managed Ledger)
 
@@ -141,43 +256,7 @@ CREATE EVENT TRIGGER protect_audit_log ON sql_drop
 
 ---
 
-### Option C: Dedicated Ledger Appliance / Blockchain-Based
-
-**Description**: Purpose-built ledger hardware or permissioned blockchain network.
-
-**Examples** (without endorsement):
-- Hyperledger Fabric (permissioned blockchain)
-- Hardware Security Module (HSM) backed ledger
-- Dedicated compliance appliance vendors
-
-**Characteristics**:
-| Attribute | Value |
-|-----------|-------|
-| Immutability | Hardware or consensus-enforced |
-| Cryptographic Verification | Native to platform |
-| SLA | Vendor-dependent |
-| Retention | Platform-dependent |
-| Compliance | Varies significantly |
-
-**Pros**:
-- Strongest immutability guarantees
-- May satisfy specific regulatory requirements
-- Distributed trust (blockchain options)
-
-**Cons**:
-- Highest complexity
-- Significant operational overhead
-- Performance limitations
-- Overkill for most use cases
-
-**When to Choose**:
-- Regulatory mandate for blockchain/distributed ledger
-- Multi-party trust requirements
-- Highest security classification data
-
----
-
-### Option D: Immutable Object Storage with Verification Layer
+### Option C: Immutable Object Storage with Verification Layer
 
 **Description**: Append-only audit records stored in object storage with retention locks, plus a verification index.
 
@@ -272,15 +351,15 @@ Minimum requirements:
 
 ## Decision Matrix
 
-| Requirement | QLDB | Hardened Instance | Ledger/Blockchain | Object Storage |
-|-------------|------|-------------------|-------------------|----------------|
-| Immutability | ★★★★★ | ★★★☆☆ | ★★★★★ | ★★★★☆ |
-| Operational Simplicity | ★★★★★ | ★★☆☆☆ | ★☆☆☆☆ | ★★★☆☆ |
-| Cost (at scale) | ★★☆☆☆ | ★★★★☆ | ★★☆☆☆ | ★★★★★ |
-| Query Performance | ★★★☆☆ | ★★★★★ | ★★☆☆☆ | ★★★☆☆ |
-| Cloud Portability | ★☆☆☆☆ | ★★★★★ | ★★★★☆ | ★★★☆☆ |
-| Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
-| L3 SLA Achievable | ✓ | ✓ | Varies | ✓ |
+| Requirement | QLDB | Hardened Instance | Object Storage |
+|-------------|------|-------------------|----------------|
+| Immutability | ★★★★★ | ★★★☆☆ | ★★★★☆ |
+| Operational Simplicity | ★★★★★ | ★★☆☆☆ | ★★★☆☆ |
+| Cost (at scale) | ★★☆☆☆ | ★★★★☆ | ★★★★★ |
+| Query Performance | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
+| Cloud Portability | ★☆☆☆☆ | ★★★★★ | ★★★☆☆ |
+| Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ |
+| L3 SLA Achievable | ✓ | ✓ | ✓ |
 
 ---
 
