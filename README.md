@@ -49,15 +49,27 @@ securities-law-schema/
 │   └── securities-context.jsonld    # JSON-LD vocabulary definitions
 ├── schemas/
 │   └── regulation-d/
-│       └── 17cfr230.501.jsonld      # Regulation D definitions
+│       ├── 17cfr230.501.jsonld      # Definitions and terms
+│       ├── 17cfr230.502.jsonld      # General conditions
+│       ├── 17cfr230.503.jsonld      # Filing of notice of sales
+│       ├── 17cfr230.504.jsonld      # $10M exemption
+│       ├── 17cfr230.505.jsonld      # [Reserved]
+│       ├── 17cfr230.506.jsonld      # Rule 506(b)/506(c)
+│       ├── 17cfr230.507.jsonld      # Disqualification
+│       └── 17cfr230.508.jsonld      # Insignificant deviations
 ├── controls/
 │   └── regulation-d-controls.json   # OSCAL control catalog
+├── source/
+│   └── cfr/
+│       └── ECFR-title17.xml         # Source CFR bulk data
 ├── docs/
 │   ├── architecture/
 │   │   ├── overview.md              # System architecture
 │   │   ├── data-flow.md             # Data flow diagrams
 │   │   ├── security.md              # Security architecture
-│   │   └── evidence-locker.md       # Evidence storage design
+│   │   ├── evidence-locker.md       # Evidence storage design
+│   │   └── decisions/               # Architecture Decision Records
+│   │       └── adr-001-*.md         # Audit trail technology
 │   └── for-developers/
 │       └── [coming soon]
 ├── CONTRIBUTING.md                   # Contribution guidelines
@@ -147,33 +159,41 @@ Key features of the reference architecture:
 
 ## Current Status
 
-**This is a reference architecture and partial implementation, not production-ready software.**
+**This is a reference architecture with complete Regulation D schema coverage.**
 
 | Component | Status | Notes |
 |-----------|--------|-------|
 | JSON-LD Context | Complete | Vocabulary for regulatory text |
 | 17 CFR 230.501 | Complete | All 10 subsections (a)-(j), notes, amendment history |
-| 17 CFR 230.502-508 | Not Started | Controls reference these but schemas don't exist yet |
-| OSCAL Controls | Structure Complete | ~38% of controls link to non-existent schemas |
-| Architecture Docs | Complete | Reference design, not implementation |
-| Implementation Code | None | No working software, only documentation |
+| 17 CFR 230.502 | Complete | General conditions to be met |
+| 17 CFR 230.503 | Complete | Filing of notice of sales |
+| 17 CFR 230.504 | Complete | $10M exemption |
+| 17 CFR 230.505 | Complete | [Reserved] |
+| 17 CFR 230.506 | Complete | Rule 506(b) and 506(c) exemptions, bad actor provisions |
+| 17 CFR 230.507 | Complete | Disqualification provisions |
+| 17 CFR 230.508 | Complete | Insignificant deviations |
+| OSCAL Controls | Complete | 100% of controls link to valid schemas |
+| Architecture Docs | Complete | Reference design with QLDB alternatives documented |
+| Implementation Code | None | Documentation and data only, no working software |
 
 ## Roadmap
 
-### Phase 1: Foundation (In Progress)
+### Phase 1: Foundation (Complete)
 - [x] JSON-LD context vocabulary
-- [x] Regulation D Section 501 (definitions) - all 10 subsections (a)-(j)
-- [x] OSCAL control catalog structure
+- [x] Regulation D Sections 501-508 (all sections)
+- [x] OSCAL control catalog with valid links
 - [x] Architecture documentation
-- [ ] Basic validation scripts
-- [ ] Remaining Regulation D schemas (to make control links work)
+- [x] QLDB alternative documented (Aurora PostgreSQL + S3 Object Lock)
 
-### Phase 2: Complete Regulation D
-- [ ] 17 CFR 230.502 (general conditions)
-- [ ] 17 CFR 230.503 (filing requirements)
-- [ ] 17 CFR 230.504 (Rule 504)
-- [ ] 17 CFR 230.506 (Rule 506)
-- [ ] 17 CFR 230.507 (disqualification)
+### Phase 2: Tooling
+- [ ] Basic validation scripts
+- [ ] CLI tool to query regulations
+- [ ] Evidence locker database schema
+
+### Phase 3: Additional Regulations
+- [ ] Regulation A (230.251-263)
+- [ ] Regulation S (230.901-905)
+- [ ] Regulation Crowdfunding
 
 ### Phase 3: Additional Regulations
 - [ ] Regulation A (230.251-263)

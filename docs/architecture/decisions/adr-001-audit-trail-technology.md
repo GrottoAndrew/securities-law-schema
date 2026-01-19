@@ -140,35 +140,61 @@ This approach provides:
 
 ## Approved Implementation Options
 
-### Option A: Amazon QLDB (Managed Ledger)
+### Option A: Aurora PostgreSQL + S3 Object Lock (RECOMMENDED)
 
-**Description**: Fully managed ledger database with built-in immutability and cryptographic verification.
+**Description**: Aurora PostgreSQL with pgaudit extension for operational data, combined with S3 Object Lock (COMPLIANCE mode) for evidence artifacts and audit exports.
+
+**Note on QLDB**: AWS deprecated Amazon QLDB for new workloads in 2024. Existing workloads may continue, but new implementations should use this architecture instead.
 
 **Characteristics**:
 | Attribute | Value |
 |-----------|-------|
-| Immutability | Native, hardware-enforced |
-| Cryptographic Verification | SHA-256 hash chaining, journal digest |
-| SLA | 99.999% (exceeds L3) |
-| Retention | Unlimited |
-| Compliance | SOC 1/2/3, PCI DSS, HIPAA, FedRAMP High |
+| Operational Data | Aurora PostgreSQL with pgaudit |
+| Evidence Storage | S3 Object Lock (COMPLIANCE mode) |
+| Cryptographic Verification | Application-layer hash chains + signed checkpoints |
+| SLA | 99.99% (Aurora), 99.999999999% durability (S3) |
+| Retention | Configurable, supports 7+ year regulatory requirements |
+| Compliance | SOC 1/2/3, PCI DSS, HIPAA, FedRAMP High, SEC 17a-4 |
+
+**Architecture**:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│            AURORA PostgreSQL + S3 OBJECT LOCK                   │
+│                                                                 │
+│  ┌─────────────────────────┐    ┌─────────────────────────────┐ │
+│  │ Aurora PostgreSQL       │    │ S3 Object Lock              │ │
+│  │ (Operational Data)      │    │ (COMPLIANCE Mode)           │ │
+│  │                         │    │                             │ │
+│  │ • Metadata & indexes    │    │ • Evidence artifacts        │ │
+│  │ • Control status        │───▶│ • Audit log exports         │ │
+│  │ • User sessions         │    │ • Signed manifests          │ │
+│  │ • pgaudit extension     │    │ • TRUE WORM (SEC 17a-4)     │ │
+│  │ • Hash chain records    │    │ • 7-year retention lock     │ │
+│  └─────────────────────────┘    └─────────────────────────────┘ │
+│                                                                 │
+│  Hash chains computed at application layer, exported to S3      │
+│  for immutable storage. PostgreSQL remains queryable.           │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 **Pros**:
-- Zero operational overhead for immutability
-- Built-in verification API
-- Automatic journal management
-- ACID transactions
+- Mature, well-understood technology
+- Full SQL query capabilities
+- FedRAMP authorized (Aurora)
+- TRUE WORM with S3 Object Lock COMPLIANCE mode
+- Lower cost than specialized ledger databases
+- Cloud-portable concepts (PostgreSQL + object storage)
 
 **Cons**:
-- AWS vendor lock-in
-- Higher cost at scale
-- Limited query capabilities vs. traditional DB
-- Region availability constraints
+- Must implement hash chain verification at application layer
+- Two-tier architecture (database + object storage)
+- Requires understanding of S3 Object Lock modes
 
 **When to Choose**:
-- AWS-native deployments
-- Teams without dedicated database operations
-- Strict auditability requirements with minimal custom code
+- Most deployments (this is the recommended default)
+- Need for complex audit queries
+- Cost-sensitive environments
+- Teams familiar with PostgreSQL operations
 
 ---
 
@@ -393,15 +419,16 @@ Backups:
 
 ## Decision Matrix
 
-| Requirement | QLDB | Hardened Instance | Object Storage |
-|-------------|------|-------------------|----------------|
-| Immutability | ★★★★★ | ★★★☆☆ | ★★★★☆ (see warning) |
-| Operational Simplicity | ★★★★★ | ★★☆☆☆ | ★★★☆☆ |
-| Cost (at scale) | ★★☆☆☆ | ★★★★☆ | ★★★★★ |
-| Query Performance | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
-| Cloud Portability | ★☆☆☆☆ | ★★★★★ | ★★★☆☆ |
+| Requirement | Aurora + S3 (Recommended) | Hardened Instance | Object Storage Only |
+|-------------|---------------------------|-------------------|---------------------|
+| Immutability | ★★★★☆ | ★★★☆☆ | ★★★★☆ (see warning) |
+| Operational Simplicity | ★★★★☆ | ★★☆☆☆ | ★★★☆☆ |
+| Cost (at scale) | ★★★★☆ | ★★★★☆ | ★★★★★ |
+| Query Performance | ★★★★★ | ★★★★★ | ★★★☆☆ |
+| Cloud Portability | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
 | Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ |
 | 99.95% SLA Achievable | ✓ | ✓ | ✓ |
+| QLDB Replacement | ✓ (recommended) | ✓ | ✓ |
 
 ### Critical Warning: Object Lock Modes
 
@@ -414,14 +441,17 @@ If using object storage with retention locks, understand the difference between 
 
 **If you configure GOVERNANCE mode thinking you have immutability, you do not.** GOVERNANCE mode is designed for testing or soft retention policies. For audit trails subject to SEC 17a-4, FINRA 4511, or similar regulations, you MUST use COMPLIANCE mode.
 
-### QLDB Deprecation Risk
+### QLDB Deprecation Notice
 
-Amazon QLDB is a managed service. AWS has historically sunset services (e.g., SimpleDB, certain IoT services). While QLDB is currently supported:
+**Amazon QLDB was deprecated for new workloads in 2024.**
 
-- There is no guarantee of indefinite availability
-- Migration path would require re-implementing the audit trail on another platform
-- Consider this vendor dependency risk in your architecture decisions
-- Mitigation: Ensure you can export all data and have a documented migration plan
+AWS announced that QLDB would not accept new customers and recommended existing customers migrate to alternatives. This is why Option A now recommends Aurora PostgreSQL + S3 Object Lock instead of QLDB.
+
+For organizations with existing QLDB deployments:
+- Existing workloads continue to function during the deprecation period
+- Plan migration to Aurora PostgreSQL + S3 Object Lock architecture
+- Export all data and verify integrity before migration
+- AWS may provide specific migration guidance and timelines
 
 ---
 

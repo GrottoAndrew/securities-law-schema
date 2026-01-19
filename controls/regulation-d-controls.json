@@ -22,6 +22,41 @@
           "rel": "reference",
           "href": "../schemas/regulation-d/17cfr230.501.jsonld",
           "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.502.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.503.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.504.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.505.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.506.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.507.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.508.jsonld",
+          "media-type": "application/ld+json"
         }
       ]
     },
@@ -323,11 +358,11 @@
             "props": [
               {
                 "name": "regulation-citation",
-                "value": "17 CFR 230.501(b)"
+                "value": "17 CFR 230.501(e)"
               },
               {
                 "name": "regulation-ref",
-                "value": "cfr:17/230.501(b)"
+                "value": "cfr:17/230.501(e)"
               },
               {
                 "name": "control-family",
@@ -337,7 +372,8 @@
             "links": [
               {
                 "rel": "reference",
-                "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/1"
+                "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/4",
+                "text": "Calculation of number of purchasers"
               }
             ],
             "parts": [
@@ -400,8 +436,19 @@
                 "value": "17 CFR 230.502(c)"
               },
               {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.502(c)"
+              },
+              {
                 "name": "control-family",
                 "value": "marketing-restrictions"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.502.jsonld#/subsection/2",
+                "text": "Limitation on manner of offering"
               }
             ],
             "parts": [
@@ -419,6 +466,17 @@
                   {
                     "name": "regulation-citation",
                     "value": "17 CFR 230.506(b)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.506(b)"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/1",
+                    "text": "Conditions subject to limitation on manner of offering"
                   }
                 ],
                 "parts": [
@@ -436,6 +494,17 @@
                   {
                     "name": "regulation-citation",
                     "value": "17 CFR 230.506(c)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.506(c)"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/2",
+                    "text": "Conditions not subject to limitation on manner of offering"
                   }
                 ],
                 "parts": [
@@ -457,8 +526,19 @@
                 "value": "17 CFR 230.503"
               },
               {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.503"
+              },
+              {
                 "name": "control-family",
                 "value": "regulatory-filings"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.503.jsonld",
+                "text": "Filing of notice of sales"
               }
             ],
             "parts": [
@@ -499,8 +579,19 @@
                 "value": "17 CFR 230.506(d)"
               },
               {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.506(d)"
+              },
+              {
                 "name": "control-family",
                 "value": "disqualification"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/3",
+                "text": "Bad Actor disqualification"
               }
             ],
             "parts": [

@@ -1,0 +1,47 @@
+{
+  "@context": "../../contexts/securities-context.jsonld",
+  "@id": "cfr:17/230.507",
+  "@type": "Section",
+
+  "_source": {
+    "description": "Text extracted from eCFR bulk data XML",
+    "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
+    "asOfDate": "2025-12-30",
+    "lastAmendment": "81 FR 83553, Nov. 21, 2016",
+    "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."
+  },
+
+  "citation": "17 CFR 230.507",
+  "title": "Disqualifying provision relating to exemptions under §§230.504 and 230.506",
+  "sectionNumber": "230.507",
+  "effectiveDate": "2016-11-21",
+  "federalRegisterCitation": "81 FR 83553",
+
+  "subsection": [
+    {
+      "@id": "cfr:17/230.507(a)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.507(a)",
+      "designation": "(a)",
+      "text": "No exemption under §230.504 or §230.506 shall be available for an issuer if such issuer, any of its predecessors or affiliates have been subject to any order, judgment, or decree of any court of competent jurisdiction temporarily, preliminary or permanently enjoining such person for failure to comply with §230.503."
+    },
+    {
+      "@id": "cfr:17/230.507(b)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.507(b)",
+      "designation": "(b)",
+      "text": "Paragraph (a) of this section shall not apply if the Commission determines, upon a showing of good cause, that it is not necessary under the circumstances that the exemption be denied."
+    }
+  ],
+
+  "amendmentHistory": [
+    "54 FR 11374, Mar. 20, 1989",
+    "81 FR 83553, Nov. 21, 2016"
+  ],
+
+  "crossReference": [
+    "cfr:17/230.503",
+    "cfr:17/230.504",
+    "cfr:17/230.506"
+  ]
+}
