@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-*
+
+# Dependencies
+node_modules/
+venv/
+.env
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large source files (keep in source/ but may want to exclude from commits)
+# Uncomment if CFR XML files are too large:
+# source/cfr/*.xml
+
+# Credentials (never commit)
+*.pem
+*.key
+credentials.json
+secrets.json
