@@ -145,13 +145,28 @@ Key features of the reference architecture:
 - **Time-limited auditor access** (read-only)
 - **Evidence integrity verification** with proof generation
 
+## Current Status
+
+**This is a reference architecture and partial implementation, not production-ready software.**
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| JSON-LD Context | Complete | Vocabulary for regulatory text |
+| 17 CFR 230.501 | Complete | All 10 subsections (a)-(j), notes, amendment history |
+| 17 CFR 230.502-508 | Not Started | Controls reference these but schemas don't exist yet |
+| OSCAL Controls | Structure Complete | ~38% of controls link to non-existent schemas |
+| Architecture Docs | Complete | Reference design, not implementation |
+| Implementation Code | None | No working software, only documentation |
+
 ## Roadmap
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation (In Progress)
 - [x] JSON-LD context vocabulary
-- [x] Regulation D Section 501 (definitions)
+- [x] Regulation D Section 501 (definitions) - all 10 subsections (a)-(j)
 - [x] OSCAL control catalog structure
 - [x] Architecture documentation
+- [ ] Basic validation scripts
+- [ ] Remaining Regulation D schemas (to make control links work)
 
 ### Phase 2: Complete Regulation D
 - [ ] 17 CFR 230.502 (general conditions)

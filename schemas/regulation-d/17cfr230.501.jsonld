@@ -17,7 +17,7 @@
   "effectiveDate": "2025-02-18",
   "federalRegisterCitation": "90 FR 9687",
 
-  "text": "As used in Regulation D (§§230.500 et seq. of this chapter), the following terms shall have the meaning indicated:",
+  "text": "As used in Regulation D (§230.500 et seq. of this chapter), the following terms shall have the meaning indicated:",
 
   "subsection": [
     {
@@ -126,6 +126,14 @@
                 }
               ]
             }
+          ],
+
+          "note": [
+            {
+              "@type": "Note",
+              "designation": "Note 1 to paragraph (a)(5)",
+              "text": "For the purposes of calculating joint net worth in this paragraph (a)(5): Joint net worth can be the aggregate net worth of the investor and spouse or spousal equivalent; assets need not be held jointly to be included in the calculation. Reliance on the joint net worth standard of this paragraph (a)(5) does not require that the securities be purchased jointly."
+            }
           ]
         },
         {
@@ -147,14 +155,30 @@
           "@type": "Paragraph",
           "citation": "17 CFR 230.501(a)(8)",
           "designation": "(8)",
-          "text": "Any entity in which all of the equity owners are accredited investors;"
+          "text": "Any entity in which all of the equity owners are accredited investors;",
+
+          "note": [
+            {
+              "@type": "Note",
+              "designation": "Note 1 to paragraph (a)(8)",
+              "text": "It is permissible to look through various forms of equity ownership to natural persons in determining the accredited investor status of entities under this paragraph (a)(8). If those natural persons are themselves accredited investors, and if all other equity owners of the entity seeking accredited investor status are accredited investors, then this paragraph (a)(8) may be available."
+            }
+          ]
         },
         {
           "@id": "cfr:17/230.501(a)(9)",
           "@type": "Paragraph",
           "citation": "17 CFR 230.501(a)(9)",
           "designation": "(9)",
-          "text": "Any entity, of a type not listed in paragraphs (a)(1), (2), (3), (7), or (8), not formed for the specific purpose of acquiring the securities offered, owning investments in excess of $5,000,000;"
+          "text": "Any entity, of a type not listed in paragraph (a)(1), (2), (3), (7), or (8), not formed for the specific purpose of acquiring the securities offered, owning investments in excess of $5,000,000;",
+
+          "note": [
+            {
+              "@type": "Note",
+              "designation": "Note 1 to paragraph (a)(9)",
+              "text": "For the purposes this paragraph (a)(9), \"investments\" is defined in rule 2a51-1(b) under the Investment Company Act of 1940 (17 CFR 270.2a51-1(b))."
+            }
+          ]
         },
         {
           "@id": "cfr:17/230.501(a)(10)",
@@ -191,6 +215,14 @@
               "citation": "17 CFR 230.501(a)(10)(iv)",
               "designation": "(iv)",
               "text": "An indication that an individual holds the certification or designation or credential is either made publicly available by the relevant self-regulatory organization or other industry body or is otherwise independently verifiable;"
+            }
+          ],
+
+          "note": [
+            {
+              "@type": "Note",
+              "designation": "Note 1 to paragraph (a)(10)",
+              "text": "The Commission will designate professional certifications or designations or credentials for purposes of this paragraph (a)(10), by order, after notice and an opportunity for public comment. The professional certifications or designations or credentials currently recognized by the Commission as satisfying the above criteria will be posted on the Commission's website."
             }
           ]
         },
@@ -246,153 +278,212 @@
       "@type": "Subsection",
       "citation": "17 CFR 230.501(b)",
       "designation": "(b)",
-      "text": "Calculation of number of purchasers. For purposes of calculating the number of purchasers under §§230.505(b) and 230.506(b) only, the following shall apply:",
-
-      "paragraph": [
-        {
-          "@id": "cfr:17/230.501(b)(1)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(b)(1)",
-          "designation": "(1)",
-          "text": "The following purchasers shall be excluded:",
-
-          "clause": [
-            {
-              "@id": "cfr:17/230.501(b)(1)(i)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(b)(1)(i)",
-              "designation": "(i)",
-              "text": "Any relative, spouse or spousal equivalent of a purchaser who has the same primary residence as the purchaser;"
-            },
-            {
-              "@id": "cfr:17/230.501(b)(1)(ii)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(b)(1)(ii)",
-              "designation": "(ii)",
-              "text": "Any trust or estate in which a purchaser and any of the persons related to him as specified in paragraphs (b)(1)(i) or (b)(1)(iii) of this section collectively have more than 50 percent of the beneficial interest (excluding contingent interests);"
-            },
-            {
-              "@id": "cfr:17/230.501(b)(1)(iii)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(b)(1)(iii)",
-              "designation": "(iii)",
-              "text": "Any corporation or other organization of which a purchaser and any of the persons related to him as specified in paragraphs (b)(1)(i) or (b)(1)(ii) of this section collectively are beneficial owners of more than 50 percent of the equity securities (excluding directors' qualifying shares) or equity interests; and"
-            },
-            {
-              "@id": "cfr:17/230.501(b)(1)(iv)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(b)(1)(iv)",
-              "designation": "(iv)",
-              "text": "Any accredited investor."
-            }
-          ]
-        },
-        {
-          "@id": "cfr:17/230.501(b)(2)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(b)(2)",
-          "designation": "(2)",
-          "text": "A corporation, partnership or other entity shall be counted as one purchaser. If, however, that entity is organized for the specific purpose of acquiring the securities offered and is not an accredited investor under paragraph (a)(8) of this section, then each beneficial owner of equity securities or equity interests in the entity shall count as a separate purchaser for all provisions of Regulation D (§§230.501-230.508), except to the extent provided in paragraph (b)(1) of this section."
-        },
-        {
-          "@id": "cfr:17/230.501(b)(3)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(b)(3)",
-          "designation": "(3)",
-          "text": "A non-contributory employee benefit plan within the meaning of Title I of the Employee Retirement Income Security Act of 1974 shall be counted as one purchaser where the trustee makes all investment decisions for the plan."
-        }
-      ]
+      "text": "Affiliate. An affiliate of, or person affiliated with, a specified person shall mean a person that directly, or indirectly through one or more intermediaries, controls or is controlled by, or is under common control with, the person specified."
     },
     {
       "@id": "cfr:17/230.501(c)",
       "@type": "Subsection",
       "citation": "17 CFR 230.501(c)",
       "designation": "(c)",
-      "text": "Executive officer. Executive officer shall mean the president, any vice president in charge of a principal business unit, division or function (such as sales, administration or finance), any other officer who performs a policy making function, or any other person who performs similar policy making functions for the issuer. Executive officers of subsidiaries may be deemed executive officers of the issuer if they perform such policy making functions for the issuer."
+      "text": "Aggregate offering price. Aggregate offering price shall mean the sum of all cash, services, property, notes, cancellation of debt, or other consideration to be received by an issuer for issuance of its securities. Where securities are being offered for both cash and non-cash consideration, the aggregate offering price shall be based on the price at which the securities are offered for cash. Any portion of the aggregate offering price attributable to cash received in a foreign currency shall be translated into United States currency at the currency exchange rate in effect at a reasonable time prior to or on the date of the sale of the securities. If securities are not offered for cash, the aggregate offering price shall be based on the value of the consideration as established by bona fide sales of that consideration made within a reasonable time, or, in the absence of sales, on the fair value as determined by an accepted standard. Such valuations of non-cash consideration must be reasonable at the time made."
     },
     {
       "@id": "cfr:17/230.501(d)",
       "@type": "Subsection",
       "citation": "17 CFR 230.501(d)",
       "designation": "(d)",
-      "text": "Final order. Final order shall mean a written directive or declaratory statement issued by a federal or state agency described in §230.506(d)(1)(iii) under applicable statutory authority that provides for notice and an opportunity for hearing, which constitutes a final disposition or action by that federal or state agency."
+      "text": "Business combination. Business combination shall mean any transaction of the type specified in paragraph (a) of Rule 145 under the Act (17 CFR 230.145) and any transaction involving the acquisition by one issuer, in exchange for all or a part of its own or its parent's stock, of stock of another issuer if, immediately after the acquisition, the acquiring issuer has control of the other issuer (whether or not it had control before the acquisition)."
     },
     {
       "@id": "cfr:17/230.501(e)",
       "@type": "Subsection",
       "citation": "17 CFR 230.501(e)",
       "designation": "(e)",
-      "text": "Issuer. The definition of the term issuer in section 2(a)(4) of the Act shall apply, except that in the case of a proceeding under the Federal Bankruptcy Code (11 U.S.C. 101 et seq.), the trustee or debtor in possession shall be considered the issuer in an offering under a plan or reorganization, if the securities are to be issued under the plan."
+      "text": "Calculation of number of purchasers. For purposes of calculating the number of purchasers under §230.506(b) only, the following shall apply:",
+
+      "paragraph": [
+        {
+          "@id": "cfr:17/230.501(e)(1)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(e)(1)",
+          "designation": "(1)",
+          "text": "The following purchasers shall be excluded:",
+
+          "clause": [
+            {
+              "@id": "cfr:17/230.501(e)(1)(i)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(e)(1)(i)",
+              "designation": "(i)",
+              "text": "Any relative, spouse or relative of the spouse of a purchaser who has the same primary residence as the purchaser;"
+            },
+            {
+              "@id": "cfr:17/230.501(e)(1)(ii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(e)(1)(ii)",
+              "designation": "(ii)",
+              "text": "Any trust or estate in which a purchaser and any of the persons related to him as specified in paragraph (e)(1)(i) or (e)(1)(iii) of this section collectively have more than 50 percent of the beneficial interest (excluding contingent interests);"
+            },
+            {
+              "@id": "cfr:17/230.501(e)(1)(iii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(e)(1)(iii)",
+              "designation": "(iii)",
+              "text": "Any corporation or other organization of which a purchaser and any of the persons related to him as specified in paragraph (e)(1)(i) or (e)(1)(ii) of this section collectively are beneficial owners of more than 50 percent of the equity securities (excluding directors' qualifying shares) or equity interests; and"
+            },
+            {
+              "@id": "cfr:17/230.501(e)(1)(iv)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(e)(1)(iv)",
+              "designation": "(iv)",
+              "text": "Any accredited investor."
+            }
+          ]
+        },
+        {
+          "@id": "cfr:17/230.501(e)(2)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(e)(2)",
+          "designation": "(2)",
+          "text": "A corporation, partnership or other entity shall be counted as one purchaser. If, however, that entity is organized for the specific purpose of acquiring the securities offered and is not an accredited investor under paragraph (a)(8) of this section, then each beneficial owner of equity securities or equity interests in the entity shall count as a separate purchaser for all provisions of Regulation D (§§230.501-230.508), except to the extent provided in paragraph (e)(1) of this section."
+        },
+        {
+          "@id": "cfr:17/230.501(e)(3)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(e)(3)",
+          "designation": "(3)",
+          "text": "A non-contributory employee benefit plan within the meaning of Title I of the Employee Retirement Income Security Act of 1974 shall be counted as one purchaser where the trustee makes all investment decisions for the plan."
+        }
+      ],
+
+      "note": [
+        {
+          "@type": "Note",
+          "designation": "Note to paragraph (e)",
+          "text": "The issuer must satisfy all the other provisions of Regulation D for all purchasers whether or not they are included in calculating the number of purchasers. Clients of an investment adviser or customers of a broker or dealer shall be considered the \"purchasers\" under Regulation D regardless of the amount of discretion given to the investment adviser or broker or dealer to act on behalf of the client or customer."
+        }
+      ]
     },
     {
       "@id": "cfr:17/230.501(f)",
       "@type": "Subsection",
       "citation": "17 CFR 230.501(f)",
       "designation": "(f)",
-      "text": "Purchaser representative. Purchaser representative shall mean any person who satisfies all of the following conditions or who the issuer reasonably believes satisfies all of the following conditions:",
-
-      "paragraph": [
-        {
-          "@id": "cfr:17/230.501(f)(1)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(f)(1)",
-          "designation": "(1)",
-          "text": "Is not an affiliate, director, officer or other employee of the issuer, or beneficial owner of 10 percent or more of any class of the equity securities or 10 percent or more of the equity interest in the issuer, except where the purchaser is:",
-
-          "clause": [
-            {
-              "@id": "cfr:17/230.501(f)(1)(i)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(f)(1)(i)",
-              "designation": "(i)",
-              "text": "A relative of the purchaser representative by blood, marriage or adoption and not more remote than a first cousin;"
-            },
-            {
-              "@id": "cfr:17/230.501(f)(1)(ii)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(f)(1)(ii)",
-              "designation": "(ii)",
-              "text": "A trust or estate in which the purchaser representative and any persons related to him as specified in paragraph (f)(1)(i) or (f)(1)(iii) of this section collectively have more than 50 percent of the beneficial interest (excluding contingent interests) or of which the purchaser representative serves as trustee, executor, or in any similar capacity; or"
-            },
-            {
-              "@id": "cfr:17/230.501(f)(1)(iii)",
-              "@type": "Clause",
-              "citation": "17 CFR 230.501(f)(1)(iii)",
-              "designation": "(iii)",
-              "text": "A corporation or other organization of which the purchaser representative and any persons related to him as specified in paragraph (f)(1)(i) or (f)(1)(ii) of this section collectively are the beneficial owners of more than 50 percent of the equity securities (excluding directors' qualifying shares) or equity interests;"
-            }
-          ]
-        },
-        {
-          "@id": "cfr:17/230.501(f)(2)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(f)(2)",
-          "designation": "(2)",
-          "text": "Has such knowledge and experience in financial and business matters that he is capable of evaluating, alone, or together with other purchaser representatives of the purchaser, or together with the purchaser, the merits and risks of the prospective investment;"
-        },
-        {
-          "@id": "cfr:17/230.501(f)(3)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(f)(3)",
-          "designation": "(3)",
-          "text": "Is acknowledged by the purchaser in writing, during the course of the transaction, to be his purchaser representative in connection with evaluating the merits and risks of the prospective investment; and"
-        },
-        {
-          "@id": "cfr:17/230.501(f)(4)",
-          "@type": "Paragraph",
-          "citation": "17 CFR 230.501(f)(4)",
-          "designation": "(4)",
-          "text": "Discloses to the purchaser in writing a reasonable time prior to the sale of securities to that purchaser any material relationship between himself or his affiliates and the issuer or its affiliates that then exists, that is mutually understood to be contemplated, or that has existed at any time during the previous two years, and any compensation received or to be received as a result of such relationship."
-        }
-      ]
+      "text": "Executive officer. Executive officer shall mean the president, any vice president in charge of a principal business unit, division or function (such as sales, administration or finance), any other officer who performs a policy making function, or any other person who performs similar policy making functions for the issuer. Executive officers of subsidiaries may be deemed executive officers of the issuer if they perform such policy making functions for the issuer."
     },
     {
       "@id": "cfr:17/230.501(g)",
       "@type": "Subsection",
       "citation": "17 CFR 230.501(g)",
       "designation": "(g)",
-      "text": "Spousal equivalent. Spousal equivalent shall mean a cohabitant occupying a relationship generally equivalent to that of a spouse."
+      "text": "Final order. Final order shall mean a written directive or declaratory statement issued by a federal or state agency described in §230.506(d)(1)(iii) under applicable statutory authority that provides for notice and an opportunity for hearing, which constitutes a final disposition or action by that federal or state agency."
+    },
+    {
+      "@id": "cfr:17/230.501(h)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.501(h)",
+      "designation": "(h)",
+      "text": "Issuer. The definition of the term issuer in section 2(a)(4) of the Act shall apply, except that in the case of a proceeding under the Federal Bankruptcy Code (11 U.S.C. 101 et seq.), the trustee or debtor in possession shall be considered the issuer in an offering under a plan or reorganization, if the securities are to be issued under the plan."
+    },
+    {
+      "@id": "cfr:17/230.501(i)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.501(i)",
+      "designation": "(i)",
+      "text": "Purchaser representative. Purchaser representative shall mean any person who satisfies all of the following conditions or who the issuer reasonably believes satisfies all of the following conditions:",
+
+      "paragraph": [
+        {
+          "@id": "cfr:17/230.501(i)(1)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(i)(1)",
+          "designation": "(1)",
+          "text": "Is not an affiliate, director, officer or other employee of the issuer, or beneficial owner of 10 percent or more of any class of the equity securities or 10 percent or more of the equity interest in the issuer, except where the purchaser is:",
+
+          "clause": [
+            {
+              "@id": "cfr:17/230.501(i)(1)(i)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(i)(1)(i)",
+              "designation": "(i)",
+              "text": "A relative of the purchaser representative by blood, marriage or adoption and not more remote than a first cousin;"
+            },
+            {
+              "@id": "cfr:17/230.501(i)(1)(ii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(i)(1)(ii)",
+              "designation": "(ii)",
+              "text": "A trust or estate in which the purchaser representative and any persons related to him as specified in paragraph (i)(1)(i) or (iii) of this section collectively have more than 50 percent of the beneficial interest (excluding contingent interest) or of which the purchaser representative serves as trustee, executor, or in any similar capacity; or"
+            },
+            {
+              "@id": "cfr:17/230.501(i)(1)(iii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.501(i)(1)(iii)",
+              "designation": "(iii)",
+              "text": "A corporation or other organization of which the purchaser representative and any persons related to him as specified in paragraph (i)(1)(i) or (ii) of this section collectively are the beneficial owners of more than 50 percent of the equity securities (excluding directors' qualifying shares) or equity interests;"
+            }
+          ]
+        },
+        {
+          "@id": "cfr:17/230.501(i)(2)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(i)(2)",
+          "designation": "(2)",
+          "text": "Has such knowledge and experience in financial and business matters that he is capable of evaluating, alone, or together with other purchaser representatives of the purchaser, or together with the purchaser, the merits and risks of the prospective investment;"
+        },
+        {
+          "@id": "cfr:17/230.501(i)(3)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(i)(3)",
+          "designation": "(3)",
+          "text": "Is acknowledged by the purchaser in writing, during the course of the transaction, to be his purchaser representative in connection with evaluating the merits and risks of the prospective investment; and"
+        },
+        {
+          "@id": "cfr:17/230.501(i)(4)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.501(i)(4)",
+          "designation": "(4)",
+          "text": "Discloses to the purchaser in writing a reasonable time prior to the sale of securities to that purchaser any material relationship between himself or his affiliates and the issuer or its affiliates that then exists, that is mutually understood to be contemplated, or that has existed at any time during the previous two years, and any compensation received or to be received as a result of such relationship."
+        }
+      ]
+    },
+    {
+      "@id": "cfr:17/230.501(j)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.501(j)",
+      "designation": "(j)",
+      "text": "Spousal equivalent. The term spousal equivalent shall mean a cohabitant occupying a relationship generally equivalent to that of a spouse."
     }
+  ],
+
+  "note": [
+    {
+      "@type": "Note",
+      "designation": "Note 1 to §230.501",
+      "text": "A person acting as a purchaser representative should consider the applicability of the registration and antifraud provisions relating to brokers and dealers under the Securities Exchange Act of 1934 (Exchange Act) (15 U.S.C. 78a et seq., as amended) and relating to investment advisers under the Investment Advisers Act of 1940."
+    },
+    {
+      "@type": "Note",
+      "designation": "Note 2 to §230.501",
+      "text": "The acknowledgment required by paragraph (h)(3) and the disclosure required by paragraph (h)(4) of this section must be made with specific reference to each prospective investment. Advance blanket acknowledgment, such as for all securities transactions or all private placements, is not sufficient."
+    },
+    {
+      "@type": "Note",
+      "designation": "Note 3 to §230.501",
+      "text": "Disclosure of any material relationships between the purchaser representative or his affiliates and the issuer or its affiliates does not relieve the purchaser representative of his obligation to act in the interest of the purchaser."
+    }
+  ],
+
+  "amendmentHistory": [
+    "47 FR 11262, Mar. 16, 1982",
+    "53 FR 7868, Mar. 10, 1988",
+    "54 FR 11372, Mar. 20, 1989",
+    "76 FR 81806, Dec. 29, 2011",
+    "77 FR 18685, Mar. 28, 2012",
+    "78 FR 44770, 44804, July 24, 2013",
+    "81 FR 83553, Nov. 21, 2016",
+    "85 FR 64277, Oct. 9, 2020",
+    "90 FR 9687, Feb. 18, 2025"
   ],
 
   "crossReference": [
