@@ -1,0 +1,197 @@
+# Securities Law Schema
+
+Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL control mappings for compliance automation.
+
+## Overview
+
+This repository provides:
+
+1. **Regulatory Text** (JSON-LD) — Verbatim CFR text in a structured, queryable format
+2. **Control Catalog** (OSCAL) — Compliance controls mapped to regulatory requirements
+3. **Architecture Docs** — Reference design for a compliance evidence management system
+
+## Quick Start
+
+### Browse Regulations
+
+```bash
+# View Regulation D definitions (accredited investor, etc.)
+cat schemas/regulation-d/17cfr230.501.jsonld | jq '.subsection[0].paragraph[] | {designation, text}'
+```
+
+### Find a Specific Provision
+
+```bash
+# Find accredited investor income threshold
+cat schemas/regulation-d/17cfr230.501.jsonld | jq '
+  .subsection[0].paragraph[] |
+  select(.designation == "(6)") |
+  .text
+'
+```
+
+### List Controls for a Regulation
+
+```bash
+# Get all controls referencing 17 CFR 230.501
+cat controls/regulation-d-controls.json | jq '
+  .catalog.groups[].controls[] |
+  select(.props[]? | select(.name == "regulation-citation" and (.value | contains("230.501")))) |
+  {id, title, citation: .props[] | select(.name == "regulation-citation") | .value}
+'
+```
+
+## Repository Structure
+
+```
+securities-law-schema/
+├── contexts/
+│   └── securities-context.jsonld    # JSON-LD vocabulary definitions
+├── schemas/
+│   └── regulation-d/
+│       └── 17cfr230.501.jsonld      # Regulation D definitions
+├── controls/
+│   └── regulation-d-controls.json   # OSCAL control catalog
+├── docs/
+│   ├── architecture/
+│   │   ├── overview.md              # System architecture
+│   │   ├── data-flow.md             # Data flow diagrams
+│   │   ├── security.md              # Security architecture
+│   │   └── evidence-locker.md       # Evidence storage design
+│   └── for-developers/
+│       └── [coming soon]
+├── CONTRIBUTING.md                   # Contribution guidelines
+├── UNDERSTANDING.md                  # Guide for lawyers
+└── LICENSE                           # MIT License
+```
+
+## Data Formats
+
+### JSON-LD Regulations
+
+Regulations follow the CFR hierarchy:
+
+```
+Section → Subsection → Paragraph → Clause → Subclause
+  501       (a)          (1)        (i)       (A)
+```
+
+Each element includes:
+- `@id` — Unique identifier (e.g., `cfr:17/230.501(a)(6)`)
+- `@type` — Element type (Section, Subsection, etc.)
+- `citation` — Human-readable citation
+- `designation` — The letter/number designation
+- `text` — Verbatim regulatory text
+
+### OSCAL Controls
+
+Controls follow NIST OSCAL format with extensions:
+- `regulation-citation` — Links to CFR provision
+- `regulation-ref` — JSON-LD reference for machine linking
+- `evidence-requirements` — What evidence satisfies the control
+
+## Use Cases
+
+### 1. Compliance Checklists
+
+Generate checklists directly from control requirements:
+
+```bash
+cat controls/regulation-d-controls.json | jq '
+  [.catalog.groups[].controls[].controls[]? |
+   select(.parts[]?.name == "evidence-requirements") |
+   {control: .title, evidence: [.parts[] | select(.name == "evidence-requirements") | .parts[].prose]}]
+'
+```
+
+### 2. Regulatory Mapping
+
+Map internal procedures to regulatory provisions:
+
+```json
+{
+  "procedure": "Investor Qualification Review",
+  "procedure_id": "PROC-4.2.1",
+  "implements": [
+    "cfr:17/230.501(a)(5)",
+    "cfr:17/230.501(a)(6)",
+    "cfr:17/230.506(c)(2)(ii)"
+  ]
+}
+```
+
+### 3. Evidence Management
+
+Link evidence artifacts to control requirements (see architecture docs).
+
+### 4. AI/LLM Grounding
+
+Use as authoritative source for AI systems answering securities law questions.
+
+## Architecture Reference
+
+The `docs/architecture/` folder contains a reference design for building a complete compliance management system:
+
+| Document | Description |
+|----------|-------------|
+| [overview.md](docs/architecture/overview.md) | System layers and components |
+| [data-flow.md](docs/architecture/data-flow.md) | How data moves through the system |
+| [security.md](docs/architecture/security.md) | Authentication, encryption, audit |
+| [evidence-locker.md](docs/architecture/evidence-locker.md) | Database schema and API design |
+
+Key features of the reference architecture:
+- **Immutable audit trails** with Merkle tree verification
+- **Cryptographically signed** catalog versions
+- **Time-limited auditor access** (read-only)
+- **Evidence integrity verification** with proof generation
+
+## Roadmap
+
+### Phase 1: Foundation (Current)
+- [x] JSON-LD context vocabulary
+- [x] Regulation D Section 501 (definitions)
+- [x] OSCAL control catalog structure
+- [x] Architecture documentation
+
+### Phase 2: Complete Regulation D
+- [ ] 17 CFR 230.502 (general conditions)
+- [ ] 17 CFR 230.503 (filing requirements)
+- [ ] 17 CFR 230.504 (Rule 504)
+- [ ] 17 CFR 230.506 (Rule 506)
+- [ ] 17 CFR 230.507 (disqualification)
+
+### Phase 3: Additional Regulations
+- [ ] Regulation A (230.251-263)
+- [ ] Regulation S (230.901-905)
+- [ ] Regulation Crowdfunding
+
+### Phase 4: Tooling
+- [ ] JSON-LD validation scripts
+- [ ] OSCAL validation scripts
+- [ ] Compliance status calculator
+- [ ] Evidence gap analyzer
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+- Adding new regulations
+- Schema standards
+- Pull request process
+
+## For Lawyers
+
+New to JSON-LD? See [UNDERSTANDING.md](UNDERSTANDING.md) for a guide explaining:
+- What this project is
+- Why machine-readable regulations matter
+- How to read the schema files
+- Practical applications
+
+## License
+
+MIT License — see [LICENSE](LICENSE)
+
+## Related Standards
+
+- [OSCAL](https://pages.nist.gov/OSCAL/) — NIST Open Security Controls Assessment Language
+- [JSON-LD](https://json-ld.org/) — JSON for Linked Data
+- [eCFR](https://www.ecfr.gov/) — Electronic Code of Federal Regulations
