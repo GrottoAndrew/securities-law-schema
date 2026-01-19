@@ -2,13 +2,22 @@
   "@context": "../../contexts/securities-context.jsonld",
   "@id": "cfr:17/230.501",
   "@type": "Section",
+
+  "_source": {
+    "description": "Text extracted from eCFR bulk data XML",
+    "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
+    "asOfDate": "2025-12-30",
+    "lastAmendment": "90 FR 9687, Feb. 18, 2025",
+    "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."
+  },
+
   "citation": "17 CFR 230.501",
   "title": "Definitions and terms used in Regulation D",
   "sectionNumber": "230.501",
-  "effectiveDate": "2024-03-15",
-  "federalRegisterCitation": "89 FR 17998",
+  "effectiveDate": "2025-02-18",
+  "federalRegisterCitation": "90 FR 9687",
 
-  "text": "As used in Regulation D (§§230.500 through 230.508), the following terms shall have the meaning indicated:",
+  "text": "As used in Regulation D (§§230.500 et seq. of this chapter), the following terms shall have the meaning indicated:",
 
   "subsection": [
     {

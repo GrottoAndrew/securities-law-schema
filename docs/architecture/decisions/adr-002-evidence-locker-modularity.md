@@ -214,16 +214,20 @@ interface AuditTrail {
 
 ---
 
-### Service Level Agreement Requirements (Level 3)
+### Service Level Requirements
 
-All module implementations MUST meet these SLA requirements:
+**Note on terminology**: "Level 3 SLA" is not an industry-standard term. The following are concrete service level targets. Adjust based on your business requirements and budget.
+
+All module implementations SHOULD meet these baseline requirements (negotiate specifics in vendor contracts):
 
 ```yaml
-sla:
-  tier: "Level 3 (Mission Critical)"
+service_levels:
+  # Note: "Three nines" (99.9%) = ~8.7h downtime/month
+  # "Four nines" (99.99%) = ~4.3min downtime/month
+  # Choose based on actual business needs
 
   availability:
-    monthly_uptime: "99.95%"
+    target_uptime: "99.95%"  # Approximately 22 minutes downtime/month
     max_monthly_downtime: "21.9 minutes"
     measurement: "5-minute intervals"
     exclusions:

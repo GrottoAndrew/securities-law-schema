@@ -317,6 +317,25 @@ Each record MUST include:
 - hash: SHA-256(sequence || timestamp || event_type || payload || previous_hash)
 ```
 
+**Implementation Caveats for Merkle Trees**:
+
+The pseudocode examples in this repository (e.g., in `evidence-locker.md`) are **illustrative, not production-ready**. A production Merkle tree implementation must handle:
+
+| Edge Case | Required Handling |
+|-----------|-------------------|
+| Odd number of leaves | Duplicate last leaf OR use different tree structure |
+| Empty tree | Define null root hash consistently |
+| Concurrent inserts | Ensure deterministic ordering (by timestamp, sequence, or mutex) |
+| Very large trees | Consider incremental/streaming construction |
+| Proof generation | Store intermediate nodes OR recompute on demand |
+| Tree rebalancing | Append-only trees don't rebalance; plan for depth |
+
+**Do not use example code in production without**:
+- Formal specification of leaf hash construction
+- Test vectors covering edge cases
+- Security review by qualified cryptographic engineer
+- Consideration of timing attacks on comparison operations
+
 ### 2. Cryptographic Signing
 ```
 Checkpoint records MUST be signed:
@@ -328,24 +347,47 @@ Checkpoint records MUST be signed:
 ### 3. TLS Requirements
 ```
 All connections MUST use:
-- TLS 1.3 minimum (TLS 1.2 deprecated)
-- Strong cipher suites only:
-  - TLS_AES_256_GCM_SHA384
-  - TLS_CHACHA20_POLY1305_SHA256
-  - TLS_AES_128_GCM_SHA256
+- TLS 1.2 minimum (TLS 1.0/1.1 prohibited)
+- TLS 1.3 preferred where supported
+- Strong cipher suites only (no CBC mode, no SHA-1, no RC4)
 - Certificate validation enforced
 - HSTS enabled for any web interfaces
 ```
 
-### 4. Service Level Agreement (Level 3)
+**Practical note**: While TLS 1.3 is preferred, some legacy systems and integrations may require TLS 1.2. The key requirements are:
+1. **All data encrypted in transit** — no plaintext connections
+2. **No deprecated protocols** — TLS 1.0 and 1.1 are prohibited by PCI DSS and most modern standards
+3. **Strong cipher suites** — avoid known-weak algorithms
+
+If your environment can enforce TLS 1.3-only, do so. If you must support TLS 1.2 for legacy integrations, document the business justification and ensure cipher suite configuration excludes weak options.
+
+### 4. Service Level Requirements
+
+**Note**: "Level 3 SLA" is not an industry-standard term. The following are concrete requirements you should specify in vendor contracts or internal SLAs:
+
 ```
-Minimum requirements:
-- Availability: 99.95% monthly uptime
-- RTO (Recovery Time Objective): 4 hours
-- RPO (Recovery Point Objective): 1 hour
-- Incident response: 15 minutes (critical)
-- Scheduled maintenance windows: Required notification
+Availability:
+- Target: 99.95% monthly uptime (approximately 22 minutes downtime/month)
+- Measurement: 5-minute polling intervals
+- Exclusions: Scheduled maintenance with 72-hour notice
+
+Recovery Objectives:
+- RTO (Recovery Time Objective): 4 hours maximum
+- RPO (Recovery Point Objective): 1 hour maximum
+- These should be tested quarterly via DR exercises
+
+Incident Response:
+- Critical (data loss/breach): 15-minute response
+- High (service degradation): 1-hour response
+- Notification: Defined escalation contacts
+
+Backups:
+- Frequency: Hourly incremental, daily full
+- Retention: 90 days minimum, 7 years for compliance data
+- Testing: Monthly restoration tests
 ```
+
+**Industry context**: Cloud providers typically offer SLAs in the 99.9%-99.99% range. "Three nines" (99.9%) allows ~8.7 hours downtime/month. "Four nines" (99.99%) allows ~4.3 minutes/month. Choose based on your actual business requirements and budget.
 
 ---
 
@@ -353,13 +395,33 @@ Minimum requirements:
 
 | Requirement | QLDB | Hardened Instance | Object Storage |
 |-------------|------|-------------------|----------------|
-| Immutability | ★★★★★ | ★★★☆☆ | ★★★★☆ |
+| Immutability | ★★★★★ | ★★★☆☆ | ★★★★☆ (see warning) |
 | Operational Simplicity | ★★★★★ | ★★☆☆☆ | ★★★☆☆ |
 | Cost (at scale) | ★★☆☆☆ | ★★★★☆ | ★★★★★ |
 | Query Performance | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
 | Cloud Portability | ★☆☆☆☆ | ★★★★★ | ★★★☆☆ |
 | Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ |
-| L3 SLA Achievable | ✓ | ✓ | ✓ |
+| 99.95% SLA Achievable | ✓ | ✓ | ✓ |
+
+### Critical Warning: Object Lock Modes
+
+If using object storage with retention locks, understand the difference between lock modes:
+
+| Mode | Can Root/Admin Override? | Regulatory Suitability |
+|------|--------------------------|------------------------|
+| **GOVERNANCE** | **YES** — users with special permissions can delete | **NOT suitable for SEC 17a-4 or true WORM requirements** |
+| **COMPLIANCE** | **NO** — cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements |
+
+**If you configure GOVERNANCE mode thinking you have immutability, you do not.** GOVERNANCE mode is designed for testing or soft retention policies. For audit trails subject to SEC 17a-4, FINRA 4511, or similar regulations, you MUST use COMPLIANCE mode.
+
+### QLDB Deprecation Risk
+
+Amazon QLDB is a managed service. AWS has historically sunset services (e.g., SimpleDB, certain IoT services). While QLDB is currently supported:
+
+- There is no guarantee of indefinite availability
+- Migration path would require re-implementing the audit trail on another platform
+- Consider this vendor dependency risk in your architecture decisions
+- Mitigation: Ensure you can export all data and have a documented migration plan
 
 ---
 
@@ -398,7 +460,14 @@ Minimum requirements:
 
 ## References
 
-- [NIST SP 800-92: Guide to Computer Security Log Management](https://csrc.nist.gov/publications/detail/sp/800-92/final)
-- [NIST CSF 2.0](https://www.nist.gov/cyberframework)
-- [SEC Rule 17a-4 Electronic Storage](https://www.sec.gov/rules/interp/34-47806.htm)
-- [FedRAMP Audit and Accountability Controls](https://www.fedramp.gov/)
+The following standards inform this ADR. Verify current versions before reliance:
+
+| Standard | Description | Where to Find |
+|----------|-------------|---------------|
+| NIST SP 800-92 | Guide to Computer Security Log Management | Search NIST CSRC publications |
+| NIST CSF 2.0 | Cybersecurity Framework | nist.gov/cyberframework |
+| SEC Rule 17a-4 | Records to be preserved by brokers and dealers | Search SEC.gov rules |
+| FINRA Rule 4511 | General requirements for books and records | FINRA.org rulebook |
+| FedRAMP AU controls | Audit and Accountability control family | FedRAMP.gov baselines |
+
+**Note**: URLs are not provided because government and regulatory websites frequently reorganize. Search the authoritative source directly for current versions.
