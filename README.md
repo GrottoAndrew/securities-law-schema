@@ -49,6 +49,7 @@ securities-law-schema/
 │   └── securities-context.jsonld    # JSON-LD vocabulary definitions
 ├── schemas/
 │   └── regulation-d/
+│       ├── 17cfr230.500.jsonld      # Use of Regulation D
 │       ├── 17cfr230.501.jsonld      # Definitions and terms
 │       ├── 17cfr230.502.jsonld      # General conditions
 │       ├── 17cfr230.503.jsonld      # Filing of notice of sales
@@ -164,6 +165,7 @@ Key features of the reference architecture:
 | Component | Status | Notes |
 |-----------|--------|-------|
 | JSON-LD Context | Complete | Vocabulary for regulatory text |
+| 17 CFR 230.500 | Complete | Use of Regulation D, subsections (a)-(g) |
 | 17 CFR 230.501 | Complete | All 10 subsections (a)-(j), notes, amendment history |
 | 17 CFR 230.502 | Complete | General conditions to be met |
 | 17 CFR 230.503 | Complete | Filing of notice of sales |
@@ -180,7 +182,7 @@ Key features of the reference architecture:
 
 ### Phase 1: Foundation (Complete)
 - [x] JSON-LD context vocabulary
-- [x] Regulation D Sections 501-508 (all sections)
+- [x] Regulation D Sections 500-508 (all sections)
 - [x] OSCAL control catalog with valid links
 - [x] Architecture documentation
 - [x] QLDB alternative documented (Aurora PostgreSQL + S3 Object Lock)
@@ -195,12 +197,7 @@ Key features of the reference architecture:
 - [ ] Regulation S (230.901-905)
 - [ ] Regulation Crowdfunding
 
-### Phase 3: Additional Regulations
-- [ ] Regulation A (230.251-263)
-- [ ] Regulation S (230.901-905)
-- [ ] Regulation Crowdfunding
-
-### Phase 4: Tooling
+### Phase 4: Advanced Tooling
 - [ ] JSON-LD validation scripts
 - [ ] OSCAL validation scripts
 - [ ] Compliance status calculator

@@ -20,6 +20,11 @@
       "links": [
         {
           "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.500.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
           "href": "../schemas/regulation-d/17cfr230.501.jsonld",
           "media-type": "application/ld+json"
         },
@@ -61,6 +66,119 @@
       ]
     },
     "groups": [
+      {
+        "id": "grp-regulatory-foundation",
+        "title": "Regulatory Foundation Controls",
+        "props": [
+          {
+            "name": "regulation-part",
+            "value": "17 CFR 230.500"
+          }
+        ],
+        "controls": [
+          {
+            "id": "ctrl-anti-evasion",
+            "title": "Anti-Evasion Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(f)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(f)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/5",
+                "text": "Anti-evasion provision"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-anti-evasion-stmt",
+                "name": "statement",
+                "prose": "Regulation D is not available to any issuer for any transaction or chain of transactions that, although in technical compliance with Regulation D, is part of a plan or scheme to evade the registration provisions of the Act."
+              },
+              {
+                "id": "ctrl-anti-evasion-guidance",
+                "name": "guidance",
+                "prose": "Ensure all offerings have a legitimate business purpose and are not structured solely to circumvent registration requirements."
+              }
+            ]
+          },
+          {
+            "id": "ctrl-issuer-only",
+            "title": "Issuer-Only Exemption",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(d)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(d)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/3",
+                "text": "Issuer-only exemption"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-issuer-only-stmt",
+                "name": "statement",
+                "prose": "Regulation D is available only to the issuer of the securities and not to any affiliate of that issuer or to any other person for resales of the issuer's securities."
+              }
+            ]
+          },
+          {
+            "id": "ctrl-state-compliance",
+            "title": "State Law Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(b)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(b)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/1",
+                "text": "State law compliance"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-state-compliance-stmt",
+                "name": "statement",
+                "prose": "Compliance with Regulation D does not obviate the need to comply with applicable state securities laws (blue sky laws). Verify state notice filing requirements and fee obligations."
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "grp-investor-qualification",
         "title": "Investor Qualification Controls",
@@ -380,7 +498,7 @@
               {
                 "id": "ctrl-purchaser-count-stmt",
                 "name": "statement",
-                "prose": "For Rule 506(b) offerings with non-accredited investors, the organization shall maintain a count of purchasers applying the exclusion and counting rules in 17 CFR 230.501(b), ensuring no more than 35 non-accredited purchasers."
+                "prose": "For Rule 506(b) offerings with non-accredited investors, the organization shall maintain a count of purchasers applying the exclusion and counting rules in 17 CFR 230.501(e), ensuring no more than 35 non-accredited purchasers."
               },
               {
                 "id": "ctrl-purchaser-count-rules",
