@@ -510,10 +510,12 @@ export class IncrementalMerkleTree {
     }
 
     if (this.leaves.length === 1) {
+      // Single leaf tree: root = hashInternal(leafHash, leafHash)
+      // Proof needs sibling (itself) to verify correctly
       return {
         leafIndex,
         leafHash,
-        siblings: [],
+        siblings: [{ hash: leafHash, position: 'right' as const }],
         root: this.getRoot(),
       };
     }

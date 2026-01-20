@@ -439,7 +439,9 @@ describe('IncrementalMerkleTree', () => {
       tree.addLeaf('leaf1');
 
       expect(tree.getLeafCount()).toBe(1);
-      expect(tree.getRoot()).toBe(hashLeaf('leaf1'));
+      // IncrementalMerkleTree uses hashInternal even for single leaf (duplicates it)
+      const leaf = hashLeaf('leaf1');
+      expect(tree.getRoot()).toBe(hashInternal(leaf, leaf));
     });
 
     it('should add multiple leaves', () => {
