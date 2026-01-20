@@ -1,0 +1,32 @@
+# Docker Compose for Securities Law Schema - Local Development
+# Run: docker-compose up -d
+# Stop: docker-compose down
+# Reset: docker-compose down -v && docker-compose up -d
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: securities-audit-db
+    environment:
+      POSTGRES_DB: audit
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: dev_password_change_in_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      # Auto-run migrations on startup
+      - ./src/db/migrations:/docker-entrypoint-initdb.d:ro
+      # Persist data between restarts
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audit -d audit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
