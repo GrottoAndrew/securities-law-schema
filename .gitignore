@@ -40,5 +40,3 @@ temp/
 *.key
 credentials.json
 secrets.json
-.env.local
-.env.*.local
