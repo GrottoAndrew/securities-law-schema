@@ -1,0 +1,54 @@
+{
+  "name": "securities-law-schema",
+  "version": "0.1.0",
+  "description": "Machine-readable securities regulations with compliance controls and audit trail",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "cli": "tsx src/cli/index.ts",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "validate:schemas": "tsx scripts/validate-schemas.ts",
+    "validate:controls": "tsx scripts/validate-controls.ts"
+  },
+  "dependencies": {
+    "jsonld": "^8.3.2",
+    "pg": "^8.12.0",
+    "@aws-sdk/client-s3": "^3.490.0",
+    "@aws-sdk/client-kms": "^3.490.0",
+    "commander": "^12.0.0",
+    "dotenv": "^16.3.1",
+    "pino": "^8.17.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/jsonld": "^1.5.13",
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0",
+    "vitest": "^1.2.0",
+    "@vitest/coverage-v8": "^1.2.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.0",
+    "@typescript-eslint/parser": "^6.18.0"
+  },
+  "keywords": [
+    "securities",
+    "compliance",
+    "regulation-d",
+    "oscal",
+    "json-ld",
+    "audit-trail"
+  ],
+  "license": "MIT"
+}
