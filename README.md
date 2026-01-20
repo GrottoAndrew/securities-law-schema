@@ -154,15 +154,22 @@ The `docs/architecture/` folder contains a reference design for building a compl
 | [storage-compliance.md](docs/architecture/storage-compliance.md) | WORM storage requirements (S3/Azure) |
 | [vendor-integrations.md](docs/architecture/vendor-integrations.md) | API integrations for automated evidence collection |
 
-### For IT Teams & DevOps
+### For IT Teams & Developers
 
-**[IT Security Technical Build Guide](docs/IT-SECURITY-TECHNICAL-BUILD-GUIDE.md)** — Comprehensive technical specifications for IT security, DevOps, and security integration teams. Includes:
+**[Compliance for Developers](docs/COMPLIANCE-FOR-DEVELOPERS.md)** — Plain-English explainer of what you're building and why. Start here if you don't have a finance background. Covers:
+- What is a "security" (the finance kind, not cybersecurity)
+- Who are the regulators (SEC, FINRA) and what do they want
+- Why normal databases don't work (WORM storage explained)
+- Why hash chains matter (and why this isn't blockchain)
+- The stakes: what happens when compliance fails
+
+**[IT Security Technical Build Guide](docs/IT-SECURITY-TECHNICAL-BUILD-GUIDE.md)** — Comprehensive technical specifications for IT security implementation. Includes:
 - Plain-language glossary of all security terms (Zero Trust, SIEM, SBOM, etc.)
 - Framework compliance mappings (SEC 17a-4, FINRA 4511, NIST CSF, SOC 2)
 - Implementation checklists
 - Why each security control matters for SEC compliance
 
-**CCOs and non-technical stakeholders**: Share the IT Security Technical Build Guide with your IT team or technology vendor. They need this document to build the system correctly.
+**For handoffs**: Give your dev team COMPLIANCE-FOR-DEVELOPERS.md first (the "why"), then IT-SECURITY-TECHNICAL-BUILD-GUIDE.md (the "how").
 
 Key features of the reference architecture:
 - **Immutable audit trails** with Merkle tree verification
