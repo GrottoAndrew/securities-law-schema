@@ -31,8 +31,8 @@ This document describes the reference architecture for a securities compliance m
 ┌───────────────────┐   ┌───────────────────────┐   ┌─────────────────────────┐
 │  CONTROL CATALOG  │   │    EVIDENCE LOCKER    │   │      AUDIT TRAIL        │
 │                   │   │                       │   │                         │
-│  S3 (versioned)   │   │  PostgreSQL +         │   │  Amazon QLDB or         │
-│  - OSCAL JSON     │   │  S3 artifacts         │   │  Append-only log        │
+│  S3 (versioned)   │   │  PostgreSQL +         │   │  PostgreSQL +           │
+│  - OSCAL JSON     │   │  S3 artifacts         │   │  S3 Object Lock         │
 │  - JSON-LD regs   │   │  - Metadata DB        │   │  - Merkle roots         │
 │  - Cryptographic  │   │  - Encrypted files    │   │  - Event signatures     │
 │    signatures     │   │  - Merkle tree        │   │  - Immutable history    │

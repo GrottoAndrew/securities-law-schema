@@ -194,7 +194,6 @@ Components ranked by maintenance priority:
 | 17cfr230.501.jsonld | 90 FR 9687, Feb. 18, 2025 | Verify this is most recent amendment |
 | 17cfr230.502.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments |
 | 17cfr230.506.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments |
-| ADR-001 | QLDB deprecation 2024 | Verify AWS timeline |
 
 ---
 

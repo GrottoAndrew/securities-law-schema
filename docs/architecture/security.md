@@ -133,13 +133,8 @@ leaf_hash = SHA-256(
 
 ### Audit Trail Immutability
 
-**Option A: Amazon QLDB**
-- Built-in cryptographic verification
-- Journal is append-only by design
-- SHA-256 hash chaining
-- Document-level verification API
+Hash chain implementation with append-only PostgreSQL and S3 Object Lock (see ADR-001):
 
-**Option B: Custom Implementation**
 ```
 Each entry:
 {
@@ -237,8 +232,8 @@ Each entry:
 │  │         │              PRIVATE SUBNET (Data)                     │   │
 │  │         ▼                  ▼                                     │   │
 │  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │   │
-│  │  │  PostgreSQL │    │    QLDB     │    │  S3 VPC     │          │   │
-│  │  │  (RDS)      │    │             │    │  Endpoint   │          │   │
+│  │  │  PostgreSQL │    │   S3 VPC    │    │  KMS VPC    │          │   │
+│  │  │  (RDS)      │    │   Endpoint  │    │  Endpoint   │          │   │
 │  │  └─────────────┘    └─────────────┘    └─────────────┘          │   │
 │  └──────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -263,7 +258,7 @@ Each entry:
 |--------|-------------|-----------|
 | API Access Logs | CloudWatch + S3 | 90 days / 7 years |
 | Application Logs | CloudWatch | 30 days |
-| Audit Trail | QLDB | Indefinite |
+| Audit Trail | PostgreSQL + S3 Object Lock | Indefinite |
 | VPC Flow Logs | CloudWatch + S3 | 90 days |
 | CloudTrail | S3 | 7 years |
 

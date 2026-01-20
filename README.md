@@ -175,7 +175,7 @@ Key features of the reference architecture:
 | 17 CFR 230.507 | Complete | Disqualification provisions |
 | 17 CFR 230.508 | Complete | Insignificant deviations |
 | OSCAL Controls | Complete | 100% of controls link to valid schemas |
-| Architecture Docs | Complete | Reference design with QLDB alternatives documented |
+| Architecture Docs | Complete | Reference design with audit trail technology options |
 | Implementation Code | None | Documentation and data only, no working software |
 
 ## Roadmap
@@ -185,7 +185,7 @@ Key features of the reference architecture:
 - [x] Regulation D Sections 500-508 (all sections)
 - [x] OSCAL control catalog with valid links
 - [x] Architecture documentation
-- [x] QLDB alternative documented (Aurora PostgreSQL + S3 Object Lock)
+- [x] Audit trail architecture documented (Aurora PostgreSQL + S3 Object Lock)
 
 ### Phase 2: Tooling
 - [ ] Basic validation scripts

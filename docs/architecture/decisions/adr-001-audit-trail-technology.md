@@ -144,8 +144,6 @@ This approach provides:
 
 **Description**: Aurora PostgreSQL with pgaudit extension for operational data, combined with S3 Object Lock (COMPLIANCE mode) for evidence artifacts and audit exports.
 
-**Note on QLDB**: AWS deprecated Amazon QLDB for new workloads in 2024. Existing workloads may continue, but new implementations should use this architecture instead.
-
 **Characteristics**:
 | Attribute | Value |
 |-----------|-------|
@@ -428,7 +426,6 @@ Backups:
 | Cloud Portability | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
 | Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ |
 | 99.95% SLA Achievable | ✓ | ✓ | ✓ |
-| QLDB Replacement | ✓ (recommended) | ✓ | ✓ |
 
 ### Critical Warning: Object Lock Modes
 
@@ -440,18 +437,6 @@ If using object storage with retention locks, understand the difference between 
 | **COMPLIANCE** | **NO** — cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements |
 
 **If you configure GOVERNANCE mode thinking you have immutability, you do not.** GOVERNANCE mode is designed for testing or soft retention policies. For audit trails subject to SEC 17a-4, FINRA 4511, or similar regulations, you MUST use COMPLIANCE mode.
-
-### QLDB Deprecation Notice
-
-**Amazon QLDB was deprecated for new workloads in 2024.**
-
-AWS announced that QLDB would not accept new customers and recommended existing customers migrate to alternatives. This is why Option A now recommends Aurora PostgreSQL + S3 Object Lock instead of QLDB.
-
-For organizations with existing QLDB deployments:
-- Existing workloads continue to function during the deprecation period
-- Plan migration to Aurora PostgreSQL + S3 Object Lock architecture
-- Export all data and verify integrity before migration
-- AWS may provide specific migration guidance and timelines
 
 ---
 
