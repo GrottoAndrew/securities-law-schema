@@ -10,7 +10,7 @@
 ## Decision Criteria (Per Requirements)
 
 1. Industry standard among financial services compliance platforms
-2. Analogous to mature GRC architectures (don't reinvent wheel)
+2. Analogous to mature compliance platform architectures (don't reinvent wheel)
 3. Least likely for AI-assisted development errors
 4. Most efficient tradeoff (cost, speed, maintainability)
 5. Tiebreaker: Highest likelihood of adoption
@@ -26,7 +26,7 @@
 | TypeScript | API, JSON-LD, OSCAL tooling, UI |
 | Rust | Performance-critical components |
 | Erlang/Elixir | High-concurrency systems |
-| Java | Enterprise GRC legacy |
+| Java | Enterprise compliance legacy |
 
 ---
 
@@ -36,7 +36,7 @@
 
 | Language | Usage in Compliance Platforms | Score |
 |----------|------------------------------|-------|
-| **Java** | Legacy GRC (Archer, ServiceNow backend), OSCAL-CLI | 8/10 |
+| **Java** | Legacy compliance platforms, OSCAL-CLI | 8/10 |
 | **Go** | Modern compliance-as-code (OPA, Falco, HashiCorp), audit systems | 8/10 |
 | **Python** | Automation, SIEM integrations, data analysis | 7/10 |
 | **TypeScript** | Modern SaaS compliance platforms, API integrations | 7/10 |
@@ -45,11 +45,11 @@
 
 **Analysis**: Java and Go tie for enterprise compliance. Java is legacy, Go is modern trajectory. Modern compliance platforms predominantly use TypeScript backends with Go for performance-critical paths.
 
-### Criterion 2: GRC/Compliance Platform Architecture Patterns
+### Criterion 2: Compliance Platform Architecture Patterns
 
-Surveyed implementations: Modern GRC and compliance-as-code platforms
+Surveyed implementations: Modern compliance-as-code platforms
 
-| Language | GRC Ecosystem Fit | Score |
+| Language | Compliance Platform Fit | Score |
 |----------|------------------|-------|
 | **Go** | Control assessment engines, policy enforcement | 9/10 |
 | **TypeScript** | API layers, OSCAL processing, integrations | 8/10 |
@@ -58,7 +58,7 @@ Surveyed implementations: Modern GRC and compliance-as-code platforms
 | **Rust** | Not observed in compliance tooling | 2/10 |
 | **Erlang** | Not observed | 1/10 |
 
-**Analysis**: Modern GRC architectures use Go for core engines, TypeScript for APIs. This pattern applies directly to securities compliance systems.
+**Analysis**: Modern compliance platforms use Go for core engines, TypeScript for APIs. This pattern applies directly to securities compliance systems.
 
 ### Criterion 3: AI Development Error Likelihood
 

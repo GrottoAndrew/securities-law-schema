@@ -52,7 +52,7 @@ Before selecting tooling, understand these terms:
 
 | Term | Definition |
 |------|------------|
-| **GRC** | Governance, Risk, and Compliance. Software platforms that help organizations manage policies, assess risks, and demonstrate regulatory compliance. These tools typically include control libraries, evidence collection, audit workflows, and reporting. |
+| **Compliance Platform** | Software that helps organizations manage policies, assess risks, and demonstrate regulatory compliance. These tools typically include control libraries, evidence collection, audit workflows, and reporting. |
 | **SBOM** | Software Bill of Materials. A formal, machine-readable inventory of software components and dependencies in a codebase. Required by some regulations and useful for vulnerability management. |
 | **ADR** | Architecture Decision Record. A document capturing a significant architectural decision, its context, and consequences. |
 | **Control Catalog** | A structured list of security or compliance controls (requirements) that an organization must implement. Examples: NIST 800-53, CIS Controls, or custom organizational controls. |
@@ -97,7 +97,7 @@ The following categories describe types of tools for managing ADRs and complianc
 - Varying levels of access control
 - Some offer SOC 2 Type II certification
 - May or may not offer BAA for HIPAA
-- Limited GRC integration
+- Limited compliance platform integration
 
 **Evaluation criteria before selection**:
 
@@ -132,9 +132,9 @@ The following categories describe types of tools for managing ADRs and complianc
 
 ---
 
-### Category 4: GRC Platforms
+### Category 4: Compliance Management Platforms
 
-**What these are**: Governance, Risk, and Compliance platforms that treat documentation as formal compliance artifacts with evidence linkage, control mapping, and audit support.
+**What these are**: Platforms that treat documentation as formal compliance artifacts with evidence linkage, control mapping, and audit support.
 
 **Characteristics**:
 - Purpose-built for compliance programs
@@ -146,7 +146,7 @@ The following categories describe types of tools for managing ADRs and complianc
 
 **Important context for financial services**:
 
-Many GRC platforms marketed to technology companies (focused on SOC 2, ISO 27001) are **not designed for financial services compliance**. Broker-dealers, investment advisers, and funds have specialized requirements:
+Many compliance platforms marketed to technology companies (focused on SOC 2, ISO 27001) are **not designed for financial services compliance**. Broker-dealers, investment advisers, and funds have specialized requirements:
 
 - FINRA Rule 4511 (books and records)
 - SEC Rule 17a-4 (electronic storage)
@@ -159,7 +159,7 @@ Many GRC platforms marketed to technology companies (focused on SOC 2, ISO 27001
 - Trade surveillance systems
 - Regulatory filing systems
 
-If you are a registered investment adviser, broker-dealer, or fund, consult with compliance counsel about appropriate tooling. Generic GRC platforms may not meet your specific regulatory requirements.
+If you are a registered investment adviser, broker-dealer, or fund, consult with compliance counsel about appropriate tooling. Generic compliance platforms may not meet your specific regulatory requirements.
 
 ---
 
@@ -168,7 +168,7 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 **What these are**: For organizations with complex regulatory obligations, the "tool" is often not software but a consulting engagement with firms that specialize in compliance programs.
 
 **Characteristics**:
-- Major accounting/consulting firms offer GRC services
+- Major accounting/consulting firms offer compliance program services
 - Specialized compliance consulting firms (often former regulators)
 - Custom implementations tailored to your regulatory profile
 - Typically $500K-$2M+ annually for comprehensive programs
@@ -186,7 +186,7 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 
 ## Selection Criteria
 
-When evaluating any documentation or GRC platform:
+When evaluating any documentation or compliance platform:
 
 | Criterion | Questions to Ask |
 |-----------|------------------|
