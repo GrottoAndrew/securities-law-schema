@@ -9,8 +9,8 @@
 
 ## Decision Criteria (Per Requirements)
 
-1. Industry standard among large healthcare CISOs
-2. Analogous to Healthtech/HITRUST mature architectures (don't reinvent wheel)
+1. Industry standard among financial services compliance platforms
+2. Analogous to mature GRC architectures (don't reinvent wheel)
 3. Least likely for AI-assisted development errors
 4. Most efficient tradeoff (cost, speed, maintainability)
 5. Tiebreaker: Highest likelihood of adoption
@@ -32,33 +32,33 @@
 
 ## Analysis Matrix
 
-### Criterion 1: Healthcare CISO Industry Standard
+### Criterion 1: Financial Services Compliance Industry Standard
 
-| Language | Usage in Healthcare Compliance | Score |
-|----------|-------------------------------|-------|
+| Language | Usage in Compliance Platforms | Score |
+|----------|------------------------------|-------|
 | **Java** | Legacy GRC (Archer, ServiceNow backend), OSCAL-CLI | 8/10 |
 | **Go** | Modern compliance-as-code (OPA, Falco, HashiCorp), audit systems | 8/10 |
 | **Python** | Automation, SIEM integrations, data analysis | 7/10 |
 | **TypeScript** | Modern SaaS compliance (Vanta, Drata, Secureframe backends) | 7/10 |
 | **Rust** | Emerging in security tooling, not mainstream | 4/10 |
-| **Erlang** | Telecom/messaging, rare in healthcare | 2/10 |
+| **Erlang** | Telecom/messaging, rare in compliance | 2/10 |
 
 **Analysis**: Java and Go tie for enterprise compliance. Java is legacy, Go is modern trajectory. Modern compliance SaaS (Vanta, Drata, Secureframe, Laika) predominantly use TypeScript backends with Go for performance-critical paths.
 
-### Criterion 2: HITRUST/R2 Architecture Patterns
+### Criterion 2: GRC/Compliance Platform Architecture Patterns
 
-Surveyed implementations: HITRUST CSF tooling, Datica (acquired), Aptible, Vanta, Drata
+Surveyed implementations: Vanta, Drata, Secureframe, Laika, ACA ComplianceAlpha
 
-| Language | HITRUST Ecosystem Fit | Score |
-|----------|----------------------|-------|
+| Language | GRC Ecosystem Fit | Score |
+|----------|------------------|-------|
 | **Go** | Control assessment engines, policy enforcement | 9/10 |
 | **TypeScript** | API layers, OSCAL processing, integrations | 8/10 |
 | **Python** | Evidence collection scripts, reporting | 7/10 |
 | **Java** | Legacy integrations only | 5/10 |
-| **Rust** | Not observed in HITRUST tooling | 2/10 |
+| **Rust** | Not observed in compliance tooling | 2/10 |
 | **Erlang** | Not observed | 1/10 |
 
-**Analysis**: Modern HITRUST-aligned architectures use Go for core engines, TypeScript for APIs. This pattern is directly transferable to financial services compliance.
+**Analysis**: Modern GRC architectures use Go for core engines, TypeScript for APIs. This pattern applies directly to securities compliance systems.
 
 ### Criterion 3: AI Development Error Likelihood
 
