@@ -1,13 +1,27 @@
 /**
  * PostgreSQL-only storage provider for demo/development.
  *
+ * ┌────────────────────────────────────────────────────────────────────────┐
+ * │  ⚠️  WARNING: NO WORM COMPLIANCE - DEMO USE ONLY                       │
+ * │                                                                        │
+ * │  PostgreSQL CANNOT provide true WORM (Write Once Read Many):           │
+ * │  • Database administrators can DELETE or UPDATE rows                   │
+ * │  • No hardware-level write protection                                  │
+ * │  • Triggers can be disabled by superusers                              │
+ * │                                                                        │
+ * │  For SEC 17a-4, FINRA 4511, or any regulatory WORM requirement:        │
+ * │  → Use S3 Object Lock (COMPLIANCE mode) or Azure Immutable Blob        │
+ * │                                                                        │
+ * │  See: docs/architecture/storage-compliance.md                          │
+ * └────────────────────────────────────────────────────────────────────────┘
+ *
  * Stores checkpoint data in JSONB columns - no external object storage required.
- * NOT suitable for SEC 17a-4 production (no true WORM support).
  *
  * Use cases:
  * - Local development with Docker PostgreSQL
  * - Demo deployments on Supabase/Neon free tier
  * - Testing without cloud credentials
+ * - Proof-of-concept before production deployment
  */
 
 import { createHash } from 'node:crypto';

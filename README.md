@@ -151,12 +151,30 @@ The `docs/architecture/` folder contains a reference design for building a compl
 | [data-flow.md](docs/architecture/data-flow.md) | How data moves through the system |
 | [security.md](docs/architecture/security.md) | Authentication, encryption, audit |
 | [evidence-locker.md](docs/architecture/evidence-locker.md) | Database schema and API design |
+| [storage-compliance.md](docs/architecture/storage-compliance.md) | WORM storage requirements (S3/Azure) |
+| [vendor-integrations.md](docs/architecture/vendor-integrations.md) | API integrations for automated evidence collection |
 
 Key features of the reference architecture:
 - **Immutable audit trails** with Merkle tree verification
 - **Cryptographically signed** catalog versions
 - **Time-limited auditor access** (read-only)
 - **Evidence integrity verification** with proof generation
+- **Direct vendor-to-locker pipelines** (no opportunity to alter data)
+
+## Vendor Integrations
+
+The system supports automated evidence collection from 100+ vendors. See [vendor-integrations.md](docs/architecture/vendor-integrations.md) for full details.
+
+| Category | Key Vendors |
+|----------|-------------|
+| Portfolio/CRM | Orion, Redtail, Salesforce FSC, eMoney, Addepar |
+| Custodians | Pershing, Schwab/NFS, Fidelity, Interactive Brokers, Apex |
+| Communications | Smarsh, Global Relay, Theta Lake, LeapXpert |
+| Compliance | ComplySci, ACA, StarCompliance, RIA in a Box |
+| Due Diligence | Morningstar, eVestment, DiligenceVault, LexisNexis |
+| Auditors | Big 4, RSM, BDO, Marcum, EisnerAmper, and 15+ others |
+
+**Storage Compliance**: PostgreSQL is for demo only. Production requires S3 Object Lock (COMPLIANCE mode) or Azure Immutable Blob Storage for SEC 17a-4. See [storage-compliance.md](docs/architecture/storage-compliance.md).
 
 ## Current Status
 
