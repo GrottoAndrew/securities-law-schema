@@ -154,6 +154,16 @@ The `docs/architecture/` folder contains a reference design for building a compl
 | [storage-compliance.md](docs/architecture/storage-compliance.md) | WORM storage requirements (S3/Azure) |
 | [vendor-integrations.md](docs/architecture/vendor-integrations.md) | API integrations for automated evidence collection |
 
+### For IT Teams & DevOps
+
+**[IT Security Technical Build Guide](docs/IT-SECURITY-TECHNICAL-BUILD-GUIDE.md)** — Comprehensive technical specifications for IT security, DevOps, and security integration teams. Includes:
+- Plain-language glossary of all security terms (Zero Trust, SIEM, SBOM, etc.)
+- Framework compliance mappings (SEC 17a-4, FINRA 4511, NIST CSF, SOC 2)
+- Implementation checklists
+- Why each security control matters for SEC compliance
+
+**CCOs and non-technical stakeholders**: Share the IT Security Technical Build Guide with your IT team or technology vendor. They need this document to build the system correctly.
+
 Key features of the reference architecture:
 - **Immutable audit trails** with Merkle tree verification
 - **Cryptographically signed** catalog versions

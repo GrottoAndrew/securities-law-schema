@@ -8,7 +8,9 @@ This document describes the security model for the compliance management system.
 2. **Least Privilege**: Minimal access rights for each role
 3. **Immutability**: Audit trails and catalog versions cannot be modified
 4. **Cryptographic Verification**: All critical data is signed and verifiable
-5. **Zero Trust**: All requests authenticated and authorized
+5. **Verify Every Request**: All requests authenticated and authorized, even from internal systems
+
+> **Note for non-technical readers**: These principles ensure that compliance records can't be altered, only authorized people can access data, and every action is logged. See [IT-SECURITY-TECHNICAL-BUILD-GUIDE.md](../IT-SECURITY-TECHNICAL-BUILD-GUIDE.md) for detailed explanations.
 
 ---
 
@@ -158,7 +160,7 @@ Each entry:
 | S3 (Catalog) | SSE-S3 or SSE-KMS | AWS managed or CMK |
 | S3 (Evidence) | SSE-KMS | CMK with key policy |
 | PostgreSQL | TDE (RDS) | AWS managed |
-| Audit Trail | QLDB native / DB TDE | AWS managed |
+| Audit Trail | S3 Object Lock + DB TDE | AWS managed |
 
 ### Encryption in Transit
 
@@ -303,7 +305,7 @@ Each entry:
    - Verify Merkle roots against checkpoints
 
 2. On detection:
-   - Immediate alert to security team
+   - Immediate alert to compliance and IT operations team
    - Freeze affected evidence records
    - Compare with audit trail
    - Forensic investigation

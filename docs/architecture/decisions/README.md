@@ -21,7 +21,9 @@ This directory contains Architecture Decision Records (ADRs) documenting signifi
 |-----|-------|--------|------|
 | [ADR-001](adr-001-audit-trail-technology.md) | Audit Trail Technology Selection | Accepted | 2026-01-19 |
 | [ADR-002](adr-002-evidence-locker-modularity.md) | Evidence Locker Modularity | Accepted | 2026-01-19 |
-| [ADR-003](adr-003-compliance-framework-alignment.md) | Compliance Framework Alignment | Accepted | 2026-01-19 |
+| [ADR-004](adr-004-language-selection.md) | Language Selection | Accepted | 2026-01-19 |
+
+> **Framework Compliance Mappings**: For SEC 17a-4, FINRA 4511, NIST CSF, SOC 2, and other framework compliance mappings, see [IT-SECURITY-TECHNICAL-BUILD-GUIDE.md](../../IT-SECURITY-TECHNICAL-BUILD-GUIDE.md). This technical guide provides detailed mappings with plain-language explanations for IT teams.
 
 ## ADR Format
 
@@ -53,11 +55,12 @@ Before selecting tooling, understand these terms:
 | Term | Definition |
 |------|------------|
 | **Compliance Platform** | Software that helps organizations manage policies, assess risks, and demonstrate regulatory compliance. These tools typically include control libraries, evidence collection, audit workflows, and reporting. |
-| **SBOM** | Software Bill of Materials. A formal, machine-readable inventory of software components and dependencies in a codebase. Required by some regulations and useful for vulnerability management. |
 | **ADR** | Architecture Decision Record. A document capturing a significant architectural decision, its context, and consequences. |
-| **Control Catalog** | A structured list of security or compliance controls (requirements) that an organization must implement. Examples: NIST 800-53, CIS Controls, or custom organizational controls. |
-| **Evidence** | Documentation proving that a control is implemented. Examples: screenshots, configuration exports, audit logs, attestation letters. |
-| **BAA** | Business Associate Agreement. Required under HIPAA when a vendor will handle Protected Health Information (PHI). Without a signed BAA, the tool cannot be used for HIPAA-regulated data. |
+| **Control Catalog** | A structured list of compliance controls (requirements) that an organization must implement. Examples: SEC 17a-4 requirements, FINRA 4511 requirements, or custom organizational controls. |
+| **Evidence** | Documentation proving that a control is implemented. Examples: screenshots, configuration exports, audit logs, attestation letters, signed certifications. |
+| **WORM** | Write Once Read Many. Storage that prevents modification or deletion of records for a set retention period. Required by SEC 17a-4 for electronic records. |
+
+> **For IT Security Terms**: See [IT-SECURITY-TECHNICAL-BUILD-GUIDE.md](../../IT-SECURITY-TECHNICAL-BUILD-GUIDE.md) for comprehensive definitions of technical security terms (encryption, authentication, monitoring, etc.).
 
 ---
 
