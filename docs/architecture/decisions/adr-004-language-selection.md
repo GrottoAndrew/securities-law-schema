@@ -39,15 +39,15 @@
 | **Java** | Legacy GRC (Archer, ServiceNow backend), OSCAL-CLI | 8/10 |
 | **Go** | Modern compliance-as-code (OPA, Falco, HashiCorp), audit systems | 8/10 |
 | **Python** | Automation, SIEM integrations, data analysis | 7/10 |
-| **TypeScript** | Modern SaaS compliance (Vanta, Drata, Secureframe backends) | 7/10 |
+| **TypeScript** | Modern SaaS compliance platforms, API integrations | 7/10 |
 | **Rust** | Emerging in security tooling, not mainstream | 4/10 |
 | **Erlang** | Telecom/messaging, rare in compliance | 2/10 |
 
-**Analysis**: Java and Go tie for enterprise compliance. Java is legacy, Go is modern trajectory. Modern compliance SaaS (Vanta, Drata, Secureframe, Laika) predominantly use TypeScript backends with Go for performance-critical paths.
+**Analysis**: Java and Go tie for enterprise compliance. Java is legacy, Go is modern trajectory. Modern compliance platforms predominantly use TypeScript backends with Go for performance-critical paths.
 
 ### Criterion 2: GRC/Compliance Platform Architecture Patterns
 
-Surveyed implementations: Vanta, Drata, Secureframe, Laika, ACA ComplianceAlpha
+Surveyed implementations: Modern GRC and compliance-as-code platforms
 
 | Language | GRC Ecosystem Fit | Score |
 |----------|------------------|-------|
@@ -269,5 +269,5 @@ All languages have mature AWS SDKs. No differentiation.
 
 - Digital Bazaar jsonld.js: https://github.com/digitalbazaar/jsonld.js
 - OSCAL TypeScript: https://github.com/oscal-compass
-- Vanta/Drata architecture patterns (public talks, blog posts)
+- Modern compliance platform architecture patterns
 - NIST OSCAL tooling survey

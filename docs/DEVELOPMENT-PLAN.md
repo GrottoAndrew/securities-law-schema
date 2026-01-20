@@ -396,32 +396,6 @@ slc vendor status
 
 ---
 
-## Security Analogies: R2 vs. SEC Compliance
-
-### Why This Matters
-
-Just as Cloudflare R2 offers S3 compatibility without egress fees (making it attractive for cost-conscious users), this system offers SEC 17a-4 compliance without Goldman Sachs budgets.
-
-| R2 Trade-off | Securities Compliance Analog |
-|--------------|------------------------------|
-| R2 lacks Object Lock | PostgreSQL lacks WORM - fine for dev, not prod |
-| R2 is cheaper but less features | Starter tier is cheaper but manual uploads |
-| R2 requires workarounds for compliance | Starter tier uses Backblaze B2 for WORM |
-| R2 vs S3 is about cost/feature balance | Tier selection is about firm economics |
-
-### The Core Principle
-
-**You don't need Goldman's infrastructure to be compliant. You need the right infrastructure for your size.**
-
-| Firm Type | Wrong Approach | Right Approach |
-|-----------|---------------|----------------|
-| Solo RIA ($50M) | AWS Enterprise ($2K/mo) | Supabase + Backblaze ($50/mo) |
-| Small RIA ($300M) | Custom on-prem solution | AWS Basic ($100/mo) |
-| Mid-tier ($1B) | Cobbled-together spreadsheets | Professional tier ($400/mo) |
-| Large ($5B+) | Single-region, no DR | Enterprise multi-region |
-
----
-
 ## Compliance Justification by Firm Type
 
 ### For SEC Examination

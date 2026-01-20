@@ -6,27 +6,6 @@ This document provides guidance on maintaining a healthy, compliant codebase. Li
 
 ---
 
-## The R2 Analogy: Cost vs. Compliance Trade-offs
-
-### Understanding the Trade-off Spectrum
-
-Just as Cloudflare R2 offers S3 compatibility at lower cost but without Object Lock (WORM), every technical decision in this system involves trade-offs between cost, features, and compliance.
-
-| Decision | R2 Equivalent | Cheap Option | Compliant Option | Guidance |
-|----------|---------------|--------------|------------------|----------|
-| Storage provider | R2 vs S3 | PostgreSQL (no WORM) | S3 Object Lock | Use PostgreSQL for dev, S3/Azure for prod |
-| Backup frequency | Egress costs | Weekly backups | Real-time replication | Scale with firm size |
-| Monitoring depth | Pay per metric | Basic health checks | Full APM + tracing | Start basic, add as needed |
-| Vendor integrations | API call costs | Manual uploads | Real-time webhooks | Manual is compliant, just slower |
-
-### The Golden Rule
-
-**Compliance is binary. Cost is a spectrum.**
-
-You're either 17a-4 compliant or you're not. But you can achieve compliance at $50/month or $5,000/month depending on your operational needs.
-
----
-
 ## Key Sections Requiring Regular Refactoring
 
 ### Priority 1: Security-Critical (Review Monthly)

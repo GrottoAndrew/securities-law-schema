@@ -142,7 +142,6 @@ All vendors in this category are **SEC 17a-4 compliant** and meet encryption at 
 | Vendor | Type | API | Notes |
 |--------|------|-----|-------|
 | **ComplySci** | Personal trading/Code of Ethics | REST API | Pre-clearance, holdings |
-| **ACA Group (ComplianceAlpha)** | Compliance management | REST API | Full compliance suite |
 | **StarCompliance** | Personal trading | REST API | Code of ethics, gifts |
 | **MCO (MyComplianceOffice)** | Compliance workflow | REST API | Gift/entertainment tracking |
 | **NRS (National Regulatory Services)** | Compliance consulting | File export | Mock exams, ADV filings |
