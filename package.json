@@ -1,0 +1,22 @@
+{
+  "name": "securities-law-schema",
+  "version": "0.1.0",
+  "description": "Machine-readable securities law schemas for compliance management",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-schemas.js",
+    "validate:regulation-d": "node scripts/validate-schemas.js schemas/regulation-d"
+  },
+  "keywords": [
+    "securities",
+    "compliance",
+    "regulation-d",
+    "json-ld",
+    "sec"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1"
+  }
+}
