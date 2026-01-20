@@ -18,7 +18,6 @@
 import {
   BlobServiceClient,
   ContainerClient,
-  BlobClient,
   StorageSharedKeyCredential,
   type BlobImmutabilityPolicyMode,
 } from '@azure/storage-blob';
@@ -32,6 +31,7 @@ import {
   StorageCapabilities,
   StorageError,
 } from '../interface.js';
+import { streamToBuffer, mapCloudError } from '../utils.js';
 
 // =============================================================================
 // Types
@@ -114,6 +114,7 @@ export class AzureImmutableStorage implements ImmutableStorage {
 
   /**
    * Store an object with immutability policy.
+   * Rejects if object already exists (immutability enforcement).
    */
   async store(
     key: string,
@@ -125,6 +126,13 @@ export class AzureImmutableStorage implements ImmutableStorage {
     }
   ): Promise<StoredObject> {
     const fullKey = this.prefix + key;
+
+    // Enforce immutability: reject if object already exists
+    const alreadyExists = await this.exists(key);
+    if (alreadyExists) {
+      throw new StorageError(`Object already exists: ${key}`, 'ALREADY_EXISTS');
+    }
+
     const contentHash = createHash('sha256').update(data).digest('hex');
     const blobClient = this.containerClient.getBlockBlobClient(fullKey);
 
@@ -173,21 +181,8 @@ export class AzureImmutableStorage implements ImmutableStorage {
         },
       };
     } catch (err) {
-      const error = err as Error & { statusCode?: number };
-      if (error.statusCode === 404) {
-        throw new StorageError(
-          `Container not found: ${this.containerClient.containerName}`,
-          'CONNECTION_FAILED',
-          error
-        );
-      }
-      if (error.statusCode === 403) {
-        throw new StorageError('Access denied to Azure storage', 'PERMISSION_DENIED', error);
-      }
-      if (error.statusCode === 409) {
-        throw new StorageError(`Object already exists: ${key}`, 'ALREADY_EXISTS', error);
-      }
-      throw new StorageError(`Failed to store object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -205,7 +200,7 @@ export class AzureImmutableStorage implements ImmutableStorage {
         throw new StorageError(`Empty response for: ${key}`, 'UNKNOWN');
       }
 
-      const data = await this.streamToBuffer(downloadResponse.readableStreamBody);
+      const data = await streamToBuffer(downloadResponse.readableStreamBody as NodeJS.ReadableStream);
       const computedHash = createHash('sha256').update(data).digest('hex');
 
       // Get properties for retention info
@@ -236,12 +231,8 @@ export class AzureImmutableStorage implements ImmutableStorage {
         },
       };
     } catch (err) {
-      const error = err as Error & { statusCode?: number };
-      if (error.statusCode === 404) {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      if (error instanceof StorageError) throw error;
-      throw new StorageError(`Failed to retrieve object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -276,7 +267,11 @@ export class AzureImmutableStorage implements ImmutableStorage {
     try {
       return await blobClient.exists();
     } catch (err) {
-      throw new StorageError(`Failed to check existence: ${key}`, 'UNKNOWN', err as Error);
+      const mapped = mapCloudError(err, key);
+      if (mapped.code === 'NOT_FOUND') {
+        return false;
+      }
+      throw mapped;
     }
   }
 
@@ -294,7 +289,7 @@ export class AzureImmutableStorage implements ImmutableStorage {
       }
       return results;
     } catch (err) {
-      throw new StorageError(`Failed to list objects: ${prefix}`, 'UNKNOWN', err as Error);
+      throw mapCloudError(err, prefix ?? '');
     }
   }
 
@@ -308,11 +303,7 @@ export class AzureImmutableStorage implements ImmutableStorage {
     try {
       await blobClient.setLegalHold(true);
     } catch (err) {
-      const error = err as Error & { statusCode?: number };
-      if (error.statusCode === 404) {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      throw new StorageError(`Failed to apply legal hold: ${key}`, 'UNKNOWN', error);
+      throw mapCloudError(err, key);
     }
   }
 
@@ -326,11 +317,7 @@ export class AzureImmutableStorage implements ImmutableStorage {
     try {
       await blobClient.setLegalHold(false);
     } catch (err) {
-      const error = err as Error & { statusCode?: number };
-      if (error.statusCode === 404) {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      throw new StorageError(`Failed to remove legal hold: ${key}`, 'UNKNOWN', error);
+      throw mapCloudError(err, key);
     }
   }
 
@@ -356,21 +343,6 @@ export class AzureImmutableStorage implements ImmutableStorage {
     } catch {
       return false;
     }
-  }
-
-  // ===========================================================================
-  // Helper Methods
-  // ===========================================================================
-
-  /**
-   * Convert readable stream to buffer.
-   */
-  private async streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk));
-    }
-    return Buffer.concat(chunks);
   }
 }
 

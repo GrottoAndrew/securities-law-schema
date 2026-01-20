@@ -44,6 +44,7 @@ import {
   StorageCapabilities,
   StorageError,
 } from '../interface.js';
+import { streamToBuffer, mapCloudError } from '../utils.js';
 
 // =============================================================================
 // Types
@@ -127,6 +128,7 @@ export class BackblazeB2Storage implements ImmutableStorage {
 
   /**
    * Store an object.
+   * Rejects if object already exists (immutability enforcement).
    *
    * Note: B2 does NOT support Object Lock, so retention parameters are
    * stored as metadata only (not enforced).
@@ -141,6 +143,13 @@ export class BackblazeB2Storage implements ImmutableStorage {
     }
   ): Promise<StoredObject> {
     const fullKey = this.prefix + key;
+
+    // Enforce immutability: reject if object already exists
+    const alreadyExists = await this.exists(key);
+    if (alreadyExists) {
+      throw new StorageError(`Object already exists: ${key}`, 'ALREADY_EXISTS');
+    }
+
     const contentHash = createHash('sha256').update(data).digest('hex');
 
     // B2 doesn't enforce retention, but we track it in metadata
@@ -183,15 +192,8 @@ export class BackblazeB2Storage implements ImmutableStorage {
         },
       };
     } catch (err) {
-      const error = err as Error & { Code?: string; $metadata?: { httpStatusCode?: number } };
-
-      if (error.$metadata?.httpStatusCode === 404 || error.Code === 'NoSuchBucket') {
-        throw new StorageError(`Bucket not found: ${this.bucket}`, 'CONNECTION_FAILED', error);
-      }
-      if (error.$metadata?.httpStatusCode === 403 || error.Code === 'AccessDenied') {
-        throw new StorageError('Access denied to B2 bucket', 'PERMISSION_DENIED', error);
-      }
-      throw new StorageError(`Failed to store object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -213,7 +215,7 @@ export class BackblazeB2Storage implements ImmutableStorage {
         throw new StorageError(`Empty response for: ${key}`, 'UNKNOWN');
       }
 
-      const data = await this.streamToBuffer(response.Body as Readable);
+      const data = await streamToBuffer(response.Body as Readable);
       const computedHash = createHash('sha256').update(data).digest('hex');
 
       // Parse retention from metadata (not enforced)
@@ -235,16 +237,12 @@ export class BackblazeB2Storage implements ImmutableStorage {
           storedAt: response.LastModified ?? new Date(),
           contentType: response.ContentType,
           retention,
-          legalHold: false, // B2 doesn't support legal holds
+          legalHold: false,
         },
       };
     } catch (err) {
-      const error = err as Error & { Code?: string; name?: string };
-      if (error.Code === 'NoSuchKey' || error.name === 'NoSuchKey' || error.name === 'NotFound') {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      if (error instanceof StorageError) throw error;
-      throw new StorageError(`Failed to retrieve object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -272,11 +270,11 @@ export class BackblazeB2Storage implements ImmutableStorage {
       await this.client.send(command);
       return true;
     } catch (err) {
-      const error = err as Error & { Code?: string; name?: string };
-      if (error.Code === 'NotFound' || error.name === 'NotFound' || error.Code === 'NoSuchKey') {
+      const mapped = mapCloudError(err, key);
+      if (mapped.code === 'NOT_FOUND') {
         return false;
       }
-      throw new StorageError(`Failed to check existence: ${key}`, 'UNKNOWN', error);
+      throw mapped;
     }
   }
 
@@ -297,10 +295,10 @@ export class BackblazeB2Storage implements ImmutableStorage {
 
       return (response.Contents ?? [])
         .map((obj) => obj.Key ?? '')
-        .filter((key) => key.length > 0)
-        .map((key) => key.slice(this.prefix.length));
+        .filter((k) => k.length > 0)
+        .map((k) => k.slice(this.prefix.length));
     } catch (err) {
-      throw new StorageError(`Failed to list objects: ${prefix}`, 'UNKNOWN', err as Error);
+      throw mapCloudError(err, prefix ?? '');
     }
   }
 
@@ -364,29 +362,14 @@ export class BackblazeB2Storage implements ImmutableStorage {
       await this.client.send(command);
       return true;
     } catch (err) {
-      const error = err as Error & { Code?: string; name?: string };
+      const mapped = mapCloudError(err, '');
       // NotFound is expected - bucket is accessible
-      if (error.Code === 'NotFound' || error.name === 'NotFound' || error.Code === 'NoSuchKey') {
+      if (mapped.code === 'NOT_FOUND') {
         return true;
       }
       // AccessDenied or NoSuchBucket means unhealthy
       return false;
     }
-  }
-
-  // ===========================================================================
-  // Helper Methods
-  // ===========================================================================
-
-  /**
-   * Convert readable stream to buffer.
-   */
-  private async streamToBuffer(stream: Readable): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk));
-    }
-    return Buffer.concat(chunks);
   }
 }
 

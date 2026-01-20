@@ -40,6 +40,9 @@ export {
   type StorageErrorCode,
 } from './interface.js';
 
+// Utilities
+export { streamToBuffer, mapCloudError, type CloudError } from './utils.js';
+
 // Factory
 export {
   createStorage,

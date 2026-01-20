@@ -36,6 +36,7 @@ import {
   StorageCapabilities,
   StorageError,
 } from '../interface.js';
+import { streamToBuffer, mapCloudError } from '../utils.js';
 
 // =============================================================================
 // Types
@@ -111,6 +112,7 @@ export class S3ObjectLockStorage implements ImmutableStorage {
 
   /**
    * Store an object with Object Lock retention.
+   * Rejects if object already exists (immutability enforcement).
    */
   async store(
     key: string,
@@ -122,6 +124,13 @@ export class S3ObjectLockStorage implements ImmutableStorage {
     }
   ): Promise<StoredObject> {
     const fullKey = this.prefix + key;
+
+    // Enforce immutability: reject if object already exists
+    const alreadyExists = await this.exists(key);
+    if (alreadyExists) {
+      throw new StorageError(`Object already exists: ${key}`, 'ALREADY_EXISTS');
+    }
+
     const contentHash = createHash('sha256').update(data).digest('hex');
 
     // Calculate retention date
@@ -168,14 +177,8 @@ export class S3ObjectLockStorage implements ImmutableStorage {
         },
       };
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NoSuchBucket') {
-        throw new StorageError(`Bucket not found: ${this.bucket}`, 'CONNECTION_FAILED', error);
-      }
-      if (error.name === 'AccessDenied') {
-        throw new StorageError('Access denied to S3 bucket', 'PERMISSION_DENIED', error);
-      }
-      throw new StorageError(`Failed to store object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -197,7 +200,7 @@ export class S3ObjectLockStorage implements ImmutableStorage {
         throw new StorageError(`Empty response for: ${key}`, 'UNKNOWN');
       }
 
-      const data = await this.streamToBuffer(response.Body as Readable);
+      const data = await streamToBuffer(response.Body as Readable);
       const computedHash = createHash('sha256').update(data).digest('hex');
 
       // Get retention info
@@ -226,12 +229,8 @@ export class S3ObjectLockStorage implements ImmutableStorage {
         },
       };
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      if (error instanceof StorageError) throw error;
-      throw new StorageError(`Failed to retrieve object: ${key}`, 'UNKNOWN', error);
+      if (err instanceof StorageError) throw err;
+      throw mapCloudError(err, key);
     }
   }
 
@@ -259,11 +258,11 @@ export class S3ObjectLockStorage implements ImmutableStorage {
       await this.client.send(command);
       return true;
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
+      const mapped = mapCloudError(err, key);
+      if (mapped.code === 'NOT_FOUND') {
         return false;
       }
-      throw new StorageError(`Failed to check existence: ${key}`, 'UNKNOWN', error);
+      throw mapped;
     }
   }
 
@@ -284,10 +283,10 @@ export class S3ObjectLockStorage implements ImmutableStorage {
 
       return (response.Contents ?? [])
         .map((obj) => obj.Key ?? '')
-        .filter((key) => key.length > 0)
-        .map((key) => key.slice(this.prefix.length)); // Remove prefix
+        .filter((k) => k.length > 0)
+        .map((k) => k.slice(this.prefix.length));
     } catch (err) {
-      throw new StorageError(`Failed to list objects: ${prefix}`, 'UNKNOWN', err as Error);
+      throw mapCloudError(err, prefix ?? '');
     }
   }
 
@@ -309,11 +308,7 @@ export class S3ObjectLockStorage implements ImmutableStorage {
 
       await this.client.send(command);
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NoSuchKey') {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      throw new StorageError(`Failed to apply legal hold: ${key}`, 'UNKNOWN', error);
+      throw mapCloudError(err, key);
     }
   }
 
@@ -334,11 +329,7 @@ export class S3ObjectLockStorage implements ImmutableStorage {
 
       await this.client.send(command);
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NoSuchKey') {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      throw new StorageError(`Failed to remove legal hold: ${key}`, 'UNKNOWN', error);
+      throw mapCloudError(err, key);
     }
   }
 
@@ -393,27 +384,8 @@ export class S3ObjectLockStorage implements ImmutableStorage {
       const response = await this.client.send(command);
       return response.LegalHold?.Status === 'ON';
     } catch (err) {
-      const error = err as Error;
-      if (error.name === 'NoSuchKey') {
-        throw new StorageError(`Object not found: ${key}`, 'NOT_FOUND', error);
-      }
-      throw new StorageError(`Failed to get legal hold status: ${key}`, 'UNKNOWN', error);
+      throw mapCloudError(err, key);
     }
-  }
-
-  // ===========================================================================
-  // Helper Methods
-  // ===========================================================================
-
-  /**
-   * Convert readable stream to buffer.
-   */
-  private async streamToBuffer(stream: Readable): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) {
-      chunks.push(Buffer.from(chunk));
-    }
-    return Buffer.concat(chunks);
   }
 }
 
