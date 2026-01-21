@@ -178,37 +178,44 @@ GPB Capital raised ~$1.8B through Regulation D offerings sold by broker-dealers 
 
 ---
 
-### Case Study 2: Shopoff Realty Investments
+### Case Study 2: Thompson National Properties (TNP) / Tony Thompson
 
 #### The Problem
-Shopoff faced SEC scrutiny for:
-- Inadequate disclosure in offering materials
-- Commingling of funds across offerings
-- Conflicts of interest not properly documented
+TNP and founder Tony Thompson operated non-traded REITs with:
+- Misappropriation of investor funds for personal use
+- Materially false property valuations (2-3x actual value)
+- Undisclosed conflicts and self-dealing transactions
+- Ponzi-like use of new investor funds to pay distributions
 
-**Settlement**: $4.7M disgorgement + interest
+**Criminal Outcome**: Tony Thompson sentenced to 5 years federal prison (2019)
+**Investor Losses**: $100M+ across 3,500+ investors
 
 #### Evidence Locker View (What Would Have Been Different)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  EVIDENCE LOCKER - Shopoff Offerings Dashboard                  │
+│  EVIDENCE LOCKER - TNP Due Diligence Dashboard                  │
 │                                                                  │
-│  Offering: Shopoff Fund III     Status: ⚠️ GAPS DETECTED        │
+│  Sponsor: Thompson National Properties  Status: 🔴 CRITICAL     │
 │                                                                  │
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │ Control                     │ Evidence │ Status │ Last Check││
 │  ├─────────────────────────────┼──────────┼────────┼───────────┤│
-│  │ ctrl-investor-records       │    47    │   ✓    │ 2h ago    ││
-│  │ ctrl-offering-materials     │    12    │   ✓    │ 2h ago    ││
-│  │ ctrl-form-d-filing          │    1     │   ✓    │ 15d ago   ││
-│  │ ctrl-conflicts-disclosure   │    0     │   ✗    │ MISSING   ││  ◄── RED FLAG
-│  │ ctrl-fund-segregation       │    0     │   ✗    │ MISSING   ││  ◄── RED FLAG
+│  │ ctrl-issuer-due-diligence   │    0     │   ✗    │ MISSING   ││  ◄── CRITICAL
+│  │ ctrl-valuation-verification │    0     │   ✗    │ MISSING   ││  ◄── CRITICAL
+│  │ ctrl-sponsor-background     │    0     │   ✗    │ MISSING   ││  ◄── CRITICAL
+│  │ ctrl-distribution-analysis  │    1     │   ⚠    │ 90d ago   ││  ◄── STALE
+│  │ ctrl-ongoing-monitoring     │    0     │   ✗    │ MISSING   ││  ◄── CRITICAL
 │  └─────────────────────────────────────────────────────────────┘│
 │                                                                  │
-│  [View Missing Evidence]  [Generate Audit Report]  [Alert CCO]  │
+│  ⚠️ ALERT: Distribution payout exceeds FFO by 40%               │
+│  ⚠️ ALERT: NAV 2.3x higher than comparable sales                │
+│                                                                  │
+│  [Halt Sales]  [Escalate to CCO]  [Generate Due Diligence Gap]  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+**Key Lesson**: BDs that sold TNP products faced $25M+ in settlements because they relied solely on sponsor-provided materials without independent verification.
 
 ---
 
