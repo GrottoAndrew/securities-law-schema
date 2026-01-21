@@ -125,9 +125,33 @@ jobs:
         with:
           context: .
           push: false
+          load: true
           tags: securities-law-schema:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: securities-law-schema:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run Trivy for SBOM generation
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: securities-law-schema:${{ github.sha }}
+          format: 'cyclonedx'
+          output: 'sbom.json'
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
 
   # ============================================================================
   # Integration Tests (on PR to main only)
