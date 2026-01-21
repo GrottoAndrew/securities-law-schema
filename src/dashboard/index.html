@@ -18,11 +18,7 @@
       --gray-900: #111827;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -31,11 +27,7 @@
       line-height: 1.5;
     }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
     header {
       background: white;
@@ -46,11 +38,9 @@
       align-items: center;
     }
 
-    header h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--gray-900);
-    }
+    header h1 { font-size: 20px; font-weight: 600; color: var(--gray-900); }
+
+    .header-controls { display: flex; align-items: center; gap: 16px; }
 
     .status-badge {
       display: inline-flex;
@@ -64,7 +54,161 @@
     .status-badge.green { background: #dcfce7; color: #166534; }
     .status-badge.yellow { background: #fef9c3; color: #854d0e; }
     .status-badge.red { background: #fee2e2; color: #991b1b; }
+    .status-badge.blue { background: #dbeafe; color: #1e40af; }
 
+    /* Jurisdiction Toggle */
+    .jurisdiction-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      background: var(--gray-100);
+      border-radius: 8px;
+    }
+
+    .jurisdiction-btn {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .jurisdiction-btn.active {
+      background: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .jurisdiction-btn.sec.active { color: #1e40af; }
+    .jurisdiction-btn.gdpr.active { color: #7c3aed; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header.warning { background: #fef3c7; }
+    .modal-header.danger { background: #fee2e2; }
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .modal-icon.warning { background: #fbbf24; }
+    .modal-icon.danger { background: #ef4444; color: white; }
+
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-subtitle { font-size: 13px; color: var(--gray-600); }
+
+    .modal-body { padding: 24px; }
+
+    .conflict-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    .conflict-table th, .conflict-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .conflict-table th { background: var(--gray-50); font-weight: 600; }
+
+    .conflict-table .sec-col { background: #eff6ff; }
+    .conflict-table .gdpr-col { background: #f5f3ff; }
+
+    .conflict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .conflict-badge.conflict { background: #fee2e2; color: #991b1b; }
+    .conflict-badge.ok { background: #dcfce7; color: #166534; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-800); }
+    .btn-secondary:hover { background: var(--gray-200); }
+
+    .warning-list {
+      background: #fffbeb;
+      border: 1px solid #fbbf24;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .warning-list h4 { color: #92400e; margin-bottom: 8px; }
+    .warning-list ul { margin-left: 20px; color: #78350f; font-size: 13px; }
+    .warning-list li { margin: 4px 0; }
+
+    /* Rest of existing styles */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -87,239 +231,194 @@
       align-items: center;
     }
 
-    .card-header h2 {
-      font-size: 16px;
-      font-weight: 600;
-    }
+    .card-header h2 { font-size: 16px; font-weight: 600; }
+    .card-body { padding: 20px; }
 
-    .card-body {
-      padding: 20px;
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .stat {
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-    }
-
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 32px; font-weight: 700; }
     .stat-value.green { color: var(--success); }
     .stat-value.yellow { color: var(--warning); }
     .stat-value.red { color: var(--danger); }
+    .stat-label { font-size: 12px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.05em; }
 
-    .stat-label {
-      font-size: 12px;
-      color: var(--gray-600);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+    .progress-bar { height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-top: 16px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 50%, var(--success) 100%); transition: width 0.3s ease; }
 
-    .progress-bar {
-      height: 8px;
-      background: var(--gray-200);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 16px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 50%, var(--success) 100%);
-      transition: width 0.3s ease;
-    }
-
-    .control-list {
-      list-style: none;
-    }
-
-    .control-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--gray-100);
-    }
-
-    .control-item:last-child {
-      border-bottom: none;
-    }
-
-    .control-status {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
-
+    .control-list { list-style: none; }
+    .control-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-100); }
+    .control-item:last-child { border-bottom: none; }
+    .control-status { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
     .control-status.green { background: var(--success); }
     .control-status.yellow { background: var(--warning); }
     .control-status.red { background: var(--danger); }
+    .control-info { flex-grow: 1; }
+    .control-name { font-weight: 500; font-size: 14px; }
+    .control-citation { font-size: 12px; color: var(--gray-600); }
+    .control-evidence { text-align: right; font-size: 12px; color: var(--gray-600); }
 
-    .control-info {
-      flex-grow: 1;
-    }
+    .case-card { background: var(--gray-50); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .case-name { font-weight: 600; font-size: 14px; }
+    .case-amount { font-weight: 700; color: var(--danger); }
+    .case-violations { font-size: 12px; color: var(--gray-600); }
 
-    .control-name {
-      font-weight: 500;
-      font-size: 14px;
-    }
+    .action-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .action-btn:hover { background: #1d4ed8; }
+    .action-btn.secondary { background: white; color: var(--gray-800); border: 1px solid var(--gray-200); }
+    .action-btn.secondary:hover { background: var(--gray-50); }
 
-    .control-citation {
-      font-size: 12px;
-      color: var(--gray-600);
-    }
+    .upload-zone { border: 2px dashed var(--gray-200); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .upload-zone:hover { border-color: var(--primary); background: #eff6ff; }
+    .upload-icon { font-size: 48px; margin-bottom: 8px; }
+    .upload-text { color: var(--gray-600); font-size: 14px; }
 
-    .control-evidence {
-      text-align: right;
-      font-size: 12px;
-      color: var(--gray-600);
-    }
+    .testing-cadence { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cadence-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px; font-size: 11px; background: var(--gray-100); }
+    .cadence-badge.active { background: #dbeafe; color: var(--primary); }
 
-    .case-card {
-      background: var(--gray-50);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
+    .audit-trail-item { padding: 12px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+    .audit-timestamp { color: var(--gray-600); font-size: 11px; }
+    .audit-hash { font-family: monospace; font-size: 10px; color: var(--gray-600); margin-top: 4px; }
 
-    .case-header {
+    /* Jurisdiction-specific styling */
+    .gdpr-mode .sec-specific { opacity: 0.5; }
+    .sec-mode .gdpr-specific { opacity: 0.5; }
+
+    .retention-indicator {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .case-name {
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .case-amount {
-      font-weight: 700;
-      color: var(--danger);
-    }
-
-    .case-violations {
-      font-size: 12px;
-      color: var(--gray-600);
-    }
-
-    .action-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .action-btn:hover {
-      background: #1d4ed8;
-    }
-
-    .action-btn.secondary {
-      background: white;
-      color: var(--gray-800);
-      border: 1px solid var(--gray-200);
-    }
-
-    .action-btn.secondary:hover {
-      background: var(--gray-50);
-    }
-
-    .upload-zone {
-      border: 2px dashed var(--gray-200);
-      border-radius: 8px;
-      padding: 32px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .upload-zone:hover {
-      border-color: var(--primary);
-      background: #eff6ff;
-    }
-
-    .upload-icon {
-      font-size: 48px;
-      margin-bottom: 8px;
-    }
-
-    .upload-text {
-      color: var(--gray-600);
-      font-size: 14px;
-    }
-
-    .testing-cadence {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .cadence-badge {
-      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      background: var(--gray-100);
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--gray-50);
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 12px;
     }
 
-    .cadence-badge.active {
-      background: #dbeafe;
-      color: var(--primary);
-    }
-
-    .audit-trail-item {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--gray-100);
-      font-size: 13px;
-    }
-
-    .audit-timestamp {
-      color: var(--gray-600);
-      font-size: 11px;
-    }
-
-    .audit-hash {
-      font-family: monospace;
-      font-size: 10px;
-      color: var(--gray-600);
-      margin-top: 4px;
-    }
+    .retention-indicator.conflict { background: #fee2e2; color: #991b1b; }
 
     @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
-<body>
+<body class="sec-mode">
+  <!-- Jurisdiction Conflict Warning Modal -->
+  <div class="modal-overlay" id="jurisdiction-modal">
+    <div class="modal">
+      <div class="modal-header danger">
+        <div class="modal-icon danger">⚠️</div>
+        <div>
+          <div class="modal-title">Regulatory Conflict Detected</div>
+          <div class="modal-subtitle">Switching jurisdictions may affect data retention policies</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">
+          You are attempting to switch from <strong id="from-jurisdiction">SEC</strong> to
+          <strong id="to-jurisdiction">GDPR</strong> compliance mode. These frameworks have
+          <strong>conflicting requirements</strong> for certain data handling operations.
+        </p>
+
+        <table class="conflict-table">
+          <thead>
+            <tr>
+              <th>Requirement</th>
+              <th class="sec-col">SEC Rule 17a-4</th>
+              <th class="gdpr-col">GDPR</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Record Retention</strong></td>
+              <td class="sec-col">Must retain 7 years minimum</td>
+              <td class="gdpr-col">Must delete on request (Art. 17)</td>
+              <td><span class="conflict-badge conflict">CONFLICT</span></td>
+            </tr>
+            <tr>
+              <td><strong>WORM Storage</strong></td>
+              <td class="sec-col">Required (non-rewritable)</td>
+              <td class="gdpr-col">Must allow deletion</td>
+              <td><span class="conflict-badge conflict">CONFLICT</span></td>
+            </tr>
+            <tr>
+              <td><strong>Audit Trail</strong></td>
+              <td class="sec-col">Immutable, complete</td>
+              <td class="gdpr-col">May require anonymization</td>
+              <td><span class="conflict-badge conflict">CONFLICT</span></td>
+            </tr>
+            <tr>
+              <td><strong>Data Access</strong></td>
+              <td class="sec-col">Examiner access required</td>
+              <td class="gdpr-col">Subject access rights</td>
+              <td><span class="conflict-badge ok">Compatible</span></td>
+            </tr>
+            <tr>
+              <td><strong>Encryption</strong></td>
+              <td class="sec-col">Recommended</td>
+              <td class="gdpr-col">Required (Art. 32)</td>
+              <td><span class="conflict-badge ok">Compatible</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warning-list">
+          <h4>⚠️ If you proceed to GDPR mode:</h4>
+          <ul>
+            <li>Data deletion requests will be <strong>logged but not executed</strong> for SEC-regulated records</li>
+            <li>You must maintain <strong>dual retention policies</strong> with legal counsel approval</li>
+            <li>EU data subjects will receive a <strong>regulatory exception notice</strong> explaining the conflict</li>
+            <li>All conflicts will be <strong>documented in the audit trail</strong> for examiner review</li>
+          </ul>
+        </div>
+
+        <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 16px; margin-top: 16px;">
+          <h4 style="color: #166534; margin-bottom: 8px;">Recommended Approach</h4>
+          <p style="font-size: 13px; color: #15803d;">
+            For firms handling both US securities and EU clients: Maintain <strong>SEC mode as primary</strong>
+            with GDPR supplemental controls. Document the regulatory exception under GDPR Article 17(3)(b)
+            which permits retention "for compliance with a legal obligation."
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cancelJurisdictionSwitch()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmJurisdictionSwitch()">
+          I Understand - Switch to <span id="confirm-jurisdiction">GDPR</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <h1>Compliance Evidence Locker</h1>
-    <div>
+    <div class="header-controls">
+      <div class="jurisdiction-toggle">
+        <button class="jurisdiction-btn sec active" onclick="attemptJurisdictionSwitch('sec')" id="sec-btn">
+          🇺🇸 SEC
+        </button>
+        <button class="jurisdiction-btn gdpr" onclick="attemptJurisdictionSwitch('gdpr')" id="gdpr-btn">
+          🇪🇺 GDPR
+        </button>
+      </div>
       <span class="status-badge green" id="system-status">System Healthy</span>
     </div>
   </header>
 
   <div class="container">
+    <!-- Jurisdiction Alert Banner -->
+    <div id="jurisdiction-banner" style="display: none; background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 20px;">⚖️</span>
+      <div style="flex-grow: 1;">
+        <strong style="color: #92400e;">Dual Jurisdiction Mode Active</strong>
+        <p style="font-size: 12px; color: #78350f; margin: 0;">SEC retention requirements take precedence. GDPR deletion requests logged with regulatory exception.</p>
+      </div>
+      <button class="action-btn secondary" style="font-size: 12px;" onclick="showConflictDetails()">View Conflicts</button>
+    </div>
+
     <!-- Summary Stats -->
     <div class="card" style="margin-bottom: 24px;">
       <div class="card-body">
@@ -342,6 +441,10 @@
         </div>
         <div style="text-align: center; margin-top: 8px; color: var(--gray-600); font-size: 14px;">
           <span id="compliance-percentage">0</span>% Compliant
+        </div>
+        <div class="retention-indicator" id="retention-indicator">
+          <span>📁</span>
+          <span><strong>Retention Policy:</strong> <span id="retention-policy">SEC 17a-4 (7 years, WORM storage)</span></span>
         </div>
       </div>
     </div>
@@ -486,10 +589,98 @@
   </div>
 
   <script>
-    const API_BASE = 'http://localhost:3001/api/v1';
-    let authToken = null;
+    // Configuration
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:3001/api/v1'
+      : '/api/v1';
 
-    // Demo: Get token on load
+    let authToken = null;
+    let currentJurisdiction = 'sec';
+    let pendingJurisdiction = null;
+
+    // Jurisdiction Management
+    function attemptJurisdictionSwitch(newJurisdiction) {
+      if (newJurisdiction === currentJurisdiction) return;
+
+      pendingJurisdiction = newJurisdiction;
+
+      // Update modal content
+      document.getElementById('from-jurisdiction').textContent = currentJurisdiction.toUpperCase();
+      document.getElementById('to-jurisdiction').textContent = newJurisdiction.toUpperCase();
+      document.getElementById('confirm-jurisdiction').textContent = newJurisdiction.toUpperCase();
+
+      // Show warning modal
+      document.getElementById('jurisdiction-modal').classList.add('active');
+    }
+
+    function cancelJurisdictionSwitch() {
+      pendingJurisdiction = null;
+      document.getElementById('jurisdiction-modal').classList.remove('active');
+    }
+
+    function confirmJurisdictionSwitch() {
+      if (!pendingJurisdiction) return;
+
+      currentJurisdiction = pendingJurisdiction;
+      pendingJurisdiction = null;
+
+      // Update UI
+      document.getElementById('jurisdiction-modal').classList.remove('active');
+      document.body.classList.remove('sec-mode', 'gdpr-mode');
+      document.body.classList.add(`${currentJurisdiction}-mode`);
+
+      // Update toggle buttons
+      document.querySelectorAll('.jurisdiction-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`${currentJurisdiction}-btn`).classList.add('active');
+
+      // Update retention policy display
+      updateRetentionPolicy();
+
+      // Show dual jurisdiction banner if switching to GDPR
+      if (currentJurisdiction === 'gdpr') {
+        document.getElementById('jurisdiction-banner').style.display = 'flex';
+      } else {
+        document.getElementById('jurisdiction-banner').style.display = 'none';
+      }
+
+      // Log the switch in audit trail
+      logJurisdictionSwitch();
+    }
+
+    function updateRetentionPolicy() {
+      const indicator = document.getElementById('retention-indicator');
+      const policy = document.getElementById('retention-policy');
+
+      if (currentJurisdiction === 'sec') {
+        policy.textContent = 'SEC 17a-4 (7 years, WORM storage)';
+        indicator.classList.remove('conflict');
+      } else {
+        policy.textContent = 'GDPR + SEC Hybrid (Deletion logged, not executed for SEC records)';
+        indicator.classList.add('conflict');
+      }
+    }
+
+    function showConflictDetails() {
+      document.getElementById('jurisdiction-modal').classList.add('active');
+    }
+
+    function logJurisdictionSwitch() {
+      const auditTrail = document.getElementById('audit-trail');
+      const entry = document.createElement('div');
+      entry.className = 'audit-trail-item';
+      entry.innerHTML = `
+        <strong>JURISDICTION_SWITCH</strong> - Changed to ${currentJurisdiction.toUpperCase()}<br>
+        <span class="audit-timestamp">${new Date().toLocaleString()} EST</span>
+        <div class="audit-hash">Hash: ${generateHash()}</div>
+      `;
+      auditTrail.insertBefore(entry, auditTrail.firstChild);
+    }
+
+    function generateHash() {
+      return Math.random().toString(16).substr(2, 12) + '...';
+    }
+
+    // API Functions
     async function init() {
       try {
         const res = await fetch(`${API_BASE}/auth/token`, {
@@ -597,7 +788,6 @@
         </li>
       `).join('');
 
-      // Populate control select
       const select = document.getElementById('control-select');
       select.innerHTML = '<option value="">Select a control...</option>';
       demoControls.forEach(ctrl => {
@@ -614,7 +804,7 @@
         alert('Please select a control to link evidence to.');
         return;
       }
-      alert('Evidence submission would upload to S3 and create hash in production.\n\nControl: ' + controlId);
+      alert(`Evidence submission would upload to S3 and create hash in production.\n\nControl: ${controlId}\nJurisdiction: ${currentJurisdiction.toUpperCase()}\nRetention: ${currentJurisdiction === 'sec' ? '7 years WORM' : 'GDPR + SEC Hybrid'}`);
     }
 
     function toggleCadence() {
@@ -622,7 +812,7 @@
     }
 
     function exportAudit() {
-      alert('Audit export would generate:\n\n1. PDF report with all audit entries\n2. Merkle proofs for verification\n3. Signed JSON export for archival');
+      alert(`Audit export would generate:\n\n1. PDF report with all audit entries\n2. Merkle proofs for verification\n3. Signed JSON export for archival\n\nJurisdiction: ${currentJurisdiction.toUpperCase()}`);
     }
 
     // Initialize
