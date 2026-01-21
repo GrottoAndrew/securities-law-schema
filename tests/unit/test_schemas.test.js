@@ -11,11 +11,14 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync, readdirSync } from 'fs';
-import { join, resolve } from 'path';
+import { join, resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
-const projectRoot = resolve(import.meta.dirname, '../..');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const projectRoot = resolve(__dirname, '../..');
 const schemasDir = join(projectRoot, 'schemas', 'regulation-d');
 const controlsPath = join(projectRoot, 'controls', 'regulation-d-controls.json');
 const contextPath = join(projectRoot, 'contexts', 'securities-context.jsonld');
