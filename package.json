@@ -26,7 +26,11 @@
     "scheduler:start": "node scripts/test-scheduler.js",
     "dashboard:dev": "vite --config src/dashboard/vite.config.js",
     "api:dev": "node src/api/server.js",
-    "dev": "concurrently \"npm run api:dev\" \"npm run dashboard:dev\""
+    "dev": "concurrently \"npm run api:dev\" \"npm run dashboard:dev\"",
+    "demo": "./scripts/demo.sh start",
+    "demo:stop": "./scripts/demo.sh stop",
+    "demo:seed": "./scripts/demo.sh seed",
+    "demo:clean": "./scripts/demo.sh clean"
   },
   "keywords": [
     "securities",
