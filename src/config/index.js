@@ -5,9 +5,6 @@
  * Fails fast with helpful error messages if configuration is invalid.
  */
 
-import { existsSync } from 'fs';
-import { resolve } from 'path';
-
 // Load .env in development
 if (process.env.NODE_ENV !== 'production') {
   try {

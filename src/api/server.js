@@ -15,7 +15,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -74,7 +74,6 @@ function loadSchemas() {
   const dir = join(projectRoot, 'schemas', 'regulation-d');
   if (!existsSync(dir)) return [];
 
-  const { readdirSync } = await import('fs');
   return readdirSync(dir)
     .filter(f => f.endsWith('.jsonld'))
     .map(f => ({
@@ -87,7 +86,6 @@ function loadEnforcementCases() {
   const dir = join(projectRoot, 'data', 'sample-enforcement');
   if (!existsSync(dir)) return [];
 
-  const { readdirSync } = await import('fs');
   return readdirSync(dir)
     .filter(f => f.endsWith('.json'))
     .map(f => ({
@@ -554,7 +552,7 @@ app.post('/api/v1/auth/token', (req, res) => {
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
