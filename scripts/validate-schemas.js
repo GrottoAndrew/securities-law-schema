@@ -10,7 +10,7 @@
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { resolve, join, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -19,9 +19,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
 
-// Load JSON Schema
+// Load JSON Schema with error handling
 const schemaPath = join(projectRoot, 'schemas', 'regulation-d-schema.json');
-const schema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
+if (!existsSync(schemaPath)) {
+  console.error(`FATAL: JSON Schema not found at ${schemaPath}`);
+  process.exit(1);
+}
+
+let schema;
+try {
+  schema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
+} catch (err) {
+  console.error(`FATAL: Failed to parse JSON Schema: ${err.message}`);
+  process.exit(1);
+}
 
 // Initialize Ajv with strict mode and formats
 const ajv = new Ajv({
@@ -76,10 +87,22 @@ function findJsonLdFiles(dirPath) {
   const files = [];
   const absolutePath = resolve(dirPath);
 
+  if (!existsSync(absolutePath)) {
+    console.error(`Directory not found: ${absolutePath}`);
+    return files;
+  }
+
   const entries = readdirSync(absolutePath);
   for (const entry of entries) {
     const fullPath = join(absolutePath, entry);
-    const stat = statSync(fullPath);
+
+    let stat;
+    try {
+      stat = statSync(fullPath);
+    } catch (err) {
+      console.error(`Failed to stat ${fullPath}: ${err.message}`);
+      continue;
+    }
 
     if (stat.isDirectory()) {
       files.push(...findJsonLdFiles(fullPath));
@@ -135,7 +158,19 @@ function main() {
   let targetPath = args[0] || join(projectRoot, 'schemas', 'regulation-d');
 
   targetPath = resolve(targetPath);
-  const stat = statSync(targetPath);
+
+  if (!existsSync(targetPath)) {
+    console.error(`Path not found: ${targetPath}`);
+    process.exit(1);
+  }
+
+  let stat;
+  try {
+    stat = statSync(targetPath);
+  } catch (err) {
+    console.error(`Failed to access path: ${err.message}`);
+    process.exit(1);
+  }
 
   let files;
   if (stat.isDirectory()) {

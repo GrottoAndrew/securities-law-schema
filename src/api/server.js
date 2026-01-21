@@ -25,12 +25,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '../..');
 
-// Configuration
+// Configuration with strict validation
 const config = {
-  port: process.env.PORT || 3001,
-  jwtSecret: process.env.JWT_SECRET || 'development-secret-change-in-production',
-  corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173']
+  port: parseInt(process.env.PORT, 10) || 3001,
+  jwtSecret: process.env.JWT_SECRET,
+  corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
+  nodeEnv: process.env.NODE_ENV || 'development'
 };
+
+// Fail fast on missing JWT secret in production
+if (!config.jwtSecret) {
+  if (config.nodeEnv === 'production') {
+    console.error('FATAL: JWT_SECRET environment variable is required in production');
+    process.exit(1);
+  }
+  config.jwtSecret = 'development-only-secret-do-not-use-in-production';
+  console.warn('WARNING: Using development JWT secret. Set JWT_SECRET in production.');
+}
 
 const app = express();
 
@@ -63,35 +74,58 @@ app.use((req, res, next) => {
   next();
 });
 
-// Load data helpers
+// Load data helpers with proper error handling
 function loadControls() {
-  const path = join(projectRoot, 'controls', 'regulation-d-controls.json');
-  if (!existsSync(path)) return null;
-  return JSON.parse(readFileSync(path, 'utf-8'));
+  const controlsPath = join(projectRoot, 'controls', 'regulation-d-controls.json');
+  if (!existsSync(controlsPath)) {
+    return null;
+  }
+  try {
+    return JSON.parse(readFileSync(controlsPath, 'utf-8'));
+  } catch (err) {
+    console.error(`Failed to parse controls file: ${err.message}`);
+    return null;
+  }
 }
 
 function loadSchemas() {
   const dir = join(projectRoot, 'schemas', 'regulation-d');
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) {
+    return [];
+  }
 
-  return readdirSync(dir)
-    .filter(f => f.endsWith('.jsonld'))
-    .map(f => ({
-      filename: f,
-      content: JSON.parse(readFileSync(join(dir, f), 'utf-8'))
-    }));
+  const results = [];
+  const files = readdirSync(dir).filter(f => f.endsWith('.jsonld'));
+
+  for (const f of files) {
+    try {
+      const content = JSON.parse(readFileSync(join(dir, f), 'utf-8'));
+      results.push({ filename: f, content });
+    } catch (err) {
+      console.error(`Failed to parse schema ${f}: ${err.message}`);
+    }
+  }
+  return results;
 }
 
 function loadEnforcementCases() {
   const dir = join(projectRoot, 'data', 'sample-enforcement');
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) {
+    return [];
+  }
 
-  return readdirSync(dir)
-    .filter(f => f.endsWith('.json'))
-    .map(f => ({
-      filename: f,
-      content: JSON.parse(readFileSync(join(dir, f), 'utf-8'))
-    }));
+  const results = [];
+  const files = readdirSync(dir).filter(f => f.endsWith('.json'));
+
+  for (const f of files) {
+    try {
+      const content = JSON.parse(readFileSync(join(dir, f), 'utf-8'));
+      results.push({ filename: f, content });
+    } catch (err) {
+      console.error(`Failed to parse enforcement case ${f}: ${err.message}`);
+    }
+  }
+  return results;
 }
 
 // In-memory evidence store (replace with PostgreSQL in production)
@@ -108,7 +142,6 @@ function logAudit(event, actor, details) {
     previousHash: auditLog.length > 0 ? auditLog[auditLog.length - 1].hash : '0'.repeat(64)
   };
 
-  // Compute hash chain
   const preimage = `${entry.id}${entry.timestamp}${entry.event}${JSON.stringify(entry.details)}${entry.previousHash}`;
   entry.hash = createHash('sha256').update(preimage).digest('hex');
 
@@ -130,7 +163,13 @@ function authenticateToken(req, res, next) {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token', code: 'TOKEN_INVALID' });
+    }
+    return res.status(403).json({ error: 'Token verification failed', code: 'TOKEN_VERIFICATION_FAILED' });
   }
 }
 
@@ -143,11 +182,19 @@ function requireRole(...roles) {
   };
 }
 
+function safeParseInt(value, defaultValue) {
+  if (value === undefined || value === null) {
+    return defaultValue;
+  }
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? defaultValue : parsed;
+}
+
 // ===================
 // PUBLIC ENDPOINTS
 // ===================
 
-app.get('/api/v1/health', (req, res) => {
+app.get('/api/v1/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -159,14 +206,13 @@ app.get('/api/v1/health', (req, res) => {
 // CONTROL ENDPOINTS
 // ===================
 
-app.get('/api/v1/controls', (req, res) => {
+app.get('/api/v1/controls', (_req, res) => {
   try {
     const controls = loadControls();
     if (!controls) {
       return res.status(404).json({ error: 'Controls catalog not found' });
     }
 
-    // Flatten controls for listing
     const flatControls = [];
 
     function extractControls(obj, parentId = null) {
@@ -251,9 +297,9 @@ app.get('/api/v1/controls/:id', (req, res) => {
 // REGULATION ENDPOINTS
 // ===================
 
-app.get('/api/v1/regulations', async (req, res) => {
+app.get('/api/v1/regulations', (_req, res) => {
   try {
-    const schemas = await loadSchemas();
+    const schemas = loadSchemas();
 
     res.json({
       regulations: schemas.map(s => ({
@@ -270,9 +316,9 @@ app.get('/api/v1/regulations', async (req, res) => {
   }
 });
 
-app.get('/api/v1/regulations/:citation', async (req, res) => {
+app.get('/api/v1/regulations/:citation', (req, res) => {
   try {
-    const schemas = await loadSchemas();
+    const schemas = loadSchemas();
     const citation = req.params.citation.replace(/-/g, '.');
 
     const schema = schemas.find(s =>
@@ -316,13 +362,11 @@ app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance
       status: 'active'
     };
 
-    // Compute Merkle leaf hash
     const preimage = `${evidence.id}${evidence.artifactHash}${JSON.stringify(evidence.metadata)}${evidence.collectedAt}`;
     evidence.merkleLeafHash = createHash('sha256').update(preimage).digest('hex');
 
     evidenceStore.set(evidence.id, evidence);
 
-    // Log to audit trail
     logAudit('EVIDENCE_SUBMITTED', req.user.email, {
       evidenceId: evidence.id,
       controlId,
@@ -380,7 +424,6 @@ app.get('/api/v1/evidence/:id/verify', authenticateToken, (req, res) => {
     return res.status(404).json({ error: 'Evidence not found' });
   }
 
-  // Recompute leaf hash to verify integrity
   const preimage = `${evidence.id}${evidence.artifactHash}${JSON.stringify(evidence.metadata)}${evidence.collectedAt}`;
   const computedHash = createHash('sha256').update(preimage).digest('hex');
 
@@ -397,7 +440,7 @@ app.get('/api/v1/evidence/:id/verify', authenticateToken, (req, res) => {
 // COMPLIANCE STATUS ENDPOINTS
 // ===================
 
-app.get('/api/v1/compliance-status', authenticateToken, (req, res) => {
+app.get('/api/v1/compliance-status', authenticateToken, (_req, res) => {
   try {
     const controls = loadControls();
     if (!controls) {
@@ -405,8 +448,6 @@ app.get('/api/v1/compliance-status', authenticateToken, (req, res) => {
     }
 
     const evidence = Array.from(evidenceStore.values()).filter(e => e.status === 'active');
-
-    // Build status for each control
     const controlStatus = [];
 
     function processControls(obj) {
@@ -414,14 +455,21 @@ app.get('/api/v1/compliance-status', authenticateToken, (req, res) => {
         obj.forEach(processControls);
       } else if (obj && typeof obj === 'object' && obj.id) {
         const controlEvidence = evidence.filter(e => e.controlId === obj.id);
+
+        let lastEvidenceDate = null;
+        if (controlEvidence.length > 0) {
+          const sorted = controlEvidence
+            .filter(e => e.collectedAt)
+            .sort((a, b) => new Date(b.collectedAt).getTime() - new Date(a.collectedAt).getTime());
+          lastEvidenceDate = sorted.length > 0 ? sorted[0].collectedAt : null;
+        }
+
         controlStatus.push({
           controlId: obj.id,
           title: obj.title,
           regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
           evidenceCount: controlEvidence.length,
-          lastEvidence: controlEvidence.length > 0
-            ? controlEvidence.sort((a, b) => new Date(b.collectedAt) - new Date(a.collectedAt))[0].collectedAt
-            : null,
+          lastEvidence: lastEvidenceDate,
           status: controlEvidence.length > 0 ? 'SATISFIED' : 'MISSING'
         });
         if (obj.controls) processControls(obj.controls);
@@ -432,15 +480,17 @@ app.get('/api/v1/compliance-status', authenticateToken, (req, res) => {
       if (group.controls) processControls(group.controls);
     });
 
+    const totalControls = controlStatus.length;
     const satisfied = controlStatus.filter(c => c.status === 'SATISFIED').length;
     const missing = controlStatus.filter(c => c.status === 'MISSING').length;
+    const compliancePercentage = totalControls > 0 ? Math.round((satisfied / totalControls) * 100) : 0;
 
     res.json({
       summary: {
-        totalControls: controlStatus.length,
+        totalControls,
         satisfied,
         missing,
-        compliancePercentage: Math.round((satisfied / controlStatus.length) * 100)
+        compliancePercentage
       },
       controls: controlStatus,
       lastUpdated: new Date().toISOString()
@@ -455,9 +505,9 @@ app.get('/api/v1/compliance-status', authenticateToken, (req, res) => {
 // ENFORCEMENT CASE ENDPOINTS
 // ===================
 
-app.get('/api/v1/enforcement-cases', async (req, res) => {
+app.get('/api/v1/enforcement-cases', (_req, res) => {
   try {
-    const cases = await loadEnforcementCases();
+    const cases = loadEnforcementCases();
 
     res.json({
       cases: cases.map(c => ({
@@ -475,9 +525,9 @@ app.get('/api/v1/enforcement-cases', async (req, res) => {
   }
 });
 
-app.get('/api/v1/enforcement-cases/:id', async (req, res) => {
+app.get('/api/v1/enforcement-cases/:id', (req, res) => {
   try {
-    const cases = await loadEnforcementCases();
+    const cases = loadEnforcementCases();
     const caseData = cases.find(c =>
       c.content.case?.id === req.params.id ||
       c.filename.includes(req.params.id)
@@ -499,7 +549,9 @@ app.get('/api/v1/enforcement-cases/:id', async (req, res) => {
 // ===================
 
 app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'), (req, res) => {
-  const { limit = 100, offset = 0, eventType } = req.query;
+  const limit = safeParseInt(req.query.limit, 100);
+  const offset = safeParseInt(req.query.offset, 0);
+  const { eventType } = req.query;
 
   let logs = [...auditLog];
 
@@ -507,16 +559,12 @@ app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'
     logs = logs.filter(l => l.event === eventType);
   }
 
-  // Sort by timestamp descending
-  logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   res.json({
-    auditLog: logs.slice(parseInt(offset), parseInt(offset) + parseInt(limit)),
+    auditLog: logs.slice(offset, offset + limit),
     total: logs.length,
-    pagination: {
-      limit: parseInt(limit),
-      offset: parseInt(offset)
-    }
+    pagination: { limit, offset }
   });
 });
 
@@ -552,21 +600,22 @@ app.post('/api/v1/auth/token', (req, res) => {
 });
 
 // Error handling
-app.use((err, req, res, _next) => {
+app.use((err, _req, res, _next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
 // 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
 // Start server
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   console.log(`\n========================================`);
   console.log(`Compliance API Server`);
   console.log(`========================================`);
+  console.log(`Environment: ${config.nodeEnv}`);
   console.log(`Port: ${config.port}`);
   console.log(`CORS: ${config.corsOrigins.join(', ')}`);
   console.log(`Health: http://localhost:${config.port}/api/v1/health`);
@@ -574,3 +623,4 @@ app.listen(config.port, () => {
 });
 
 export default app;
+export { server };

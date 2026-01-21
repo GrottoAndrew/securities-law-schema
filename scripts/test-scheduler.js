@@ -16,19 +16,24 @@
 import cron from 'node-cron';
 import { spawn } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve as resolvePath, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const projectRoot = resolve(__dirname, '..');
+const projectRoot = resolvePath(__dirname, '..');
 
 // Load configuration
 function loadConfig() {
-  const configPath = resolve(projectRoot, 'config', 'testing-cadence.json');
+  const configPath = resolvePath(projectRoot, 'config', 'testing-cadence.json');
 
   if (existsSync(configPath)) {
-    return JSON.parse(readFileSync(configPath, 'utf-8'));
+    try {
+      return JSON.parse(readFileSync(configPath, 'utf-8'));
+    } catch (err) {
+      console.error(`Failed to parse config file: ${err.message}`);
+      console.log('Using default configuration.');
+    }
   }
 
   // Default configuration
@@ -56,7 +61,7 @@ function loadConfig() {
 
 // Run a test script
 function runTest(testType, script) {
-  return new Promise((resolve, reject) => {
+  return new Promise((promiseResolve, promiseReject) => {
     console.log(`\n[${new Date().toISOString()}] Starting ${testType} tests...`);
 
     const proc = spawn('npm', ['run', script], {
@@ -68,16 +73,16 @@ function runTest(testType, script) {
     proc.on('close', (code) => {
       if (code === 0) {
         console.log(`[${new Date().toISOString()}] ${testType} tests PASSED`);
-        resolve({ testType, status: 'passed', code });
+        promiseResolve({ testType, status: 'passed', code });
       } else {
         console.error(`[${new Date().toISOString()}] ${testType} tests FAILED (exit code: ${code})`);
-        resolve({ testType, status: 'failed', code });
+        promiseResolve({ testType, status: 'failed', code });
       }
     });
 
     proc.on('error', (err) => {
       console.error(`[${new Date().toISOString()}] ${testType} tests ERROR:`, err);
-      reject(err);
+      promiseReject(err);
     });
   });
 }
@@ -89,9 +94,16 @@ function startScheduler() {
   const schedule = config.databases[cadence]?.testSchedule;
 
   if (!schedule) {
-    console.error(`Invalid cadence: ${cadence}. Using 'hot' as default.`);
-    return;
+    console.error(`Invalid cadence: ${cadence}. Valid options: hot, cold`);
+    console.log('Falling back to "hot" cadence.');
+    const fallbackSchedule = config.databases.hot?.testSchedule;
+    if (!fallbackSchedule) {
+      console.error('FATAL: No valid test schedule found.');
+      process.exit(1);
+    }
   }
+
+  const activeSchedule = schedule || config.databases.hot.testSchedule;
 
   console.log('========================================');
   console.log('Test Scheduler Started');
@@ -108,8 +120,8 @@ function startScheduler() {
   };
 
   // Schedule each test type
-  Object.entries(schedule).forEach(([testType, config]) => {
-    const { cron: cronExpr, description } = config;
+  Object.entries(activeSchedule).forEach(([testType, testConfig]) => {
+    const { cron: cronExpr, description } = testConfig;
     const script = testScripts[testType];
 
     if (!script) {
@@ -136,9 +148,6 @@ function startScheduler() {
           ...result
         };
         console.log('Test Result:', JSON.stringify(logEntry));
-
-        // In production, send to monitoring system
-        // await sendToMonitoring(logEntry);
       } catch (err) {
         console.error(`Error running ${testType} tests:`, err);
       }
