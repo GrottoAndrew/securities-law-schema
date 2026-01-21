@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compliance Evidence Locker Dashboard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.green { background: #dcfce7; color: #166534; }
+    .status-badge.yellow { background: #fef9c3; color: #854d0e; }
+    .status-badge.red { background: #fee2e2; color: #991b1b; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .stat-value.green { color: var(--success); }
+    .stat-value.yellow { color: var(--warning); }
+    .stat-value.red { color: var(--danger); }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 50%, var(--success) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .control-list {
+      list-style: none;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .control-item:last-child {
+      border-bottom: none;
+    }
+
+    .control-status {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .control-status.green { background: var(--success); }
+    .control-status.yellow { background: var(--warning); }
+    .control-status.red { background: var(--danger); }
+
+    .control-info {
+      flex-grow: 1;
+    }
+
+    .control-name {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .control-citation {
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .control-evidence {
+      text-align: right;
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .case-card {
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .case-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .case-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .case-amount {
+      font-weight: 700;
+      color: var(--danger);
+    }
+
+    .case-violations {
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .action-btn.secondary {
+      background: white;
+      color: var(--gray-800);
+      border: 1px solid var(--gray-200);
+    }
+
+    .action-btn.secondary:hover {
+      background: var(--gray-50);
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--gray-200);
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      color: var(--gray-600);
+      font-size: 14px;
+    }
+
+    .testing-cadence {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cadence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      background: var(--gray-100);
+    }
+
+    .cadence-badge.active {
+      background: #dbeafe;
+      color: var(--primary);
+    }
+
+    .audit-trail-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 13px;
+    }
+
+    .audit-timestamp {
+      color: var(--gray-600);
+      font-size: 11px;
+    }
+
+    .audit-hash {
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--gray-600);
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Compliance Evidence Locker</h1>
+    <div>
+      <span class="status-badge green" id="system-status">System Healthy</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Summary Stats -->
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-value green" id="satisfied-count">-</div>
+            <div class="stat-label">Controls Satisfied</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value yellow" id="pending-count">-</div>
+            <div class="stat-label">Pending Review</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value red" id="missing-count">-</div>
+            <div class="stat-label">Missing Evidence</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="compliance-progress" style="width: 0%"></div>
+        </div>
+        <div style="text-align: center; margin-top: 8px; color: var(--gray-600); font-size: 14px;">
+          <span id="compliance-percentage">0</span>% Compliant
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Control Status -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Control Status</h2>
+          <button class="action-btn secondary" onclick="refreshStatus()">Refresh</button>
+        </div>
+        <div class="card-body">
+          <ul class="control-list" id="control-list">
+            <li class="control-item">
+              <div class="control-status green"></div>
+              <div class="control-info">
+                <div class="control-name">Loading...</div>
+                <div class="control-citation">-</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Evidence Upload -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Submit Evidence</h2>
+        </div>
+        <div class="card-body">
+          <div class="upload-zone" id="upload-zone">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">
+              Drag files here or click to browse<br>
+              <small>PDF, JPG, PNG (max 25MB)</small>
+            </div>
+          </div>
+          <div style="margin-top: 16px;">
+            <label style="font-size: 14px; display: block; margin-bottom: 8px;">Link to Control:</label>
+            <select id="control-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--gray-200);">
+              <option value="">Select a control...</option>
+            </select>
+          </div>
+          <button class="action-btn" style="width: 100%; margin-top: 16px;" onclick="submitEvidence()">
+            Submit Evidence
+          </button>
+        </div>
+      </div>
+
+      <!-- Enforcement Case Studies -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Enforcement Case Studies</h2>
+        </div>
+        <div class="card-body" id="case-studies">
+          <div class="case-card">
+            <div class="case-header">
+              <span class="case-name">GPB Capital Holdings</span>
+              <span class="case-amount">$161M+</span>
+            </div>
+            <div class="case-violations">
+              Form D violations, AI verification failures, bad actor checks missing
+            </div>
+          </div>
+          <div class="case-card">
+            <div class="case-header">
+              <span class="case-name">Shopoff Realty</span>
+              <span class="case-amount">$4.7M</span>
+            </div>
+            <div class="case-violations">
+              Conflict disclosure, fee disclosure, fund segregation gaps
+            </div>
+          </div>
+          <div class="case-card">
+            <div class="case-header">
+              <span class="case-name">American Realty Capital</span>
+              <span class="case-amount">$60M+ (BDs)</span>
+            </div>
+            <div class="case-violations">
+              Due diligence failures, ongoing monitoring gaps
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testing Cadence -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Testing Cadence</h2>
+          <span class="status-badge green">Hot DB</span>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">Active Schedule</div>
+            <div class="testing-cadence">
+              <span class="cadence-badge active">Unit: 15min</span>
+              <span class="cadence-badge active">Integration: Hourly</span>
+              <span class="cadence-badge active">Red Team: Hourly</span>
+              <span class="cadence-badge">E2E: 4h</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">Last Run Results</div>
+            <div style="display: flex; gap: 16px; font-size: 13px;">
+              <span style="color: var(--success);">Unit: Passed</span>
+              <span style="color: var(--success);">Red Team: Passed</span>
+            </div>
+          </div>
+          <button class="action-btn secondary" style="width: 100%;" onclick="toggleCadence()">
+            Configure Cadence
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Trail -->
+      <div class="card" style="grid-column: span 2;">
+        <div class="card-header">
+          <h2>Audit Trail</h2>
+          <button class="action-btn secondary" onclick="exportAudit()">Export</button>
+        </div>
+        <div class="card-body">
+          <div id="audit-trail">
+            <div class="audit-trail-item">
+              <strong>EVIDENCE_SUBMITTED</strong> - ctrl-ai-verification<br>
+              <span class="audit-timestamp">2026-01-21 09:45:23 EST</span>
+              <div class="audit-hash">Hash: a1b2c3d4e5f6...</div>
+            </div>
+            <div class="audit-trail-item">
+              <strong>CONTROL_VERIFIED</strong> - ctrl-form-d-filing<br>
+              <span class="audit-timestamp">2026-01-21 09:30:00 EST</span>
+              <div class="audit-hash">Hash: f6e5d4c3b2a1...</div>
+            </div>
+            <div class="audit-trail-item">
+              <strong>REDTEAM_ANALYSIS</strong> - All schemas passed<br>
+              <span class="audit-timestamp">2026-01-21 09:00:00 EST</span>
+              <div class="audit-hash">Hash: 9876543210ab...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3001/api/v1';
+    let authToken = null;
+
+    // Demo: Get token on load
+    async function init() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'demo@example.com', role: 'compliance' })
+        });
+        const data = await res.json();
+        authToken = data.token;
+        await refreshStatus();
+        await loadControls();
+      } catch (err) {
+        console.log('API not available, using demo data');
+        loadDemoData();
+      }
+    }
+
+    async function refreshStatus() {
+      if (!authToken) {
+        loadDemoData();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/compliance-status`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        document.getElementById('satisfied-count').textContent = data.summary.satisfied;
+        document.getElementById('missing-count').textContent = data.summary.missing;
+        document.getElementById('pending-count').textContent = 0;
+        document.getElementById('compliance-percentage').textContent = data.summary.compliancePercentage;
+        document.getElementById('compliance-progress').style.width = `${data.summary.compliancePercentage}%`;
+
+        renderControlList(data.controls);
+      } catch (err) {
+        console.error('Failed to refresh status:', err);
+        loadDemoData();
+      }
+    }
+
+    async function loadControls() {
+      if (!authToken) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/controls`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        const select = document.getElementById('control-select');
+        data.controls.forEach(ctrl => {
+          const option = document.createElement('option');
+          option.value = ctrl.id;
+          option.textContent = `${ctrl.title} (${ctrl.regulationCitation || 'General'})`;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Failed to load controls:', err);
+      }
+    }
+
+    function renderControlList(controls) {
+      const list = document.getElementById('control-list');
+      list.innerHTML = controls.slice(0, 8).map(ctrl => `
+        <li class="control-item">
+          <div class="control-status ${ctrl.status === 'SATISFIED' ? 'green' : 'red'}"></div>
+          <div class="control-info">
+            <div class="control-name">${ctrl.title}</div>
+            <div class="control-citation">${ctrl.regulationCitation || '-'}</div>
+          </div>
+          <div class="control-evidence">${ctrl.evidenceCount} docs</div>
+        </li>
+      `).join('');
+    }
+
+    function loadDemoData() {
+      document.getElementById('satisfied-count').textContent = '18';
+      document.getElementById('missing-count').textContent = '5';
+      document.getElementById('pending-count').textContent = '2';
+      document.getElementById('compliance-percentage').textContent = '72';
+      document.getElementById('compliance-progress').style.width = '72%';
+
+      const demoControls = [
+        { title: 'Accredited Investor Verification', citation: '17 CFR 230.501(a)', status: 'SATISFIED', count: 47 },
+        { title: 'Form D Filing', citation: '17 CFR 230.503', status: 'SATISFIED', count: 2 },
+        { title: 'Bad Actor Disqualification', citation: '17 CFR 230.506(d)', status: 'SATISFIED', count: 12 },
+        { title: 'Income Verification', citation: '17 CFR 230.501(a)(6)', status: 'SATISFIED', count: 23 },
+        { title: 'Net Worth Verification', citation: '17 CFR 230.501(a)(5)', status: 'MISSING', count: 0 },
+        { title: 'General Solicitation Compliance', citation: '17 CFR 230.502(c)', status: 'SATISFIED', count: 5 },
+        { title: 'Investor Records Retention', citation: 'Record-keeping', status: 'MISSING', count: 0 },
+        { title: 'Offering Materials', citation: 'Documentation', status: 'SATISFIED', count: 8 }
+      ];
+
+      const list = document.getElementById('control-list');
+      list.innerHTML = demoControls.map(ctrl => `
+        <li class="control-item">
+          <div class="control-status ${ctrl.status === 'SATISFIED' ? 'green' : 'red'}"></div>
+          <div class="control-info">
+            <div class="control-name">${ctrl.title}</div>
+            <div class="control-citation">${ctrl.citation}</div>
+          </div>
+          <div class="control-evidence">${ctrl.count} docs</div>
+        </li>
+      `).join('');
+
+      // Populate control select
+      const select = document.getElementById('control-select');
+      select.innerHTML = '<option value="">Select a control...</option>';
+      demoControls.forEach(ctrl => {
+        const option = document.createElement('option');
+        option.value = ctrl.title.toLowerCase().replace(/\s+/g, '-');
+        option.textContent = `${ctrl.title} (${ctrl.citation})`;
+        select.appendChild(option);
+      });
+    }
+
+    function submitEvidence() {
+      const controlId = document.getElementById('control-select').value;
+      if (!controlId) {
+        alert('Please select a control to link evidence to.');
+        return;
+      }
+      alert('Evidence submission would upload to S3 and create hash in production.\n\nControl: ' + controlId);
+    }
+
+    function toggleCadence() {
+      alert('Cadence configuration would allow toggling between:\n\n- Hot DB: Unit tests every 15min, Red Team hourly\n- Cold DB: Unit tests every 6h, Red Team daily\n- Custom: User-defined CRON expressions');
+    }
+
+    function exportAudit() {
+      alert('Audit export would generate:\n\n1. PDF report with all audit entries\n2. Merkle proofs for verification\n3. Signed JSON export for archival');
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>

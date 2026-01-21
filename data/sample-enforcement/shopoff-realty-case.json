@@ -1,0 +1,190 @@
+{
+  "_meta": {
+    "description": "Sample enforcement case data - Shopoff Realty Investments",
+    "purpose": "Demonstrates evidence locker for disclosure and conflict violations",
+    "disclaimer": "Sample data for demonstration. Based on public SEC filings.",
+    "sourceDocuments": [
+      "SEC Admin Proceeding File No. 3-17802 (Jan 2017)",
+      "SEC Litigation Release No. 23716"
+    ]
+  },
+  "case": {
+    "id": "SEC-AP-3-17802",
+    "name": "Shopoff Realty Investments",
+    "type": "Reg D Disclosure Violations",
+    "status": "Settled",
+    "settlementDate": "2017-01-17",
+    "totalSettlement": "$4,700,000",
+    "primaryAllegations": [
+      "Failure to disclose conflicts of interest",
+      "Inadequate disclosure of fee arrangements",
+      "Commingling of fund assets",
+      "Misleading marketing materials"
+    ]
+  },
+  "regulatoryFindings": {
+    "conflictDisclosureViolations": {
+      "description": "Failed to adequately disclose conflicts of interest in related-party transactions",
+      "controlMapping": "ctrl-conflicts-disclosure",
+      "evidenceGap": true,
+      "expectedEvidence": [
+        "Conflict of interest disclosure matrix",
+        "Related-party transaction approvals",
+        "Board/GP consent documents",
+        "Investor acknowledgment of conflicts"
+      ],
+      "actualEvidence": []
+    },
+    "feeDisclosureViolations": {
+      "description": "Fee arrangements not clearly disclosed to investors",
+      "controlMapping": "ctrl-fee-disclosure",
+      "evidenceGap": true,
+      "expectedEvidence": [
+        "Fee schedule in PPM",
+        "Expense allocation methodology",
+        "Annual fee reconciliation reports"
+      ],
+      "actualEvidence": [
+        {
+          "type": "PPM fee section",
+          "status": "INCOMPLETE",
+          "note": "Fee disclosure buried in legal language, not prominently displayed"
+        }
+      ]
+    },
+    "fundSegregationViolations": {
+      "description": "Investor funds commingled across multiple offerings",
+      "controlMapping": "ctrl-fund-segregation",
+      "evidenceGap": true,
+      "expectedEvidence": [
+        "Separate bank account statements per offering",
+        "Fund flow reconciliation",
+        "Auditor confirmation of segregation"
+      ],
+      "actualEvidence": []
+    }
+  },
+  "affectedParties": {
+    "issuer": {
+      "name": "Shopoff Realty Investments, L.P.",
+      "role": "Issuer/Sponsor",
+      "disgorgement": "$2,500,000",
+      "prejudgmentInterest": "$400,000",
+      "civilPenalty": "$1,800,000",
+      "totalSettlement": "$4,700,000"
+    },
+    "principals": [
+      {
+        "name": "William Shopoff",
+        "role": "Principal",
+        "sanction": "Cease and desist order"
+      }
+    ],
+    "investors": {
+      "fundsAffected": 3,
+      "totalInvestments": "$120,000,000",
+      "investorCount": 850
+    }
+  },
+  "evidenceLockerSimulation": {
+    "description": "Dashboard view showing compliance gaps that led to enforcement",
+    "offerings": [
+      {
+        "id": "shopoff-fund-iii",
+        "name": "Shopoff Land Fund III",
+        "raisedAmount": "$45,000,000",
+        "controls": [
+          {
+            "id": "ctrl-conflicts-disclosure",
+            "status": "RED",
+            "evidenceCount": 0,
+            "lastCheck": "2015-03-01T00:00:00Z",
+            "message": "CRITICAL: No conflict disclosure documentation"
+          },
+          {
+            "id": "ctrl-fee-disclosure",
+            "status": "YELLOW",
+            "evidenceCount": 1,
+            "lastCheck": "2015-03-01T00:00:00Z",
+            "message": "WARNING: Fee disclosure exists but lacks clarity"
+          },
+          {
+            "id": "ctrl-fund-segregation",
+            "status": "RED",
+            "evidenceCount": 0,
+            "lastCheck": "2015-03-01T00:00:00Z",
+            "message": "CRITICAL: No evidence of fund segregation"
+          },
+          {
+            "id": "ctrl-ai-verification",
+            "status": "GREEN",
+            "evidenceCount": 312,
+            "lastCheck": "2015-03-01T00:00:00Z",
+            "message": "OK: All investors verified as accredited"
+          },
+          {
+            "id": "ctrl-form-d-filing",
+            "status": "GREEN",
+            "evidenceCount": 2,
+            "lastCheck": "2015-03-01T00:00:00Z",
+            "message": "OK: Form D filed and amended"
+          }
+        ],
+        "overallStatus": "NON_COMPLIANT",
+        "riskScore": 78
+      }
+    ],
+    "earlyWarningIndicators": [
+      {
+        "indicator": "Related-party transaction frequency",
+        "threshold": ">5 per quarter",
+        "actual": "12 in Q4 2014",
+        "status": "EXCEEDED",
+        "recommendation": "Document conflict review for each transaction"
+      },
+      {
+        "indicator": "Cross-fund transfers",
+        "threshold": "0 without board approval",
+        "actual": "7 undocumented",
+        "status": "EXCEEDED",
+        "recommendation": "Obtain and document GP consent"
+      }
+    ]
+  },
+  "lessonsLearned": {
+    "controlGaps": [
+      {
+        "gap": "No systematic conflict tracking",
+        "control": "ctrl-conflicts-disclosure",
+        "recommendation": "Implement conflict register with approval workflow"
+      },
+      {
+        "gap": "Fee disclosure in legal language only",
+        "control": "ctrl-fee-disclosure",
+        "recommendation": "Add plain-English fee summary in PPM"
+      },
+      {
+        "gap": "No fund segregation audit trail",
+        "control": "ctrl-fund-segregation",
+        "recommendation": "Monthly fund reconciliation with auditor attestation"
+      }
+    ]
+  },
+  "costAnalysis": {
+    "actualCostsIncurred": {
+      "disgorgement": "$2,500,000",
+      "interest": "$400,000",
+      "civilPenalty": "$1,800,000",
+      "legalFees": "$2,000,000",
+      "operationalChanges": "$500,000",
+      "total": "$7,200,000"
+    },
+    "projectedCostsWithSystem": {
+      "annualSystemCost": "$45,000",
+      "conflictTrackingSavings": "$100,000",
+      "auditReadinessSavings": "$75,000",
+      "potentialSettlementAvoided": "$4,700,000",
+      "netBenefit": "$4,830,000"
+    }
+  }
+}
