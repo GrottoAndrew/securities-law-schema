@@ -111,3 +111,17 @@ variable "certificate_arn" {
   type        = string
   default     = ""
 }
+
+# -----------------------------------------------------------------------------
+# Security Configuration
+# -----------------------------------------------------------------------------
+variable "jwt_secret" {
+  description = "JWT signing secret for API authentication"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.jwt_secret) >= 32
+    error_message = "JWT secret must be at least 32 characters."
+  }
+}

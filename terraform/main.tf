@@ -7,6 +7,9 @@
 # - S3 with Object Lock (WORM storage)
 # - RDS PostgreSQL with encryption
 # - ECS Fargate for API deployment
+# - ALB with HTTPS termination
+# - ECR for container images
+# - Secrets Manager for credentials
 # - CloudWatch for audit logging
 # - KMS for encryption key management
 # =============================================================================
@@ -86,6 +89,19 @@ resource "aws_kms_key" "evidence_locker" {
           "kms:GenerateDataKey*"
         ]
         Resource = "*"
+      },
+      {
+        Sid    = "Allow CloudWatch Logs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey*"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -101,10 +117,52 @@ resource "aws_kms_alias" "evidence_locker" {
 }
 
 # -----------------------------------------------------------------------------
+# Secrets Manager for Database Credentials
+# -----------------------------------------------------------------------------
+resource "aws_secretsmanager_secret" "db_credentials" {
+  name        = "${var.project_name}/db-credentials"
+  description = "Database credentials for Evidence Locker"
+  kms_key_id  = aws_kms_key.evidence_locker.arn
+
+  tags = {
+    Name = "${var.project_name}-db-credentials"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "db_credentials" {
+  secret_id = aws_secretsmanager_secret.db_credentials.id
+  secret_string = jsonencode({
+    username = var.db_username
+    password = var.db_password
+    host     = aws_db_instance.main.address
+    port     = 5432
+    database = "evidence_locker"
+  })
+
+  depends_on = [aws_db_instance.main]
+}
+
+resource "aws_secretsmanager_secret" "jwt_secret" {
+  name        = "${var.project_name}/jwt-secret"
+  description = "JWT signing secret"
+  kms_key_id  = aws_kms_key.evidence_locker.arn
+
+  tags = {
+    Name = "${var.project_name}-jwt-secret"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "jwt_secret" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = var.jwt_secret
+}
+
+# -----------------------------------------------------------------------------
 # S3 Bucket for Evidence Storage (SEC 17a-4 WORM Compliant)
 # -----------------------------------------------------------------------------
 resource "aws_s3_bucket" "evidence" {
-  bucket = "${var.project_name}-evidence-${var.environment}-${data.aws_caller_identity.current.account_id}"
+  bucket              = "${var.project_name}-evidence-${var.environment}-${data.aws_caller_identity.current.account_id}"
+  object_lock_enabled = var.enable_worm_storage  # Must be set at bucket creation
 
   # Prevent accidental deletion
   force_destroy = false
@@ -116,8 +174,9 @@ resource "aws_s3_bucket" "evidence" {
   }
 }
 
-# Enable Object Lock (WORM)
+# Enable Object Lock (WORM) - only if object_lock_enabled = true on bucket
 resource "aws_s3_bucket_object_lock_configuration" "evidence" {
+  count  = var.enable_worm_storage ? 1 : 0
   bucket = aws_s3_bucket.evidence.id
 
   rule {
@@ -179,9 +238,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "evidence" {
       days          = 365
       storage_class = "DEEP_ARCHIVE"
     }
-
-    # Note: Objects cannot be deleted until retention period expires
-    # This is enforced by Object Lock COMPLIANCE mode
   }
 }
 
@@ -231,6 +287,30 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
+# NAT Gateway for private subnets
+resource "aws_eip" "nat" {
+  count  = 2
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.project_name}-nat-eip-${count.index + 1}"
+  }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
+resource "aws_nat_gateway" "main" {
+  count         = 2
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+
+  tags = {
+    Name = "${var.project_name}-nat-${count.index + 1}"
+  }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -244,10 +324,72 @@ resource "aws_route_table" "public" {
   }
 }
 
+resource "aws_route_table" "private" {
+  count  = 2
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main[count.index].id
+  }
+
+  tags = {
+    Name = "${var.project_name}-private-rt-${count.index + 1}"
+  }
+}
+
 resource "aws_route_table_association" "public" {
   count          = 2
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private" {
+  count          = 2
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
+}
+
+# -----------------------------------------------------------------------------
+# ECR Repository
+# -----------------------------------------------------------------------------
+resource "aws_ecr_repository" "api" {
+  name                 = "${var.project_name}-api"
+  image_tag_mutability = "IMMUTABLE"  # Prevent tag overwrites for compliance
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "KMS"
+    kms_key         = aws_kms_key.evidence_locker.arn
+  }
+
+  tags = {
+    Name = "${var.project_name}-api"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "api" {
+  repository = aws_ecr_repository.api.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 30 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 30
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }
 
 # -----------------------------------------------------------------------------
@@ -350,7 +492,7 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring" {
 }
 
 # -----------------------------------------------------------------------------
-# ECS Cluster and Service
+# Security Groups
 # -----------------------------------------------------------------------------
 resource "aws_security_group" "ecs" {
   name        = "${var.project_name}-ecs-sg"
@@ -388,6 +530,13 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -400,6 +549,85 @@ resource "aws_security_group" "alb" {
   }
 }
 
+# -----------------------------------------------------------------------------
+# Application Load Balancer
+# -----------------------------------------------------------------------------
+resource "aws_lb" "main" {
+  name               = "${var.project_name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = aws_subnet.public[*].id
+
+  enable_deletion_protection = var.environment == "prod" ? true : false
+
+  tags = {
+    Name = "${var.project_name}-alb"
+  }
+}
+
+resource "aws_lb_target_group" "api" {
+  name        = "${var.project_name}-api-tg"
+  port        = 3001
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/api/v1/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 3
+  }
+
+  tags = {
+    Name = "${var.project_name}-api-tg"
+  }
+}
+
+resource "aws_lb_listener" "https" {
+  count             = var.certificate_arn != "" ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+}
+
+resource "aws_lb_listener" "http_redirect" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = var.certificate_arn != "" ? "redirect" : "forward"
+
+    dynamic "redirect" {
+      for_each = var.certificate_arn != "" ? [1] : []
+      content {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+
+    target_group_arn = var.certificate_arn == "" ? aws_lb_target_group.api.arn : null
+  }
+}
+
+# -----------------------------------------------------------------------------
+# ECS Cluster and Service
+# -----------------------------------------------------------------------------
 resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
 
@@ -410,6 +638,226 @@ resource "aws_ecs_cluster" "main" {
 
   tags = {
     Name = "${var.project_name}-cluster"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "main" {
+  cluster_name = aws_ecs_cluster.main.name
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = "FARGATE"
+  }
+}
+
+# ECS Task Execution Role
+resource "aws_iam_role" "ecs_execution" {
+  name = "${var.project_name}-ecs-execution"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution" {
+  role       = aws_iam_role.ecs_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy" "ecs_execution_secrets" {
+  name = "${var.project_name}-ecs-secrets"
+  role = aws_iam_role.ecs_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.db_credentials.arn,
+          aws_secretsmanager_secret.jwt_secret.arn
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = [
+          aws_kms_key.evidence_locker.arn
+        ]
+      }
+    ]
+  })
+}
+
+# ECS Task Role
+resource "aws_iam_role" "ecs_task" {
+  name = "${var.project_name}-ecs-task"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ecs_task" {
+  name = "${var.project_name}-ecs-task-policy"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.evidence.arn,
+          "${aws_s3_bucket.evidence.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = [
+          aws_kms_key.evidence_locker.arn
+        ]
+      }
+    ]
+  })
+}
+
+# ECS Task Definition
+resource "aws_ecs_task_definition" "api" {
+  family                   = "${var.project_name}-api"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = var.ecs_task_cpu
+  memory                   = var.ecs_task_memory
+  execution_role_arn       = aws_iam_role.ecs_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
+
+  container_definitions = jsonencode([
+    {
+      name  = "api"
+      image = "${aws_ecr_repository.api.repository_url}:latest"
+
+      portMappings = [
+        {
+          containerPort = 3001
+          hostPort      = 3001
+          protocol      = "tcp"
+        }
+      ]
+
+      environment = [
+        { name = "NODE_ENV", value = var.environment },
+        { name = "PORT", value = "3001" },
+        { name = "AWS_REGION", value = var.aws_region },
+        { name = "S3_EVIDENCE_BUCKET", value = aws_s3_bucket.evidence.id },
+        { name = "PRIMARY_JURISDICTION", value = "sec" },
+        { name = "SEC_RETENTION_YEARS", value = tostring(var.sec_retention_years) },
+        { name = "ENABLE_WORM_STORAGE", value = tostring(var.enable_worm_storage) }
+      ]
+
+      secrets = [
+        {
+          name      = "DATABASE_URL"
+          valueFrom = "${aws_secretsmanager_secret.db_credentials.arn}:host::"
+        },
+        {
+          name      = "JWT_SECRET"
+          valueFrom = aws_secretsmanager_secret.jwt_secret.arn
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.api.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "api"
+        }
+      }
+
+      healthCheck = {
+        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/api/v1/health || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
+    }
+  ])
+
+  tags = {
+    Name = "${var.project_name}-api-task"
+  }
+}
+
+# ECS Service
+resource "aws_ecs_service" "api" {
+  name                               = "${var.project_name}-api"
+  cluster                            = aws_ecs_cluster.main.id
+  task_definition                    = aws_ecs_task_definition.api.arn
+  desired_count                      = var.ecs_desired_count
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
+  launch_type                        = "FARGATE"
+  scheduling_strategy                = "REPLICA"
+  platform_version                   = "LATEST"
+
+  network_configuration {
+    security_groups  = [aws_security_group.ecs.id]
+    subnets          = aws_subnet.private[*].id
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.api.arn
+    container_name   = "api"
+    container_port   = 3001
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition, desired_count]
+  }
+
+  depends_on = [aws_lb_listener.http_redirect]
+
+  tags = {
+    Name = "${var.project_name}-api-service"
   }
 }
 
@@ -449,4 +897,29 @@ output "kms_key_id" {
 output "vpc_id" {
   description = "VPC ID"
   value       = aws_vpc.main.id
+}
+
+output "ecr_repository_url" {
+  description = "ECR repository URL"
+  value       = aws_ecr_repository.api.repository_url
+}
+
+output "alb_dns_name" {
+  description = "ALB DNS name"
+  value       = aws_lb.main.dns_name
+}
+
+output "ecs_cluster_name" {
+  description = "ECS cluster name"
+  value       = aws_ecs_cluster.main.name
+}
+
+output "ecs_service_name" {
+  description = "ECS service name"
+  value       = aws_ecs_service.api.name
+}
+
+output "db_credentials_secret_arn" {
+  description = "ARN of database credentials secret"
+  value       = aws_secretsmanager_secret.db_credentials.arn
 }

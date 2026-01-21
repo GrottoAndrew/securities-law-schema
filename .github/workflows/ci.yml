@@ -240,7 +240,6 @@ jobs:
 
       - name: Run integration tests
         run: npm run test:integration
-        continue-on-error: true
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/evidence_locker_test
           JWT_SECRET: ${{ env.JWT_SECRET }}
