@@ -30,7 +30,10 @@
     "demo": "./scripts/demo.sh start",
     "demo:stop": "./scripts/demo.sh stop",
     "demo:seed": "./scripts/demo.sh seed",
-    "demo:clean": "./scripts/demo.sh clean"
+    "demo:clean": "./scripts/demo.sh clean",
+    "seed": "node scripts/seed-demo-data.js --api",
+    "seed:json": "node scripts/seed-demo-data.js --json",
+    "seed:sql": "node scripts/seed-demo-data.js --sql"
   },
   "keywords": [
     "securities",
