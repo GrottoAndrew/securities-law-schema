@@ -40,8 +40,8 @@ COPY . .
 # Run validation
 RUN npm run validate
 
-# Run tests
-RUN npm run test:unit || true
+# Run tests - fail build if tests fail
+RUN npm run test:unit
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production

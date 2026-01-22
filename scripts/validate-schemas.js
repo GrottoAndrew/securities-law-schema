@@ -8,7 +8,9 @@
  *   node scripts/validate-schemas.js path/to/file.jsonld   # Validate single file
  */
 
+// @ts-ignore - Ajv ESM/CJS interop
 import Ajv from 'ajv';
+// @ts-ignore - ajv-formats ESM/CJS interop
 import addFormats from 'ajv-formats';
 import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { resolve, join, extname } from 'path';
@@ -35,11 +37,13 @@ try {
 }
 
 // Initialize Ajv with strict mode and formats
+// @ts-ignore - Ajv constructor
 const ajv = new Ajv({
   strict: true,
   allErrors: true,
   verbose: true
 });
+// @ts-ignore - addFormats call
 addFormats(ajv);
 
 const validate = ajv.compile(schema);

@@ -64,6 +64,14 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 
+// Handle JSON parse errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+  next(err);
+});
+
 // Request logging
 app.use((req, res, next) => {
   const start = Date.now();
@@ -610,17 +618,21 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Start server
-const server = app.listen(config.port, () => {
-  console.log(`\n========================================`);
-  console.log(`Compliance API Server`);
-  console.log(`========================================`);
-  console.log(`Environment: ${config.nodeEnv}`);
-  console.log(`Port: ${config.port}`);
-  console.log(`CORS: ${config.corsOrigins.join(', ')}`);
-  console.log(`Health: http://localhost:${config.port}/api/v1/health`);
-  console.log(`========================================\n`);
-});
+// Only start server if this file is run directly, not when imported
+let server = null;
+
+if (process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].includes('api/server'))) {
+  server = app.listen(config.port, () => {
+    console.log(`\n========================================`);
+    console.log(`Compliance API Server`);
+    console.log(`========================================`);
+    console.log(`Environment: ${config.nodeEnv}`);
+    console.log(`Port: ${config.port}`);
+    console.log(`CORS: ${config.corsOrigins.join(', ')}`);
+    console.log(`Health: http://localhost:${config.port}/api/v1/health`);
+    console.log(`========================================\n`);
+  });
+}
 
 export default app;
 export { server };

@@ -8,6 +8,7 @@
 // Load .env in development
 if (process.env.NODE_ENV !== 'production') {
   try {
+    // @ts-ignore - dotenv is optional, may not be installed
     const dotenv = await import('dotenv');
     dotenv.config();
   } catch {

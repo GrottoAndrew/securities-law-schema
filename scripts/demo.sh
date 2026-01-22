@@ -53,84 +53,82 @@ case "${1:-start}" in
   seed)
     echo -e "${BLUE}Seeding demo data...${NC}"
 
-    # Get auth token
-    TOKEN=$(curl -s -X POST "$API_URL/api/v1/auth/login" \
+    # Get auth token using correct endpoint and payload
+    echo "Getting authentication token..."
+    TOKEN=$(curl -s -X POST "$API_URL/api/v1/auth/token" \
       -H "Content-Type: application/json" \
-      -d '{"username":"demo","password":"demo"}' | jq -r '.token // "demo-token"')
+      -d '{"email":"demo@example.com","role":"compliance"}' | jq -r '.token')
 
     if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
-      TOKEN="demo-token"
+      echo -e "${RED}Failed to get auth token${NC}"
+      exit 1
     fi
 
     AUTH="Authorization: Bearer $TOKEN"
+    echo -e "${GREEN}✓ Got auth token${NC}"
 
-    # Create sample controls
-    echo "Creating SEC Rule 17a-4 controls..."
-    curl -s -X POST "$API_URL/api/v1/controls" \
-      -H "Content-Type: application/json" \
-      -H "$AUTH" \
-      -d '{
-        "name": "Record Retention - 7 Year Minimum",
-        "description": "All communications and records must be retained for minimum 7 years per SEC Rule 17a-4",
-        "regulation": "SEC Rule 17a-4(f)",
-        "category": "data_retention",
-        "priority": "critical"
-      }' | jq .
+    # Get control IDs from the existing catalog
+    echo ""
+    echo "Fetching controls from catalog..."
+    CONTROLS_RESPONSE=$(curl -s "$API_URL/api/v1/controls")
+    CONTROL_ID=$(echo "$CONTROLS_RESPONSE" | jq -r '.controls[0].id // "reg-d-501"')
+    echo "Using control ID: $CONTROL_ID"
 
-    curl -s -X POST "$API_URL/api/v1/controls" \
-      -H "Content-Type: application/json" \
-      -H "$AUTH" \
-      -d '{
-        "name": "WORM Storage Requirement",
-        "description": "Records must be stored on non-rewriteable, non-erasable storage (Write Once Read Many)",
-        "regulation": "SEC Rule 17a-4(f)(2)(ii)(A)",
-        "category": "storage",
-        "priority": "critical"
-      }' | jq .
-
-    curl -s -X POST "$API_URL/api/v1/controls" \
-      -H "Content-Type: application/json" \
-      -H "$AUTH" \
-      -d '{
-        "name": "Audit Trail Integrity",
-        "description": "Maintain tamper-evident audit logs with cryptographic verification",
-        "regulation": "SEC Rule 17a-4(f)(3)(v)",
-        "category": "audit",
-        "priority": "high"
-      }' | jq .
-
-    # Create sample evidence
+    # Create sample evidence with correct payload format
     echo ""
     echo "Creating sample evidence records..."
-    curl -s -X POST "$API_URL/api/v1/evidence" \
-      -H "Content-Type: application/json" \
-      -H "$AUTH" \
-      -d '{
-        "type": "communication",
-        "title": "Client Trade Confirmation - ACME Corp",
-        "description": "Trade confirmation for 10,000 shares ACME @ $45.50",
-        "metadata": {
-          "client_id": "CLI-2024-001",
-          "trade_date": "2024-01-15",
-          "security": "ACME",
-          "quantity": 10000,
-          "price": 45.50
-        }
-      }' | jq .
 
     curl -s -X POST "$API_URL/api/v1/evidence" \
       -H "Content-Type: application/json" \
       -H "$AUTH" \
-      -d '{
-        "type": "document",
-        "title": "Form ADV Part 2A - Annual Update",
-        "description": "Investment adviser brochure filed with SEC",
-        "metadata": {
-          "form_type": "ADV-2A",
-          "filing_date": "2024-03-01",
-          "crd_number": "123456"
+      -d "{
+        \"controlId\": \"$CONTROL_ID\",
+        \"artifactHash\": \"sha256:$(echo -n 'trade-confirmation-acme-001' | sha256sum | cut -d' ' -f1)\",
+        \"artifactSize\": 1024,
+        \"contentType\": \"application/pdf\",
+        \"metadata\": {
+          \"title\": \"Client Trade Confirmation - ACME Corp\",
+          \"description\": \"Trade confirmation for 10,000 shares ACME @ \$45.50\",
+          \"client_id\": \"CLI-2024-001\",
+          \"trade_date\": \"2024-01-15\",
+          \"security\": \"ACME\",
+          \"quantity\": 10000,
+          \"price\": 45.50
         }
-      }' | jq .
+      }" | jq .
+
+    curl -s -X POST "$API_URL/api/v1/evidence" \
+      -H "Content-Type: application/json" \
+      -H "$AUTH" \
+      -d "{
+        \"controlId\": \"$CONTROL_ID\",
+        \"artifactHash\": \"sha256:$(echo -n 'form-adv-2024' | sha256sum | cut -d' ' -f1)\",
+        \"artifactSize\": 2048,
+        \"contentType\": \"application/pdf\",
+        \"metadata\": {
+          \"title\": \"Form ADV Part 2A - Annual Update\",
+          \"description\": \"Investment adviser brochure filed with SEC\",
+          \"form_type\": \"ADV-2A\",
+          \"filing_date\": \"2024-03-01\",
+          \"crd_number\": \"123456\"
+        }
+      }" | jq .
+
+    curl -s -X POST "$API_URL/api/v1/evidence" \
+      -H "Content-Type: application/json" \
+      -H "$AUTH" \
+      -d "{
+        \"controlId\": \"$CONTROL_ID\",
+        \"artifactHash\": \"sha256:$(echo -n 'communication-log-q1-2024' | sha256sum | cut -d' ' -f1)\",
+        \"artifactSize\": 512,
+        \"contentType\": \"text/plain\",
+        \"metadata\": {
+          \"title\": \"Client Communication Log Q1 2024\",
+          \"description\": \"Quarterly communication records\",
+          \"quarter\": \"Q1\",
+          \"year\": 2024
+        }
+      }" | jq .
 
     echo ""
     echo -e "${GREEN}✓ Demo data seeded${NC}"
@@ -142,20 +140,38 @@ case "${1:-start}" in
     echo -e "${BLUE}Running API health checks...${NC}"
     echo ""
 
-    echo "Health endpoint:"
+    echo "1. Health endpoint:"
     curl -s "$API_URL/api/v1/health" | jq .
     echo ""
 
-    echo "Regulations endpoint:"
-    curl -s "$API_URL/api/v1/regulations" | jq '.[] | {id, name, jurisdiction}' 2>/dev/null || echo "No regulations loaded"
+    echo "2. Regulations endpoint:"
+    curl -s "$API_URL/api/v1/regulations" | jq '{total: .total, regulations: [.regulations[:3][] | {id, citation}]}'
     echo ""
 
-    echo "Controls endpoint:"
-    curl -s "$API_URL/api/v1/controls" | jq '.[0:3] | .[] | {id, name, category}' 2>/dev/null || echo "No controls found"
+    echo "3. Controls endpoint:"
+    curl -s "$API_URL/api/v1/controls" | jq '{total: .total, controls: [.controls[:3][] | {id, title}]}'
     echo ""
 
-    echo "Compliance status:"
-    curl -s "$API_URL/api/v1/compliance/status" | jq . 2>/dev/null || echo "Status unavailable"
+    echo "4. Getting auth token for protected endpoints..."
+    TOKEN=$(curl -s -X POST "$API_URL/api/v1/auth/token" \
+      -H "Content-Type: application/json" \
+      -d '{"email":"test@example.com","role":"compliance"}' | jq -r '.token')
+
+    if [ "$TOKEN" != "null" ] && [ -n "$TOKEN" ]; then
+      echo -e "${GREEN}✓ Auth working${NC}"
+
+      echo ""
+      echo "5. Compliance status:"
+      curl -s "$API_URL/api/v1/compliance-status" \
+        -H "Authorization: Bearer $TOKEN" | jq '.summary'
+
+      echo ""
+      echo "6. Evidence list:"
+      curl -s "$API_URL/api/v1/evidence" \
+        -H "Authorization: Bearer $TOKEN" | jq '{total: .total, evidence: [.evidence[:3][] | {id, controlId}]}'
+    else
+      echo -e "${RED}✗ Auth failed${NC}"
+    fi
     ;;
 
   *)

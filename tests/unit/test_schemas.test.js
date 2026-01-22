@@ -13,7 +13,9 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync, readdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+// @ts-ignore - Ajv ESM/CJS interop
 import Ajv from 'ajv';
+// @ts-ignore - ajv-formats ESM/CJS interop
 import addFormats from 'ajv-formats';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,7 +42,9 @@ function createValidator() {
   const schemaPath = join(projectRoot, 'schemas', 'regulation-d-schema.json');
   const schema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
 
+  // @ts-ignore - Ajv constructor
   const ajv = new Ajv({ strict: true, allErrors: true });
+  // @ts-ignore - addFormats call
   addFormats(ajv);
 
   return ajv.compile(schema);
@@ -261,6 +265,7 @@ describe('OSCAL Controls Validation', () => {
     }
 
     keyControls.forEach(ctrlId => {
+      /** @type {any} */
       let found = null;
       controls.catalog.groups.forEach(group => {
         if (group.controls) {
@@ -270,6 +275,7 @@ describe('OSCAL Controls Validation', () => {
       });
 
       expect(found, `Control ${ctrlId} not found`).toBeTruthy();
+      if (!found) return;
 
       // Check for evidence-requirements part
       const hasEvidenceReqs = found.parts?.some(p =>

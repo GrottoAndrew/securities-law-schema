@@ -10,7 +10,6 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createServer } from 'http';
 import app from '../../src/api/server.js';
 
 const API_BASE = 'http://localhost:3002';
@@ -244,7 +243,7 @@ describe('Evidence API', () => {
 
 describe('Compliance Status API', () => {
   it('should require authentication', async () => {
-    const { response, data } = await fetchJson('/api/v1/compliance-status');
+    const { response } = await fetchJson('/api/v1/compliance-status');
 
     expect(response.status).toBe(401);
   });

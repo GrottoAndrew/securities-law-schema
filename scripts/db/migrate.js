@@ -14,8 +14,7 @@
  */
 
 import pg from 'pg';
-import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname, join } from 'path';
+import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
 
@@ -23,7 +22,7 @@ const { Pool } = pg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const projectRoot = resolve(__dirname, '../..');
+void __dirname; // Silence unused warning - kept for future file-based migrations
 
 // Migration definitions
 const migrations = [
@@ -344,10 +343,11 @@ async function main() {
         await migrator.migrate();
         break;
       case 'down':
-      case '--rollback':
+      case '--rollback': {
         const steps = parseInt(args[1], 10) || 1;
         await migrator.rollback(steps);
         break;
+      }
       case 'status':
       case '--status':
         await migrator.status();

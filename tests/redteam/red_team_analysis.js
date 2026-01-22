@@ -242,6 +242,7 @@ class RedTeamAnalyzer {
     }
 
     criticalControls.forEach(ctrlId => {
+      /** @type {any} */
       let found = null;
       controls.catalog.groups.forEach(group => {
         if (group.controls) {
