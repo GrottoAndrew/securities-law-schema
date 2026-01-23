@@ -58,6 +58,7 @@ services:
       PRIMARY_JURISDICTION: sec
       SEC_RETENTION_YEARS: 7
       ENABLE_WORM_STORAGE: "true"
+      SEED_DATA: "true"
     ports:
       - "3001:3001"
     depends_on:

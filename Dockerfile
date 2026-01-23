@@ -64,6 +64,7 @@ COPY --chown=compliance:nodejs schemas ./schemas
 COPY --chown=compliance:nodejs controls ./controls
 COPY --chown=compliance:nodejs contexts ./contexts
 COPY --chown=compliance:nodejs config ./config
+COPY --chown=compliance:nodejs scripts ./scripts
 
 # Set environment
 ENV NODE_ENV=production
@@ -82,5 +83,5 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/v1/health || exit 1
 
-# Start application
-CMD ["node", "src/api/server.js"]
+# Start application (with auto-migration and optional seeding)
+CMD ["node", "scripts/start-server.js"]

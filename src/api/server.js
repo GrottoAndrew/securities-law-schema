@@ -20,6 +20,7 @@ import { join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createHash } from 'crypto';
+import * as db from '../db/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,8 +31,13 @@ const config = {
   port: parseInt(process.env.PORT, 10) || 3001,
   jwtSecret: process.env.JWT_SECRET,
   corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
-  nodeEnv: process.env.NODE_ENV || 'development'
+  nodeEnv: process.env.NODE_ENV || 'development',
+  databaseUrl: process.env.DATABASE_URL
 };
+
+// Initialize database connection
+db.initDatabase(config.databaseUrl);
+const useDatabase = db.isConnected();
 
 // Fail fast on missing JWT secret in production
 if (!config.jwtSecret) {
@@ -136,25 +142,12 @@ function loadEnforcementCases() {
   return results;
 }
 
-// In-memory evidence store (replace with PostgreSQL in production)
-const evidenceStore = new Map();
-const auditLog = [];
-
-function logAudit(event, actor, details) {
-  const entry = {
-    id: uuidv4(),
-    timestamp: new Date().toISOString(),
-    event,
-    actor,
-    details,
-    previousHash: auditLog.length > 0 ? auditLog[auditLog.length - 1].hash : '0'.repeat(64)
-  };
-
-  const preimage = `${entry.id}${entry.timestamp}${entry.event}${JSON.stringify(entry.details)}${entry.previousHash}`;
-  entry.hash = createHash('sha256').update(preimage).digest('hex');
-
-  auditLog.push(entry);
-  return entry;
+// Audit logging - uses database if connected, otherwise in-memory fallback
+async function logAudit(event, actor, details) {
+  if (useDatabase) {
+    return await db.createAuditEntry(event, actor, details);
+  }
+  return db.fallback.createAuditEntry(event, actor, details);
 }
 
 // Authentication middleware
@@ -202,11 +195,14 @@ function safeParseInt(value, defaultValue) {
 // PUBLIC ENDPOINTS
 // ===================
 
-app.get('/api/v1/health', (_req, res) => {
+app.get('/api/v1/health', async (_req, res) => {
+  const dbConnected = useDatabase ? await db.testConnection() : false;
+
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    version: '0.2.0'
+    version: '0.2.0',
+    database: useDatabase ? (dbConnected ? 'connected' : 'error') : 'in-memory'
   });
 });
 
@@ -350,7 +346,7 @@ app.get('/api/v1/regulations/:citation', (req, res) => {
 // EVIDENCE ENDPOINTS
 // ===================
 
-app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance'), (req, res) => {
+app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance'), async (req, res) => {
   try {
     const { controlId, metadata, artifactHash, artifactSize, contentType } = req.body;
 
@@ -358,24 +354,31 @@ app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance
       return res.status(400).json({ error: 'controlId and artifactHash are required' });
     }
 
+    const collectedAt = new Date().toISOString();
+    const id = uuidv4();
+    const preimage = `${id}${artifactHash}${JSON.stringify(metadata || {})}${collectedAt}`;
+    const merkleLeafHash = createHash('sha256').update(preimage).digest('hex');
+
     const evidence = {
-      id: uuidv4(),
+      id,
       controlId,
       artifactHash,
       artifactSize: artifactSize || 0,
       contentType: contentType || 'application/octet-stream',
       metadata: metadata || {},
-      collectedAt: new Date().toISOString(),
+      collectedAt,
       collectedBy: req.user.email || req.user.sub,
-      status: 'active'
+      status: 'active',
+      merkleLeafHash
     };
 
-    const preimage = `${evidence.id}${evidence.artifactHash}${JSON.stringify(evidence.metadata)}${evidence.collectedAt}`;
-    evidence.merkleLeafHash = createHash('sha256').update(preimage).digest('hex');
+    if (useDatabase) {
+      await db.createEvidence(evidence);
+    } else {
+      db.fallback.createEvidence(evidence);
+    }
 
-    evidenceStore.set(evidence.id, evidence);
-
-    logAudit('EVIDENCE_SUBMITTED', req.user.email, {
+    await logAudit('EVIDENCE_SUBMITTED', req.user.email, {
       evidenceId: evidence.id,
       controlId,
       merkleLeafHash: evidence.merkleLeafHash
@@ -393,16 +396,18 @@ app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance
   }
 });
 
-app.get('/api/v1/evidence', authenticateToken, (req, res) => {
+app.get('/api/v1/evidence', authenticateToken, async (req, res) => {
   try {
     const { controlId, status } = req.query;
-    let evidence = Array.from(evidenceStore.values());
+    const filters = {};
+    if (controlId) filters.controlId = controlId;
+    if (status) filters.status = status;
 
-    if (controlId) {
-      evidence = evidence.filter(e => e.controlId === controlId);
-    }
-    if (status) {
-      evidence = evidence.filter(e => e.status === status);
+    let evidence;
+    if (useDatabase) {
+      evidence = await db.listEvidence(filters);
+    } else {
+      evidence = db.fallback.listEvidence(filters);
     }
 
     res.json({
@@ -415,70 +420,89 @@ app.get('/api/v1/evidence', authenticateToken, (req, res) => {
   }
 });
 
-app.get('/api/v1/evidence/:id', authenticateToken, (req, res) => {
-  const evidence = evidenceStore.get(req.params.id);
+app.get('/api/v1/evidence/:id', authenticateToken, async (req, res) => {
+  try {
+    let evidence;
+    if (useDatabase) {
+      evidence = await db.getEvidence(req.params.id);
+    } else {
+      evidence = db.fallback.getEvidence(req.params.id);
+    }
 
-  if (!evidence) {
-    return res.status(404).json({ error: 'Evidence not found' });
+    if (!evidence) {
+      return res.status(404).json({ error: 'Evidence not found' });
+    }
+
+    res.json(evidence);
+  } catch (err) {
+    console.error('Error fetching evidence:', err);
+    res.status(500).json({ error: 'Failed to fetch evidence' });
   }
-
-  res.json(evidence);
 });
 
-app.get('/api/v1/evidence/:id/verify', authenticateToken, (req, res) => {
-  const evidence = evidenceStore.get(req.params.id);
+app.get('/api/v1/evidence/:id/verify', authenticateToken, async (req, res) => {
+  try {
+    let evidence;
+    if (useDatabase) {
+      evidence = await db.getEvidence(req.params.id);
+    } else {
+      evidence = db.fallback.getEvidence(req.params.id);
+    }
 
-  if (!evidence) {
-    return res.status(404).json({ error: 'Evidence not found' });
+    if (!evidence) {
+      return res.status(404).json({ error: 'Evidence not found' });
+    }
+
+    const preimage = `${evidence.id}${evidence.artifactHash}${JSON.stringify(evidence.metadata)}${evidence.collectedAt}`;
+    const computedHash = createHash('sha256').update(preimage).digest('hex');
+
+    res.json({
+      evidenceId: evidence.id,
+      verified: computedHash === evidence.merkleLeafHash,
+      storedHash: evidence.merkleLeafHash,
+      computedHash,
+      match: computedHash === evidence.merkleLeafHash
+    });
+  } catch (err) {
+    console.error('Error verifying evidence:', err);
+    res.status(500).json({ error: 'Failed to verify evidence' });
   }
-
-  const preimage = `${evidence.id}${evidence.artifactHash}${JSON.stringify(evidence.metadata)}${evidence.collectedAt}`;
-  const computedHash = createHash('sha256').update(preimage).digest('hex');
-
-  res.json({
-    evidenceId: evidence.id,
-    verified: computedHash === evidence.merkleLeafHash,
-    storedHash: evidence.merkleLeafHash,
-    computedHash,
-    match: computedHash === evidence.merkleLeafHash
-  });
 });
 
 // ===================
 // COMPLIANCE STATUS ENDPOINTS
 // ===================
 
-app.get('/api/v1/compliance-status', authenticateToken, (_req, res) => {
+app.get('/api/v1/compliance-status', authenticateToken, async (_req, res) => {
   try {
     const controls = loadControls();
     if (!controls) {
       return res.status(404).json({ error: 'Controls catalog not found' });
     }
 
-    const evidence = Array.from(evidenceStore.values()).filter(e => e.status === 'active');
+    // Get evidence counts by control
+    let evidenceByControl;
+    if (useDatabase) {
+      evidenceByControl = await db.getEvidenceByControl();
+    } else {
+      evidenceByControl = db.fallback.getEvidenceByControl();
+    }
+
     const controlStatus = [];
 
     function processControls(obj) {
       if (Array.isArray(obj)) {
         obj.forEach(processControls);
       } else if (obj && typeof obj === 'object' && obj.id) {
-        const controlEvidence = evidence.filter(e => e.controlId === obj.id);
-
-        let lastEvidenceDate = null;
-        if (controlEvidence.length > 0) {
-          const sorted = controlEvidence
-            .filter(e => e.collectedAt)
-            .sort((a, b) => new Date(b.collectedAt).getTime() - new Date(a.collectedAt).getTime());
-          lastEvidenceDate = sorted.length > 0 ? sorted[0].collectedAt : null;
-        }
+        const controlData = evidenceByControl[obj.id] || { count: 0, lastEvidence: null };
 
         controlStatus.push({
           controlId: obj.id,
           title: obj.title,
           regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
-          evidenceCount: controlEvidence.length,
-          lastEvidence: lastEvidenceDate,
-          status: controlEvidence.length > 0 ? 'SATISFIED' : 'MISSING'
+          evidenceCount: controlData.count,
+          lastEvidence: controlData.lastEvidence,
+          status: controlData.count > 0 ? 'SATISFIED' : 'MISSING'
         });
         if (obj.controls) processControls(obj.controls);
       }
@@ -556,55 +580,69 @@ app.get('/api/v1/enforcement-cases/:id', (req, res) => {
 // AUDIT TRAIL ENDPOINTS
 // ===================
 
-app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'), (req, res) => {
-  const limit = safeParseInt(req.query.limit, 100);
-  const offset = safeParseInt(req.query.offset, 0);
-  const { eventType } = req.query;
+app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'), async (req, res) => {
+  try {
+    const limit = safeParseInt(req.query.limit, 100);
+    const offset = safeParseInt(req.query.offset, 0);
+    const { eventType } = req.query;
 
-  let logs = [...auditLog];
+    const filters = { limit, offset };
+    if (eventType) filters.eventType = eventType;
 
-  if (eventType) {
-    logs = logs.filter(l => l.event === eventType);
+    let logs, total;
+    if (useDatabase) {
+      logs = await db.listAuditLog(filters);
+      total = await db.countAuditLog({ eventType });
+    } else {
+      logs = db.fallback.listAuditLog(filters);
+      total = db.fallback.countAuditLog({ eventType });
+    }
+
+    res.json({
+      auditLog: logs,
+      total,
+      pagination: { limit, offset }
+    });
+  } catch (err) {
+    console.error('Error fetching audit trail:', err);
+    res.status(500).json({ error: 'Failed to fetch audit trail' });
   }
-
-  logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-  res.json({
-    auditLog: logs.slice(offset, offset + limit),
-    total: logs.length,
-    pagination: { limit, offset }
-  });
 });
 
 // ===================
 // TOKEN ENDPOINTS (for demo)
 // ===================
 
-app.post('/api/v1/auth/token', (req, res) => {
-  const { email, role = 'viewer' } = req.body;
+app.post('/api/v1/auth/token', async (req, res) => {
+  try {
+    const { email, role = 'viewer' } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const validRoles = ['admin', 'compliance', 'viewer', 'auditor'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
+    }
+
+    const token = jwt.sign(
+      { email, role, sub: email },
+      config.jwtSecret,
+      { expiresIn: role === 'auditor' ? '72h' : '24h' }
+    );
+
+    await logAudit('TOKEN_ISSUED', 'system', { email, role });
+
+    res.json({
+      token,
+      expiresIn: role === 'auditor' ? '72h' : '24h',
+      role
+    });
+  } catch (err) {
+    console.error('Error issuing token:', err);
+    res.status(500).json({ error: 'Failed to issue token' });
   }
-
-  const validRoles = ['admin', 'compliance', 'viewer', 'auditor'];
-  if (!validRoles.includes(role)) {
-    return res.status(400).json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
-  }
-
-  const token = jwt.sign(
-    { email, role, sub: email },
-    config.jwtSecret,
-    { expiresIn: role === 'auditor' ? '72h' : '24h' }
-  );
-
-  logAudit('TOKEN_ISSUED', 'system', { email, role });
-
-  res.json({
-    token,
-    expiresIn: role === 'auditor' ? '72h' : '24h',
-    role
-  });
 });
 
 // Error handling
@@ -622,12 +660,17 @@ app.use((_req, res) => {
 let server = null;
 
 if (process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].includes('api/server'))) {
-  server = app.listen(config.port, () => {
+  server = app.listen(config.port, async () => {
     console.log(`\n========================================`);
     console.log(`Compliance API Server`);
     console.log(`========================================`);
     console.log(`Environment: ${config.nodeEnv}`);
     console.log(`Port: ${config.port}`);
+    console.log(`Database: ${useDatabase ? 'PostgreSQL' : 'In-Memory'}`);
+    if (useDatabase) {
+      const connected = await db.testConnection();
+      console.log(`DB Status: ${connected ? 'Connected' : 'Connection Failed'}`);
+    }
     console.log(`CORS: ${config.corsOrigins.join(', ')}`);
     console.log(`Health: http://localhost:${config.port}/api/v1/health`);
     console.log(`========================================\n`);
