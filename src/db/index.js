@@ -190,6 +190,42 @@ export function getPool() {
 }
 
 /**
+ * Set tenant context for Row-Level Security (RLS)
+ * Must be called at the start of each request before any queries.
+ *
+ * @param {import('pg').PoolClient} client - Database client from pool
+ * @param {string} tenantId - UUID of the current tenant
+ * @returns {Promise<void>}
+ */
+export async function setTenantContext(client, tenantId) {
+  if (!tenantId) {
+    throw new Error('Tenant ID is required for RLS');
+  }
+  await client.query(`SET app.current_tenant_id = '${tenantId}'`);
+}
+
+/**
+ * Execute a query within tenant context (RLS-safe)
+ *
+ * @param {string} tenantId - UUID of the current tenant
+ * @param {Function} queryFn - Async function that receives the client and executes queries
+ * @returns {Promise<any>} - Result of queryFn
+ */
+export async function withTenantContext(tenantId, queryFn) {
+  if (!pool) throw new Error('Database not connected');
+
+  const client = await pool.connect();
+  try {
+    await setTenantContext(client, tenantId);
+    return await queryFn(client);
+  } finally {
+    // Reset tenant context before returning to pool
+    await client.query('RESET app.current_tenant_id');
+    client.release();
+  }
+}
+
+/**
  * Test database connection
  * @returns {Promise<boolean>}
  */

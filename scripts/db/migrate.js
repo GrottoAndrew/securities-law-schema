@@ -180,6 +180,123 @@ const migrations = [
       DROP TABLE IF EXISTS catalog_versions CASCADE;
     `,
   },
+  {
+    version: 4,
+    name: 'add_multi_tenancy_rls',
+    up: `
+      -- Tenants table
+      CREATE TABLE IF NOT EXISTS tenants (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(100) UNIQUE NOT NULL,
+        settings JSONB DEFAULT '{}',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- Add tenant_id to all tenant-scoped tables
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+      ALTER TABLE evidence ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+      ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+      ALTER TABLE controls ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+      ALTER TABLE deletion_requests ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES tenants(id);
+
+      -- Create indexes for tenant queries
+      CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id);
+      CREATE INDEX IF NOT EXISTS idx_evidence_tenant ON evidence(tenant_id);
+      CREATE INDEX IF NOT EXISTS idx_audit_log_tenant ON audit_log(tenant_id);
+      CREATE INDEX IF NOT EXISTS idx_controls_tenant ON controls(tenant_id);
+
+      -- Enable RLS on tenant-scoped tables
+      ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE evidence ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE controls ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE deletion_requests ENABLE ROW LEVEL SECURITY;
+
+      -- Create app role for RLS bypass (service account)
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'app_service') THEN
+          CREATE ROLE app_service;
+        END IF;
+      END $$;
+
+      -- RLS policies: users can only see their tenant's data
+      -- Policy naming: {table}_{operation}_{scope}
+
+      CREATE POLICY users_select_tenant ON users
+        FOR SELECT USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY users_insert_tenant ON users
+        FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY evidence_select_tenant ON evidence
+        FOR SELECT USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY evidence_insert_tenant ON evidence
+        FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY audit_log_select_tenant ON audit_log
+        FOR SELECT USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY audit_log_insert_tenant ON audit_log
+        FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY controls_select_tenant ON controls
+        FOR SELECT USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid OR tenant_id IS NULL);
+
+      CREATE POLICY controls_insert_tenant ON controls
+        FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY deletion_requests_select_tenant ON deletion_requests
+        FOR SELECT USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      CREATE POLICY deletion_requests_insert_tenant ON deletion_requests
+        FOR INSERT WITH CHECK (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+
+      -- Bypass policies for service role (migrations, admin operations)
+      CREATE POLICY users_service_bypass ON users FOR ALL TO app_service USING (true);
+      CREATE POLICY evidence_service_bypass ON evidence FOR ALL TO app_service USING (true);
+      CREATE POLICY audit_log_service_bypass ON audit_log FOR ALL TO app_service USING (true);
+      CREATE POLICY controls_service_bypass ON controls FOR ALL TO app_service USING (true);
+      CREATE POLICY deletion_requests_service_bypass ON deletion_requests FOR ALL TO app_service USING (true);
+    `,
+    down: `
+      -- Drop all RLS policies
+      DROP POLICY IF EXISTS users_select_tenant ON users;
+      DROP POLICY IF EXISTS users_insert_tenant ON users;
+      DROP POLICY IF EXISTS users_service_bypass ON users;
+      DROP POLICY IF EXISTS evidence_select_tenant ON evidence;
+      DROP POLICY IF EXISTS evidence_insert_tenant ON evidence;
+      DROP POLICY IF EXISTS evidence_service_bypass ON evidence;
+      DROP POLICY IF EXISTS audit_log_select_tenant ON audit_log;
+      DROP POLICY IF EXISTS audit_log_insert_tenant ON audit_log;
+      DROP POLICY IF EXISTS audit_log_service_bypass ON audit_log;
+      DROP POLICY IF EXISTS controls_select_tenant ON controls;
+      DROP POLICY IF EXISTS controls_insert_tenant ON controls;
+      DROP POLICY IF EXISTS controls_service_bypass ON controls;
+      DROP POLICY IF EXISTS deletion_requests_select_tenant ON deletion_requests;
+      DROP POLICY IF EXISTS deletion_requests_insert_tenant ON deletion_requests;
+      DROP POLICY IF EXISTS deletion_requests_service_bypass ON deletion_requests;
+
+      -- Disable RLS
+      ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+      ALTER TABLE evidence DISABLE ROW LEVEL SECURITY;
+      ALTER TABLE audit_log DISABLE ROW LEVEL SECURITY;
+      ALTER TABLE controls DISABLE ROW LEVEL SECURITY;
+      ALTER TABLE deletion_requests DISABLE ROW LEVEL SECURITY;
+
+      -- Drop tenant columns
+      ALTER TABLE users DROP COLUMN IF EXISTS tenant_id;
+      ALTER TABLE evidence DROP COLUMN IF EXISTS tenant_id;
+      ALTER TABLE audit_log DROP COLUMN IF EXISTS tenant_id;
+      ALTER TABLE controls DROP COLUMN IF EXISTS tenant_id;
+      ALTER TABLE deletion_requests DROP COLUMN IF EXISTS tenant_id;
+
+      -- Drop tenants table
+      DROP TABLE IF EXISTS tenants CASCADE;
+    `,
+  },
 ];
 
 class Migrator {

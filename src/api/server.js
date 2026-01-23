@@ -641,6 +641,154 @@ app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'
 });
 
 // ===================
+// AUDIT EXPORT ENDPOINT
+// ===================
+
+/**
+ * Export audit package for regulators/auditors.
+ * Contains: control catalog, evidence mappings (hashed only), timestamps, signatures.
+ * Does NOT contain: actual evidence documents, PII, unmasked data.
+ * To view actual evidence, auditors must access individual evidence endpoints.
+ */
+app.get('/api/v1/audit-export', authenticateToken, requireRole('admin', 'auditor'), async (req, res) => {
+  try {
+    const { format = 'json' } = req.query;
+
+    // 1. Load control catalog
+    const controlCatalog = loadControls();
+    const flatControls = [];
+    function extractControls(obj) {
+      if (Array.isArray(obj)) {
+        obj.forEach(item => extractControls(item));
+      } else if (obj && typeof obj === 'object') {
+        if (obj.id) {
+          flatControls.push({
+            id: obj.id,
+            title: obj.title,
+            regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
+            regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value
+          });
+        }
+        if (obj.controls) extractControls(obj.controls);
+        if (obj.groups) extractControls(obj.groups);
+      }
+    }
+    extractControls(controlCatalog);
+
+    // 2. Get evidence summary (hashed, no actual content)
+    let evidenceList, evidenceByControl;
+    if (useDatabase) {
+      evidenceList = await db.listEvidence({ status: 'active' });
+      evidenceByControl = await db.getEvidenceByControl();
+    } else {
+      evidenceList = db.fallback.listEvidence({ status: 'active' });
+      evidenceByControl = db.fallback.getEvidenceByControl();
+    }
+
+    // 3. Build evidence manifest (hashes only, no document content)
+    const evidenceManifest = evidenceList.map(e => ({
+      id: e.id,
+      controlId: e.controlId,
+      artifactHash: e.artifactHash,
+      merkleLeafHash: e.merkleLeafHash,
+      contentType: e.contentType,
+      artifactSize: e.artifactSize,
+      collectedAt: e.collectedAt,
+      status: e.status
+      // Note: collectedBy, metadata, s3Key intentionally omitted to protect PII
+    }));
+
+    // 4. Build control-evidence mapping
+    const controlMappings = flatControls.map(ctrl => ({
+      controlId: ctrl.id,
+      controlTitle: ctrl.title,
+      regulationCitation: ctrl.regulationCitation,
+      evidenceCount: evidenceByControl[ctrl.id]?.count || 0,
+      lastEvidenceAt: evidenceByControl[ctrl.id]?.lastEvidence || null,
+      status: evidenceByControl[ctrl.id]?.count > 0 ? 'satisfied' : 'missing'
+    }));
+
+    // 5. Compute catalog hash for integrity verification
+    const catalogHash = require('crypto')
+      .createHash('sha256')
+      .update(JSON.stringify(flatControls))
+      .digest('hex');
+
+    // 6. Compute evidence manifest hash
+    const manifestHash = require('crypto')
+      .createHash('sha256')
+      .update(JSON.stringify(evidenceManifest))
+      .digest('hex');
+
+    // 7. Build export package
+    const exportPackage = {
+      exportMetadata: {
+        generatedAt: new Date().toISOString(),
+        generatedBy: req.user.email,
+        format: format,
+        version: '1.0.0'
+      },
+      integrity: {
+        catalogHash,
+        manifestHash,
+        combinedHash: require('crypto')
+          .createHash('sha256')
+          .update(catalogHash + manifestHash)
+          .digest('hex'),
+        // Note: For production, sign with HSM-backed key
+        signatureAlgorithm: 'SHA256',
+        signatureNote: 'Production deployment should use RFC 3161 TSA for legally admissible timestamps'
+      },
+      summary: {
+        totalControls: flatControls.length,
+        satisfiedControls: controlMappings.filter(c => c.status === 'satisfied').length,
+        missingControls: controlMappings.filter(c => c.status === 'missing').length,
+        totalEvidence: evidenceManifest.length,
+        compliancePercentage: Math.round(
+          (controlMappings.filter(c => c.status === 'satisfied').length / flatControls.length) * 100
+        )
+      },
+      controlCatalog: flatControls,
+      controlMappings,
+      evidenceManifest,
+      accessInstructions: {
+        note: 'This export contains hashed evidence references only. To access actual evidence documents:',
+        endpoint: '/api/v1/evidence/{id}',
+        authentication: 'Bearer token with admin or auditor role required',
+        verification: 'Compare artifact hash against stored document SHA-256'
+      }
+    };
+
+    await logAudit('AUDIT_EXPORT_GENERATED', req.user.email, {
+      format,
+      controlCount: flatControls.length,
+      evidenceCount: evidenceManifest.length,
+      catalogHash,
+      manifestHash
+    });
+
+    if (format === 'csv') {
+      // CSV export of control mappings only
+      const csv = [
+        'Control ID,Control Title,Regulation Citation,Evidence Count,Last Evidence,Status',
+        ...controlMappings.map(c =>
+          `"${c.controlId}","${c.controlTitle}","${c.regulationCitation || ''}",${c.evidenceCount},"${c.lastEvidenceAt || ''}","${c.status}"`
+        )
+      ].join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="audit-export-${Date.now()}.csv"`);
+      return res.send(csv);
+    }
+
+    res.json(exportPackage);
+  } catch (err) {
+    console.error('Error generating audit export:', err);
+    res.status(500).json({ error: 'Failed to generate audit export' });
+  }
+});
+
+// ===================
 // TOKEN ENDPOINTS (for demo)
 // ===================
 
