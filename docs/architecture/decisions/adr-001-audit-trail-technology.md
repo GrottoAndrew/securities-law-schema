@@ -81,7 +81,7 @@ Blockchain and distributed ledger technologies are frequently proposed for audit
 6. **False Sense of Security**
    - "Immutability" in blockchain means expensive to change, not impossible
    - 51% attacks, governance attacks, and protocol-level changes can alter history
-   - Single-tenant systems don't benefit from distributed trust—you already trust yourself
+   - Single-tenant systems don't benefit from distributed trust-you already trust yourself
 
 #### When Blockchain Might Be Appropriate (Not This System)
 
@@ -381,9 +381,9 @@ All connections MUST use:
 ```
 
 **Practical note**: While TLS 1.3 is preferred, some legacy systems and integrations may require TLS 1.2. The key requirements are:
-1. **All data encrypted in transit** — no plaintext connections
-2. **No deprecated protocols** — TLS 1.0 and 1.1 are prohibited by PCI DSS and most modern standards
-3. **Strong cipher suites** — avoid known-weak algorithms
+1. **All data encrypted in transit** - no plaintext connections
+2. **No deprecated protocols** - TLS 1.0 and 1.1 are prohibited by PCI DSS and most modern standards
+3. **Strong cipher suites** - avoid known-weak algorithms
 
 If your environment can enforce TLS 1.3-only, do so. If you must support TLS 1.2 for legacy integrations, document the business justification and ensure cipher suite configuration excludes weak options.
 
@@ -436,8 +436,8 @@ If using object storage with retention locks, understand the difference between 
 
 | Mode | Can Root/Admin Override? | Regulatory Suitability |
 |------|--------------------------|------------------------|
-| **GOVERNANCE** | **YES** — users with special permissions can delete | **NOT suitable for SEC 17a-4 or true WORM requirements** |
-| **COMPLIANCE** | **NO** — cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements |
+| **GOVERNANCE** | **YES** - users with special permissions can delete | **NOT suitable for SEC 17a-4 or true WORM requirements** |
+| **COMPLIANCE** | **NO** - cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements |
 
 **If you configure GOVERNANCE mode thinking you have immutability, you do not.** GOVERNANCE mode is designed for testing or soft retention policies. For audit trails subject to SEC 17a-4, FINRA 4511, or similar regulations, you MUST use COMPLIANCE mode.
 

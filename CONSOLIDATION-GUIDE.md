@@ -369,84 +369,7 @@ AR Capital's accounting scandal ($23M non-cash expense manipulation) led to:
 
 ---
 
-## 7. Gamma.app Prompts for Use Case Generation
-
-### Prompt 1: Regulation D Compliance Overview
-```
-Create a one-page visual presentation for broker-dealer compliance officers:
-
-Title: "Regulation D Evidence Management System"
-
-Include:
-- Hero section: "Prove Compliance, Reduce Risk"
-- 3-column layout: Problem → Solution → Outcome
-- Visual dashboard mockup showing evidence status
-- Cost savings callout: "$650K+ annual savings for mid-size firms"
-- Call to action: "Schedule a Demo"
-
-Style: Professional, blue/white color scheme, minimal text, data visualizations
-```
-
-### Prompt 2: SEC Examination Readiness
-```
-Create a one-page visual for RIA CCOs preparing for SEC examination:
-
-Title: "SEC Exam Ready in Minutes, Not Weeks"
-
-Include:
-- Before/After comparison: Manual vs. Automated evidence gathering
-- Timeline showing: Evidence collected → Audit trail verified → Report generated
-- Testimonial placeholder
-- Key statistics: 85% faster exam prep, 100% evidence traceability
-
-Style: Clean, confidence-inspiring, green accent colors for "verified" states
-```
-
-### Prompt 3: Federal Law Expansion - AML/BSA
-```
-Create a one-page concept for Anti-Money Laundering compliance:
-
-Title: "AML Evidence Locker"
-
-Apply same framework to:
-- Customer Identification Program (CIP) → Evidence of ID verification
-- Suspicious Activity Reports (SARs) → Audit trail of filing
-- Currency Transaction Reports (CTRs) → Automated threshold monitoring
-
-Visual: Show how same schema architecture extends to 31 CFR 1010-1022
-```
-
-### Prompt 4: Federal Law Expansion - ERISA
-```
-Create a one-page concept for Employee Retirement Income Security Act:
-
-Title: "ERISA Fiduciary Evidence Locker"
-
-Apply framework to:
-- Prudent investor documentation (29 CFR 2550.404a-1)
-- Fee disclosure evidence (29 CFR 2550.408b-2)
-- Prohibited transaction exemption documentation
-
-Visual: Plan sponsor dashboard showing fiduciary duty compliance
-```
-
-### Prompt 5: Federal Law Expansion - HIPAA
-```
-Create a one-page concept for HIPAA compliance evidence:
-
-Title: "HIPAA Security Rule Evidence Management"
-
-Apply framework to:
-- Administrative safeguards (45 CFR 164.308)
-- Physical safeguards (45 CFR 164.310)
-- Technical safeguards (45 CFR 164.312)
-
-Visual: Healthcare compliance dashboard with PHI access audit trail
-```
-
----
-
-## 8. Agentic AI Architecture
+## 7. Agentic AI Architecture
 
 ### LLM Selection for Compliance-First Design
 
@@ -500,7 +423,7 @@ Visual: Healthcare compliance dashboard with PHI access audit trail
 
 ---
 
-## 9. Testing Cadence Configuration
+## 8. Testing Cadence Configuration
 
 ### Environment Variables
 
@@ -548,7 +471,7 @@ ALLOW_CADENCE_OVERRIDE=true        # Let users customize per-offering
 
 ---
 
-## 10. CISO Approval Checklist
+## 9. CISO Approval Checklist
 
 ### Security Controls (Neo Kim / Charles Roby / Alex Xu Standards)
 
@@ -577,7 +500,7 @@ ALLOW_CADENCE_OVERRIDE=true        # Let users customize per-offering
 
 ---
 
-## 11. Quick Start Demo Flow
+## 10. Quick Start Demo Flow
 
 ### Least Friction Demo (5 minutes)
 
@@ -606,7 +529,7 @@ ALLOW_CADENCE_OVERRIDE=true        # Let users customize per-offering
 
 ---
 
-## 12. Next Steps for Implementation
+## 11. Next Steps for Implementation
 
 ### Phase 1: Foundation (Weeks 1-4)
 - [ ] Set up AWS infrastructure (VPC, RDS, S3)

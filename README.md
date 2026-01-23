@@ -6,9 +6,9 @@ Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL contr
 
 This repository provides:
 
-1. **Regulatory Text** (JSON-LD) — Verbatim CFR text in a structured, queryable format
-2. **Control Catalog** (OSCAL) — Compliance controls mapped to regulatory requirements
-3. **Architecture Docs** — Reference design for a compliance evidence management system
+1. **Regulatory Text** (JSON-LD) - Verbatim CFR text in a structured, queryable format
+2. **Control Catalog** (OSCAL) - Compliance controls mapped to regulatory requirements
+3. **Architecture Docs** - Reference design for a compliance evidence management system
 
 ## Quick Start
 
@@ -90,18 +90,18 @@ Section → Subsection → Paragraph → Clause → Subclause
 ```
 
 Each element includes:
-- `@id` — Unique identifier (e.g., `cfr:17/230.501(a)(6)`)
-- `@type` — Element type (Section, Subsection, etc.)
-- `citation` — Human-readable citation
-- `designation` — The letter/number designation
-- `text` — Verbatim regulatory text
+- `@id` - Unique identifier (e.g., `cfr:17/230.501(a)(6)`)
+- `@type` - Element type (Section, Subsection, etc.)
+- `citation` - Human-readable citation
+- `designation` - The letter/number designation
+- `text` - Verbatim regulatory text
 
 ### OSCAL Controls
 
 Controls follow NIST OSCAL format with extensions:
-- `regulation-citation` — Links to CFR provision
-- `regulation-ref` — JSON-LD reference for machine linking
-- `evidence-requirements` — What evidence satisfies the control
+- `regulation-citation` - Links to CFR provision
+- `regulation-ref` - JSON-LD reference for machine linking
+- `evidence-requirements` - What evidence satisfies the control
 
 ## Use Cases
 
@@ -220,10 +220,10 @@ New to JSON-LD? See [UNDERSTANDING.md](UNDERSTANDING.md) for a guide explaining:
 
 ## License
 
-MIT License — see [LICENSE](LICENSE)
+MIT License - see [LICENSE](LICENSE)
 
 ## Related Standards
 
-- [OSCAL](https://pages.nist.gov/OSCAL/) — NIST Open Security Controls Assessment Language
-- [JSON-LD](https://json-ld.org/) — JSON for Linked Data
-- [eCFR](https://www.ecfr.gov/) — Electronic Code of Federal Regulations
+- [OSCAL](https://pages.nist.gov/OSCAL/) - NIST Open Security Controls Assessment Language
+- [JSON-LD](https://json-ld.org/) - JSON for Linked Data
+- [eCFR](https://www.ecfr.gov/) - Electronic Code of Federal Regulations

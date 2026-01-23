@@ -46,9 +46,9 @@ This document describes the reference architecture for a securities compliance m
 **Purpose**: Authoritative source for regulatory text and compliance controls.
 
 **Contents**:
-- `regulations/` — JSON-LD files containing verbatim CFR text
-- `controls/` — OSCAL control catalogs mapping requirements to regulations
-- `contexts/` — JSON-LD vocabulary definitions
+- `regulations/` - JSON-LD files containing verbatim CFR text
+- `controls/` - OSCAL control catalogs mapping requirements to regulations
+- `contexts/` - JSON-LD vocabulary definitions
 
 **Properties**:
 - Versioned (S3 versioning enabled)
