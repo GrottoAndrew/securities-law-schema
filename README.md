@@ -148,7 +148,7 @@ This repository provides a complete foundation for securities compliance automat
 - [x] Docker Compose local environment
 - [x] 42+ automated tests
 
-Enterprise deployment, additional regulations, and compliance certifications available. Contact for details.
+Enterprise deployment, additional regulations, and compliance certifications can be made available for production level versioning. Contact author for details.
 
 ## Documentation
 
