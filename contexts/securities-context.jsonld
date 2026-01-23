@@ -1,0 +1,92 @@
+{
+  "@context": {
+    "@version": 1.1,
+
+    "cfr": "https://ecfr.federalregister.gov/cfr/",
+    "sec": "https://www.sec.gov/glossary/",
+    "schema": "http://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+
+    "RegulationPart": {
+      "@id": "cfr:RegulationPart",
+      "@context": {
+        "partNumber": {"@id": "cfr:partNumber", "@type": "xsd:integer"},
+        "title": {"@id": "dcterms:title", "@type": "xsd:string"},
+        "authority": {"@id": "cfr:authority", "@type": "xsd:string"},
+        "source": {"@id": "dcterms:source", "@type": "xsd:string"},
+        "section": {"@id": "cfr:hasSection", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "Section": {
+      "@id": "cfr:Section",
+      "@context": {
+        "sectionNumber": {"@id": "cfr:sectionNumber", "@type": "xsd:string"},
+        "title": {"@id": "dcterms:title", "@type": "xsd:string"},
+        "text": {"@id": "cfr:regulatoryText", "@type": "xsd:string"},
+        "subsection": {"@id": "cfr:hasSubsection", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "Subsection": {
+      "@id": "cfr:Subsection",
+      "@context": {
+        "designation": {"@id": "cfr:designation", "@type": "xsd:string"},
+        "text": {"@id": "cfr:regulatoryText", "@type": "xsd:string"},
+        "paragraph": {"@id": "cfr:hasParagraph", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "Paragraph": {
+      "@id": "cfr:Paragraph",
+      "@context": {
+        "designation": {"@id": "cfr:designation", "@type": "xsd:string"},
+        "text": {"@id": "cfr:regulatoryText", "@type": "xsd:string"},
+        "clause": {"@id": "cfr:hasClause", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "Clause": {
+      "@id": "cfr:Clause",
+      "@context": {
+        "designation": {"@id": "cfr:designation", "@type": "xsd:string"},
+        "text": {"@id": "cfr:regulatoryText", "@type": "xsd:string"},
+        "subclause": {"@id": "cfr:hasSubclause", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "Subclause": {
+      "@id": "cfr:Subclause",
+      "@context": {
+        "designation": {"@id": "cfr:designation", "@type": "xsd:string"},
+        "text": {"@id": "cfr:regulatoryText", "@type": "xsd:string"}
+      }
+    },
+
+    "Definition": {
+      "@id": "cfr:Definition",
+      "@context": {
+        "term": {"@id": "cfr:definedTerm", "@type": "xsd:string"},
+        "definition": {"@id": "cfr:definitionText", "@type": "xsd:string"},
+        "category": {"@id": "cfr:definitionCategory", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "DefinitionCategory": {
+      "@id": "cfr:DefinitionCategory",
+      "@context": {
+        "designation": {"@id": "cfr:designation", "@type": "xsd:string"},
+        "description": {"@id": "dcterms:description", "@type": "xsd:string"},
+        "criteria": {"@id": "cfr:hasCriteria", "@type": "@id", "@container": "@list"}
+      }
+    },
+
+    "citation": {"@id": "cfr:citation", "@type": "xsd:string"},
+    "effectiveDate": {"@id": "dcterms:valid", "@type": "xsd:date"},
+    "amendedDate": {"@id": "dcterms:modified", "@type": "xsd:date"},
+    "crossReference": {"@id": "cfr:crossReference", "@type": "@id", "@container": "@set"},
+    "note": {"@id": "cfr:note", "@type": "xsd:string"},
+    "federalRegisterCitation": {"@id": "cfr:federalRegisterCitation", "@type": "xsd:string"}
+  }
+}
