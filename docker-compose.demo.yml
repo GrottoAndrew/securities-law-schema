@@ -1,0 +1,96 @@
+# =============================================================================
+# Evidence Locker - Local Demo Environment
+# =============================================================================
+# Run: docker compose -f docker-compose.demo.yml up
+# Access: http://localhost:3001 (API) | http://localhost:8080 (Dashboard)
+# =============================================================================
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: evidence_admin
+      POSTGRES_PASSWORD: demo_password_only
+      POSTGRES_DB: evidence_locker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evidence_admin -d evidence_locker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO - S3-compatible storage with Object Lock (WORM)
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://evidence_admin:demo_password_only@postgres:5432/evidence_locker
+      JWT_SECRET: demo-jwt-secret-not-for-production-use-32chars
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin123
+      S3_EVIDENCE_BUCKET: evidence
+      PRIMARY_JURISDICTION: sec
+      SEC_RETENTION_YEARS: 7
+      ENABLE_WORM_STORAGE: "true"
+      SEED_DATA: "true"
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  # Dashboard (static files served by nginx)
+  dashboard:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src/dashboard:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
+  # MinIO bucket initialization
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin123;
+      mc mb local/evidence --ignore-existing;
+      mc version enable local/evidence;
+      echo 'MinIO bucket initialized with versioning';
+      "
+
+volumes:
+  postgres_data:
+  minio_data:

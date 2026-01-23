@@ -1,0 +1,326 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/GrottoAndrew/securities-law-schema/schemas/regulation-d-schema.json",
+  "title": "Regulation D Schema",
+  "description": "JSON Schema for validating 17 CFR 230.500-508 (Regulation D) JSON-LD files",
+  "type": "object",
+  "required": ["@context", "@id", "@type", "_source", "citation", "title", "sectionNumber"],
+  "properties": {
+    "@context": {
+      "type": "string",
+      "description": "Path to JSON-LD context file"
+    },
+    "@id": {
+      "type": "string",
+      "pattern": "^cfr:17/230\\.(50[0-8])$",
+      "description": "CFR identifier for Regulation D sections 230.500-230.508"
+    },
+    "@type": {
+      "const": "Section",
+      "description": "Must be 'Section' for top-level regulatory sections"
+    },
+    "_source": {
+      "$ref": "#/definitions/SourceMetadata"
+    },
+    "citation": {
+      "type": "string",
+      "pattern": "^17 CFR 230\\.(50[0-8])$",
+      "description": "Full CFR citation"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Section title"
+    },
+    "sectionNumber": {
+      "type": "string",
+      "pattern": "^230\\.(50[0-8])$",
+      "description": "Section number without title prefix"
+    },
+    "effectiveDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Effective date in ISO 8601 format (YYYY-MM-DD)"
+    },
+    "federalRegisterCitation": {
+      "type": "string",
+      "pattern": "^\\d+ FR \\d+$",
+      "description": "Federal Register citation (e.g., '86 FR 3598')"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["reserved", "active"],
+      "description": "Section status (reserved for repealed rules)"
+    },
+    "text": {
+      "type": "string",
+      "description": "Main regulatory text of the section"
+    },
+    "subsection": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Subsection"
+      },
+      "description": "Subsections within this section"
+    },
+    "note": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Note"
+      },
+      "description": "Notes applicable to the entire section"
+    },
+    "amendmentHistory": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\d+ FR \\d+,.*$"
+      },
+      "description": "Federal Register citations for amendments"
+    },
+    "crossReference": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^cfr:17/.*$"
+      },
+      "description": "Cross-references to related CFR sections"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "SourceMetadata": {
+      "type": "object",
+      "required": ["description", "sourceUrl", "asOfDate", "disclaimer"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of data source"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of source data"
+        },
+        "asOfDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "Date data was extracted"
+        },
+        "lastAmendment": {
+          "type": "string",
+          "description": "Most recent amendment citation"
+        },
+        "disclaimer": {
+          "type": "string",
+          "description": "Legal disclaimer about data use"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Subsection": {
+      "type": "object",
+      "required": ["@id", "@type", "citation", "designation"],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "pattern": "^cfr:17/230\\.50[0-8]\\([a-z]\\)$"
+        },
+        "@type": {
+          "const": "Subsection"
+        },
+        "citation": {
+          "type": "string",
+          "pattern": "^17 CFR 230\\.50[0-8]\\([a-z]\\)$"
+        },
+        "designation": {
+          "type": "string",
+          "pattern": "^\\([a-z]\\)$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "paragraph": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Paragraph"
+          }
+        },
+        "note": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Note"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Paragraph": {
+      "type": "object",
+      "required": ["@id", "@type", "citation", "designation"],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "pattern": "^cfr:17/230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)$"
+        },
+        "@type": {
+          "const": "Paragraph"
+        },
+        "citation": {
+          "type": "string",
+          "pattern": "^17 CFR 230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)$"
+        },
+        "designation": {
+          "type": "string",
+          "pattern": "^\\(\\d+\\)$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "clause": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Clause"
+          }
+        },
+        "note": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Note"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Clause": {
+      "type": "object",
+      "required": ["@id", "@type", "citation", "designation"],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "pattern": "^cfr:17/230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)\\([ivx]+\\)$"
+        },
+        "@type": {
+          "const": "Clause"
+        },
+        "citation": {
+          "type": "string",
+          "pattern": "^17 CFR 230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)\\([ivx]+\\)$"
+        },
+        "designation": {
+          "type": "string",
+          "pattern": "^\\([ivx]+\\)$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "subclause": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Subclause"
+          }
+        },
+        "note": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Note"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Subclause": {
+      "type": "object",
+      "required": ["@id", "@type", "citation", "designation"],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "pattern": "^cfr:17/230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)\\([ivx]+\\)\\([A-Z]\\)$"
+        },
+        "@type": {
+          "const": "Subclause"
+        },
+        "citation": {
+          "type": "string",
+          "pattern": "^17 CFR 230\\.50[0-8]\\([a-z]\\)\\(\\d+\\)\\([ivx]+\\)\\([A-Z]\\)$"
+        },
+        "designation": {
+          "type": "string",
+          "pattern": "^\\([A-Z]\\)$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "item": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Item"
+          }
+        },
+        "note": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Note"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Item": {
+      "type": "object",
+      "required": ["@id", "@type", "citation", "designation", "text"],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "pattern": "^cfr:17/230\\.50[0-8].*\\(\\d+\\)$"
+        },
+        "@type": {
+          "const": "Item"
+        },
+        "citation": {
+          "type": "string",
+          "pattern": "^17 CFR 230\\.50[0-8].*\\(\\d+\\)$"
+        },
+        "designation": {
+          "type": "string",
+          "pattern": "^\\(\\d+\\)$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Note": {
+      "type": "object",
+      "required": ["@type", "text"],
+      "properties": {
+        "@type": {
+          "const": "Note"
+        },
+        "designation": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

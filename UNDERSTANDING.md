@@ -22,10 +22,10 @@ This process is manual, error-prone, and difficult to audit.
 
 With machine-readable regulations, you can:
 
-1. **Query specific requirements** — "List all conditions for Rule 506(c) exemption"
-2. **Map controls to rules** — "This investor verification procedure satisfies 17 CFR 230.506(c)(2)(ii)"
-3. **Automate checklists** — Generate compliance checklists directly from regulatory text
-4. **Create audit trails** — Link evidence to specific regulatory provisions
+1. **Query specific requirements** - "List all conditions for Rule 506(c) exemption"
+2. **Map controls to rules** - "This investor verification procedure satisfies 17 CFR 230.506(c)(2)(ii)"
+3. **Automate checklists** - Generate compliance checklists directly from regulatory text
+4. **Create audit trails** - Link evidence to specific regulatory provisions
 
 ## How to Read the Files
 

@@ -180,7 +180,7 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 - Complex multi-jurisdictional regulatory requirements
 - Organizations that have failed examinations and need remediation
 
-**Reality check**: If your compliance budget is under $100K/year, this category is likely not for you. However, awareness that it exists helps calibrate expectations—the tools in Categories 1-4 are not substitutes for comprehensive compliance programs at regulated financial institutions.
+**Reality check**: If your compliance budget is under $100K/year, this category is likely not for you. However, awareness that it exists helps calibrate expectations-the tools in Categories 1-4 are not substitutes for comprehensive compliance programs at regulated financial institutions.
 
 ---
 
@@ -203,9 +203,9 @@ When evaluating any documentation or GRC platform:
 ## Recommended Approach
 
 1. **Start with version-controlled markdown** for engineering-driven ADRs during development
-2. **Evaluate collaboration platforms carefully** — verify compliance certifications match your needs
+2. **Evaluate collaboration platforms carefully** - verify compliance certifications match your needs
 3. **For regulated financial services**: Consult compliance counsel before selecting any platform
-4. **Maintain export capability** — always be able to extract documentation in portable formats
+4. **Maintain export capability** - always be able to extract documentation in portable formats
 5. **Don't assume "enterprise" means "compliant for your use case"**
 
 ---
@@ -233,10 +233,10 @@ Regardless of platform choice, ensure:
 ### When you should look elsewhere:
 
 - You need a **turnkey solution** today, not a reference architecture
-- You're a **registered investment adviser or broker-dealer** and need FINRA/SEC-specific workflows — specialized vendors exist for this
-- You need **communications archiving** (email, chat supervision) — that's a different product category entirely
-- Your compliance team has **no engineering support** — you need a managed platform, not architecture docs
-- You're under **regulatory examination pressure** — hire consultants, don't build
+- You're a **registered investment adviser or broker-dealer** and need FINRA/SEC-specific workflows - specialized vendors exist for this
+- You need **communications archiving** (email, chat supervision) - that's a different product category entirely
+- Your compliance team has **no engineering support** - you need a managed platform, not architecture docs
+- You're under **regulatory examination pressure** - hire consultants, don't build
 
 ### Financial services-specific tooling categories (not covered here):
 

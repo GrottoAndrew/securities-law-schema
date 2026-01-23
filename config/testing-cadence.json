@@ -1,0 +1,166 @@
+{
+  "$schema": "./testing-cadence-schema.json",
+  "_meta": {
+    "description": "Testing cadence configuration for hot and cold databases",
+    "documentation": "See CONSOLIDATION-GUIDE.md for full explanation"
+  },
+  "defaults": {
+    "timezone": "America/New_York",
+    "notificationChannels": ["slack", "email"],
+    "failureEscalation": {
+      "critical": ["cco@company.com", "ciso@company.com"],
+      "high": ["compliance-team@company.com"],
+      "medium": ["dev-team@company.com"]
+    }
+  },
+  "databases": {
+    "hot": {
+      "description": "Active offerings with recent evidence submissions",
+      "criteria": {
+        "lastEvidenceSubmission": "< 90 days",
+        "offeringStatus": ["active", "closing"]
+      },
+      "testSchedule": {
+        "unit": {
+          "cron": "*/15 * * * *",
+          "description": "Every 15 minutes",
+          "timeout": 60000
+        },
+        "integration": {
+          "cron": "0 * * * *",
+          "description": "Every hour, on the hour",
+          "timeout": 300000
+        },
+        "redTeam": {
+          "cron": "0 * * * *",
+          "description": "Hourly red team analysis",
+          "timeout": 600000
+        },
+        "e2e": {
+          "cron": "0 */4 * * *",
+          "description": "Every 4 hours",
+          "timeout": 900000
+        }
+      }
+    },
+    "cold": {
+      "description": "Archived offerings, historical data",
+      "criteria": {
+        "lastEvidenceSubmission": ">= 90 days",
+        "offeringStatus": ["closed", "archived"]
+      },
+      "testSchedule": {
+        "unit": {
+          "cron": "0 */6 * * *",
+          "description": "Every 6 hours",
+          "timeout": 60000
+        },
+        "integration": {
+          "cron": "0 4 * * *",
+          "description": "Daily at 4 AM",
+          "timeout": 300000
+        },
+        "redTeam": {
+          "cron": "0 4 * * *",
+          "description": "Daily red team analysis",
+          "timeout": 600000
+        },
+        "e2e": {
+          "cron": "0 4 * * 0",
+          "description": "Weekly on Sunday at 4 AM",
+          "timeout": 900000
+        }
+      }
+    }
+  },
+  "testTypes": {
+    "unit": {
+      "description": "Schema validation, JSON structure, citation accuracy",
+      "script": "npm run test:unit",
+      "failureAction": "notify",
+      "blocksDeploy": false
+    },
+    "integration": {
+      "description": "API endpoints, evidence submission, control linking",
+      "script": "npm run test:integration",
+      "failureAction": "notify",
+      "blocksDeploy": true
+    },
+    "redTeam": {
+      "description": "Security analysis, data exposure, injection risks",
+      "script": "npm run test:redteam",
+      "failureAction": "escalate",
+      "blocksDeploy": true
+    },
+    "e2e": {
+      "description": "Full workflow validation, auditor access, export",
+      "script": "npm run test:e2e",
+      "failureAction": "notify",
+      "blocksDeploy": false
+    }
+  },
+  "overrides": {
+    "enabled": true,
+    "description": "Per-offering schedule customization",
+    "allowedModifications": [
+      "increase_frequency",
+      "decrease_frequency_with_approval"
+    ],
+    "approvalRequired": {
+      "decrease_frequency": ["cco", "compliance_manager"]
+    }
+  },
+  "llmIntegration": {
+    "description": "LLM selection for test analysis and recommendations",
+    "models": {
+      "testAnalysis": {
+        "primary": "claude-opus-4-5-20251101",
+        "fallback": "mistral-large",
+        "useCase": "Analyze test failures, suggest fixes"
+      },
+      "securityScanning": {
+        "primary": "claude-opus-4-5-20251101",
+        "fallback": "llama-3.2-90b",
+        "useCase": "Deep security analysis, vulnerability detection"
+      },
+      "documentClassification": {
+        "primary": "mistral-large",
+        "fallback": "llama-3.1-70b",
+        "useCase": "High-volume evidence classification"
+      },
+      "sensitiveDataHandling": {
+        "primary": "llama-3.1-70b",
+        "deployment": "on-premise",
+        "useCase": "PII processing in air-gapped environment"
+      }
+    },
+    "complianceConstraints": {
+      "dataResidency": "us-east-1",
+      "piiHandling": "on-premise-only",
+      "auditLogging": true,
+      "humanApprovalRequired": [
+        "regulatory_filing",
+        "investor_communication",
+        "evidence_deletion"
+      ]
+    }
+  },
+  "reporting": {
+    "dailySummary": {
+      "cron": "0 8 * * *",
+      "recipients": ["compliance-team@company.com"],
+      "format": "html"
+    },
+    "weeklySummary": {
+      "cron": "0 8 * * 1",
+      "recipients": ["cco@company.com", "ciso@company.com"],
+      "format": "pdf"
+    },
+    "incidentReport": {
+      "trigger": "critical_or_high_failure",
+      "recipients": ["cco@company.com", "ciso@company.com", "legal@company.com"],
+      "format": "pdf",
+      "includeAuditTrail": true
+    }
+  }
+}
