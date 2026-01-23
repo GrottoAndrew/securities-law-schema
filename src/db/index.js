@@ -15,9 +15,11 @@ const { Pool } = pg;
 /** @type {import('pg').Pool | null} */
 let pool = null;
 
-/** Maximum records in in-memory fallback before oldest are evicted */
-const MAX_IN_MEMORY_EVIDENCE = 10000;
-const MAX_IN_MEMORY_AUDIT_LOG = 50000;
+/** Soft limits for in-memory fallback - warn but never delete */
+const SOFT_LIMIT_EVIDENCE = 10000;
+const SOFT_LIMIT_AUDIT_LOG = 50000;
+let evidenceLimitWarned = false;
+let auditLimitWarned = false;
 
 /**
  * @typedef {Object} Evidence
@@ -414,10 +416,10 @@ export const fallback = {
    * @returns {Evidence}
    */
   createEvidence(evidence) {
-    // Evict oldest entries if at capacity
-    if (inMemoryEvidence.size >= MAX_IN_MEMORY_EVIDENCE) {
-      const oldestKey = inMemoryEvidence.keys().next().value;
-      inMemoryEvidence.delete(oldestKey);
+    // Soft limit: warn but never delete (7-year retention requirement)
+    if (inMemoryEvidence.size >= SOFT_LIMIT_EVIDENCE && !evidenceLimitWarned) {
+      console.error(`WARNING: In-memory evidence store exceeded ${SOFT_LIMIT_EVIDENCE} records. Configure DATABASE_URL for production use.`);
+      evidenceLimitWarned = true;
     }
     inMemoryEvidence.set(evidence.id, evidence);
     return evidence;
@@ -464,9 +466,10 @@ export const fallback = {
    * @returns {AuditEntry}
    */
   createAuditEntry(event, actor, details) {
-    // Evict oldest entries if at capacity (FIFO)
-    while (inMemoryAuditLog.length >= MAX_IN_MEMORY_AUDIT_LOG) {
-      inMemoryAuditLog.shift();
+    // Soft limit: warn but never delete (7-year retention requirement)
+    if (inMemoryAuditLog.length >= SOFT_LIMIT_AUDIT_LOG && !auditLimitWarned) {
+      console.error(`WARNING: In-memory audit log exceeded ${SOFT_LIMIT_AUDIT_LOG} entries. Configure DATABASE_URL for production use.`);
+      auditLimitWarned = true;
     }
     const entry = {
       id: crypto.randomUUID(),
@@ -504,5 +507,7 @@ export const fallback = {
   clear() {
     inMemoryEvidence.clear();
     inMemoryAuditLog.length = 0;
+    evidenceLimitWarned = false;
+    auditLimitWarned = false;
   }
 };
