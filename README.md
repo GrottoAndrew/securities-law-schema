@@ -2,98 +2,112 @@
 
 Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL control mappings for compliance automation.
 
-## Overview
+## What's Included
 
-This repository provides:
-
-1. **Regulatory Text** (JSON-LD) - Verbatim CFR text in a structured, queryable format
-2. **Control Catalog** (OSCAL) - Compliance controls mapped to regulatory requirements
-3. **Architecture Docs** - Reference design for a compliance evidence management system
+| Component | Description |
+|-----------|-------------|
+| **JSON-LD Schemas** | Complete Regulation D (17 CFR 230.500-508) in structured, queryable format |
+| **OSCAL Controls** | 16 compliance controls mapped to regulatory requirements |
+| **REST API** | Express.js API with JWT authentication, evidence submission, compliance status |
+| **PostgreSQL Integration** | Database schema with migrations, hash-chained audit trail |
+| **Docker Compose** | One-command local demo with PostgreSQL, MinIO, auto-seeding |
+| **Test Suite** | 51 tests (unit, integration, schema validation) via Vitest |
+| **Terraform IaC** | AWS ECS Fargate deployment configuration |
+| **Seed Data Generator** | 200+ realistic evidence records for demos |
+| **Compliance Recipes** | 11 framework extensions (broker-dealer, fund finance, pre-IPO, etc.) |
 
 ## Quick Start
 
-### Browse Regulations
+### Run Locally with Docker
 
 ```bash
-# View Regulation D definitions (accredited investor, etc.)
-cat schemas/regulation-d/17cfr230.501.jsonld | jq '.subsection[0].paragraph[] | {designation, text}'
+docker compose -f docker-compose.demo.yml up --build
 ```
 
-### Find a Specific Provision
+After ~30 seconds:
+- API: http://localhost:3001/api/v1/health
+- MinIO Console: http://localhost:9001 (minioadmin/minioadmin123)
+
+### Test the API
 
 ```bash
-# Find accredited investor income threshold
-cat schemas/regulation-d/17cfr230.501.jsonld | jq '
-  .subsection[0].paragraph[] |
-  select(.designation == "(6)") |
-  .text
-'
+# Get auth token
+curl -X POST http://localhost:3001/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@example.com","role":"admin"}'
+
+# List evidence (200+ seeded records)
+curl http://localhost:3001/api/v1/evidence \
+  -H "Authorization: Bearer <token>"
+
+# Check compliance status
+curl http://localhost:3001/api/v1/compliance-status \
+  -H "Authorization: Bearer <token>"
 ```
 
-### List Controls for a Regulation
+### Run Tests
 
 ```bash
-# Get all controls referencing 17 CFR 230.501
-cat controls/regulation-d-controls.json | jq '
-  .catalog.groups[].controls[] |
-  select(.props[]? | select(.name == "regulation-citation" and (.value | contains("230.501")))) |
-  {id, title, citation: .props[] | select(.name == "regulation-citation") | .value}
-'
+npm install
+npm run test:unit        # 15 schema tests
+npm run test:integration # 27 API tests
+npm run lint && npm run typecheck
 ```
 
 ## Repository Structure
 
 ```
 securities-law-schema/
-├── contexts/
-│   └── securities-context.jsonld    # JSON-LD vocabulary definitions
-├── schemas/
-│   └── regulation-d/
-│       ├── 17cfr230.500.jsonld      # Use of Regulation D
-│       ├── 17cfr230.501.jsonld      # Definitions and terms
-│       ├── 17cfr230.502.jsonld      # General conditions
-│       ├── 17cfr230.503.jsonld      # Filing of notice of sales
-│       ├── 17cfr230.504.jsonld      # $10M exemption
-│       ├── 17cfr230.505.jsonld      # [Reserved]
-│       ├── 17cfr230.506.jsonld      # Rule 506(b)/506(c)
-│       ├── 17cfr230.507.jsonld      # Disqualification
-│       └── 17cfr230.508.jsonld      # Insignificant deviations
-├── controls/
-│   └── regulation-d-controls.json   # OSCAL control catalog
-├── source/
-│   └── cfr/
-│       └── ECFR-title17.xml         # Source CFR bulk data
+├── schemas/regulation-d/        # JSON-LD regulatory text (17 CFR 230.500-508)
+├── controls/                    # OSCAL control catalog
+├── contexts/                    # JSON-LD vocabulary definitions
+├── src/
+│   ├── api/server.js           # Express REST API
+│   └── db/index.js             # PostgreSQL integration
+├── scripts/
+│   ├── db/migrate.js           # Database migrations
+│   ├── seed-demo-data.js       # 200+ evidence record generator
+│   └── start-server.js         # Docker entrypoint with auto-migration
+├── tests/
+│   ├── unit/                   # Schema validation tests
+│   ├── integration/            # API endpoint tests
+│   └── redteam/                # Security analysis
+├── terraform/                   # AWS ECS deployment
 ├── docs/
-│   ├── architecture/
-│   │   ├── overview.md              # System architecture
-│   │   ├── data-flow.md             # Data flow diagrams
-│   │   ├── security.md              # Security architecture
-│   │   ├── evidence-locker.md       # Evidence storage design
-│   │   └── decisions/               # Architecture Decision Records
-│   │       └── adr-001-*.md         # Audit trail technology
-│   └── for-developers/
-│       └── [coming soon]
-├── CONTRIBUTING.md                   # Contribution guidelines
-├── UNDERSTANDING.md                  # Guide for lawyers
-└── LICENSE                           # MIT License
+│   ├── COMPLIANCE-RECIPES.md   # 11 framework extensions
+│   ├── IMPLEMENTATION-GUIDE.md # Guide for legal practitioners
+│   └── architecture/           # System design documentation
+├── docker-compose.demo.yml     # Local demo environment
+└── Dockerfile                  # Production container
 ```
+
+## API Endpoints
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/v1/health` | GET | No | Health check with DB status |
+| `/api/v1/auth/token` | POST | No | Get JWT token |
+| `/api/v1/controls` | GET | No | List all compliance controls |
+| `/api/v1/controls/:id` | GET | No | Get specific control |
+| `/api/v1/evidence` | GET | Yes | List evidence records |
+| `/api/v1/evidence` | POST | Yes | Submit new evidence |
+| `/api/v1/evidence/:id/verify` | GET | Yes | Verify evidence integrity |
+| `/api/v1/compliance-status` | GET | Yes | Dashboard data with control coverage |
+| `/api/v1/audit-trail` | GET | Yes | Immutable audit log |
 
 ## Data Formats
 
 ### JSON-LD Regulations
 
-Regulations follow the CFR hierarchy:
-
 ```
-Section → Subsection → Paragraph → Clause → Subclause
+Section - Subsection - Paragraph - Clause - Subclause
   501       (a)          (1)        (i)       (A)
 ```
 
 Each element includes:
-- `@id` - Unique identifier (e.g., `cfr:17/230.501(a)(6)`)
-- `@type` - Element type (Section, Subsection, etc.)
+- `@id` - Unique URI (e.g., `cfr:17/230.501(a)(6)`)
+- `@type` - Element type
 - `citation` - Human-readable citation
-- `designation` - The letter/number designation
 - `text` - Verbatim regulatory text
 
 ### OSCAL Controls
@@ -103,120 +117,59 @@ Controls follow NIST OSCAL format with extensions:
 - `regulation-ref` - JSON-LD reference for machine linking
 - `evidence-requirements` - What evidence satisfies the control
 
-## Use Cases
+## Steps to Enterprise Grade
 
-### 1. Compliance Checklists
+### Step 1: Foundation (Complete)
 
-Generate checklists directly from control requirements:
+- [x] JSON-LD schemas for Regulation D (230.500-508)
+- [x] OSCAL control catalog with 16 controls
+- [x] REST API with JWT authentication
+- [x] PostgreSQL database with migrations
+- [x] Hash-chained immutable audit trail
+- [x] Docker Compose local environment
+- [x] 51 automated tests
+- [x] Seed data generator (200+ records)
 
-```bash
-cat controls/regulation-d-controls.json | jq '
-  [.catalog.groups[].controls[].controls[]? |
-   select(.parts[]?.name == "evidence-requirements") |
-   {control: .title, evidence: [.parts[] | select(.name == "evidence-requirements") | .parts[].prose]}]
-'
-```
+### Step 2: Production Deployment
 
-### 2. Regulatory Mapping
+- [ ] Deploy to cloud provider (Railway, Render, or AWS)
+- [ ] Configure SSL/TLS certificates
+- [ ] Set up monitoring and alerting
+- [ ] Implement backup and disaster recovery
+- [ ] Security audit and penetration testing
 
-Map internal procedures to regulatory provisions:
+### Step 3: Compliance Hardening
 
-```json
-{
-  "procedure": "Investor Qualification Review",
-  "procedure_id": "PROC-4.2.1",
-  "implements": [
-    "cfr:17/230.501(a)(5)",
-    "cfr:17/230.501(a)(6)",
-    "cfr:17/230.506(c)(2)(ii)"
-  ]
-}
-```
+- [ ] WORM storage for SEC Rule 17a-4 compliance
+- [ ] Third-party timestamping service integration
+- [ ] SOC 2 Type II audit preparation
+- [ ] Key management with HSM
+- [ ] Geographic redundancy
 
-### 3. Evidence Management
+### Step 4: Additional Regulations
 
-Link evidence artifacts to control requirements (see architecture docs).
-
-### 4. AI/LLM Grounding
-
-Use as authoritative source for AI systems answering securities law questions.
-
-## Architecture Reference
-
-The `docs/architecture/` folder contains a reference design for building a complete compliance management system:
-
-| Document | Description |
-|----------|-------------|
-| [overview.md](docs/architecture/overview.md) | System layers and components |
-| [data-flow.md](docs/architecture/data-flow.md) | How data moves through the system |
-| [security.md](docs/architecture/security.md) | Authentication, encryption, audit |
-| [evidence-locker.md](docs/architecture/evidence-locker.md) | Database schema and API design |
-
-Key features of the reference architecture:
-- **Immutable audit trails** with Merkle tree verification
-- **Cryptographically signed** catalog versions
-- **Time-limited auditor access** (read-only)
-- **Evidence integrity verification** with proof generation
-
-## Current Status
-
-**This is a reference architecture with complete Regulation D schema coverage.**
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| JSON-LD Context | Complete | Vocabulary for regulatory text |
-| 17 CFR 230.500 | Complete | Use of Regulation D, subsections (a)-(g) |
-| 17 CFR 230.501 | Complete | All 10 subsections (a)-(j), notes, amendment history |
-| 17 CFR 230.502 | Complete | General conditions to be met |
-| 17 CFR 230.503 | Complete | Filing of notice of sales |
-| 17 CFR 230.504 | Complete | $10M exemption |
-| 17 CFR 230.505 | Complete | [Reserved] |
-| 17 CFR 230.506 | Complete | Rule 506(b) and 506(c) exemptions, bad actor provisions |
-| 17 CFR 230.507 | Complete | Disqualification provisions |
-| 17 CFR 230.508 | Complete | Insignificant deviations |
-| OSCAL Controls | Complete | 100% of controls link to valid schemas |
-| Architecture Docs | Complete | Reference design with QLDB alternatives documented |
-| Implementation Code | None | Documentation and data only, no working software |
-
-## Roadmap
-
-### Phase 1: Foundation (Complete)
-- [x] JSON-LD context vocabulary
-- [x] Regulation D Sections 500-508 (all sections)
-- [x] OSCAL control catalog with valid links
-- [x] Architecture documentation
-- [x] QLDB alternative documented (Aurora PostgreSQL + S3 Object Lock)
-
-### Phase 2: Tooling
-- [ ] Basic validation scripts
-- [ ] CLI tool to query regulations
-- [ ] Evidence locker database schema
-
-### Phase 3: Additional Regulations
 - [ ] Regulation A (230.251-263)
 - [ ] Regulation S (230.901-905)
 - [ ] Regulation Crowdfunding
+- [ ] Investment Company Act (3(c)(1), 3(c)(7))
+- [ ] FINRA Rules (3110, 4511, 4530)
 
-### Phase 4: Advanced Tooling
-- [ ] JSON-LD validation scripts
-- [ ] OSCAL validation scripts
-- [ ] Compliance status calculator
-- [ ] Evidence gap analyzer
+### Step 5: Enterprise Features
 
-## Contributing
+- [ ] SSO integration (Okta, Azure AD)
+- [ ] Role-based access control refinement
+- [ ] Workflow automation
+- [ ] Reporting and analytics dashboard
+- [ ] API rate limiting and throttling
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
-- Adding new regulations
-- Schema standards
-- Pull request process
+## Documentation
 
-## For Lawyers
-
-New to JSON-LD? See [UNDERSTANDING.md](UNDERSTANDING.md) for a guide explaining:
-- What this project is
-- Why machine-readable regulations matter
-- How to read the schema files
-- Practical applications
+| Document | Audience | Description |
+|----------|----------|-------------|
+| [IMPLEMENTATION-GUIDE.md](docs/IMPLEMENTATION-GUIDE.md) | Legal/Compliance | CFR download instructions, JSON-LD explanation, 22 best practices |
+| [COMPLIANCE-RECIPES.md](docs/COMPLIANCE-RECIPES.md) | Technical | 11 framework extensions with cost/ROI analysis |
+| [UNDERSTANDING.md](UNDERSTANDING.md) | Lawyers | Non-technical introduction |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Developers | Contribution guidelines |
 
 ## License
 
