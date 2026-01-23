@@ -789,6 +789,290 @@ app.get('/api/v1/audit-export', authenticateToken, requireRole('admin', 'auditor
 });
 
 // ===================
+// GAP DETECTION ENDPOINTS
+// ===================
+
+// Lazy load gap detection to avoid circular dependencies
+let gapDetector = null;
+async function getGapDetector() {
+  if (!gapDetector) {
+    const module = await import('../services/gap-detection.js');
+    gapDetector = module.gapDetector;
+  }
+  return gapDetector;
+}
+
+/**
+ * Get current evidence gaps.
+ * Returns controls missing evidence, stale evidence, or insufficient coverage.
+ */
+app.get('/api/v1/gaps', authenticateToken, requireRole('admin', 'compliance', 'auditor'), async (req, res) => {
+  try {
+    const detector = await getGapDetector();
+    const controls = loadControls();
+
+    // Flatten controls
+    const flatControls = [];
+    function extractControls(obj) {
+      if (Array.isArray(obj)) {
+        obj.forEach(item => extractControls(item));
+      } else if (obj && typeof obj === 'object') {
+        if (obj.id) {
+          flatControls.push({ id: obj.id, title: obj.title });
+        }
+        if (obj.controls) extractControls(obj.controls);
+        if (obj.groups) extractControls(obj.groups);
+      }
+    }
+    extractControls(controls);
+
+    // Get evidence by control
+    let evidenceByControl;
+    if (useDatabase) {
+      evidenceByControl = await db.getEvidenceByControl();
+    } else {
+      evidenceByControl = db.fallback.getEvidenceByControl();
+    }
+
+    // Run gap detection
+    const gaps = detector.detect(flatControls, evidenceByControl);
+
+    await logAudit('GAP_DETECTION_RUN', req.user.email, {
+      totalControls: flatControls.length,
+      gapsFound: gaps.length
+    });
+
+    res.json({
+      summary: detector.getSummary(),
+      config: {
+        staleDays: detector.config.staleDays,
+        criticalDays: detector.config.criticalDays,
+        criticalControls: detector.config.criticalControls
+      }
+    });
+  } catch (err) {
+    console.error('Error detecting gaps:', err);
+    res.status(500).json({ error: 'Failed to detect evidence gaps' });
+  }
+});
+
+/**
+ * Run gap detection and send alerts.
+ * POST because it has side effects (sending notifications).
+ */
+app.post('/api/v1/gaps/scan', authenticateToken, requireRole('admin', 'compliance'), async (req, res) => {
+  try {
+    const detector = await getGapDetector();
+    const controls = loadControls();
+
+    // Flatten controls
+    const flatControls = [];
+    function extractControls(obj) {
+      if (Array.isArray(obj)) {
+        obj.forEach(item => extractControls(item));
+      } else if (obj && typeof obj === 'object') {
+        if (obj.id) {
+          flatControls.push({ id: obj.id, title: obj.title });
+        }
+        if (obj.controls) extractControls(obj.controls);
+        if (obj.groups) extractControls(obj.groups);
+      }
+    }
+    extractControls(controls);
+
+    // Get evidence by control
+    let evidenceByControl;
+    if (useDatabase) {
+      evidenceByControl = await db.getEvidenceByControl();
+    } else {
+      evidenceByControl = db.fallback.getEvidenceByControl();
+    }
+
+    // Run gap detection with alerts
+    const { gaps, alertsSent } = await detector.detectAndAlert(flatControls, evidenceByControl);
+
+    await logAudit('GAP_SCAN_WITH_ALERTS', req.user.email, {
+      gapsFound: gaps.length,
+      alertsSent
+    });
+
+    res.json({
+      success: true,
+      gapsFound: gaps.length,
+      alertsSent,
+      summary: detector.getSummary()
+    });
+  } catch (err) {
+    console.error('Error scanning gaps:', err);
+    res.status(500).json({ error: 'Failed to scan for evidence gaps' });
+  }
+});
+
+/**
+ * Configure gap detection thresholds.
+ */
+app.put('/api/v1/gaps/config', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const detector = await getGapDetector();
+    const { staleDays, criticalDays, criticalControls, minimumEvidence } = req.body;
+
+    if (staleDays !== undefined) {
+      detector.config.staleDays = parseInt(staleDays, 10);
+    }
+    if (criticalDays !== undefined) {
+      detector.config.criticalDays = parseInt(criticalDays, 10);
+    }
+    if (criticalControls !== undefined) {
+      detector.config.criticalControls = criticalControls;
+    }
+    if (minimumEvidence !== undefined) {
+      detector.config.minimumEvidence = { ...detector.config.minimumEvidence, ...minimumEvidence };
+    }
+
+    await logAudit('GAP_CONFIG_UPDATED', req.user.email, {
+      staleDays: detector.config.staleDays,
+      criticalDays: detector.config.criticalDays,
+      criticalControlsCount: detector.config.criticalControls.length
+    });
+
+    res.json({
+      success: true,
+      config: {
+        staleDays: detector.config.staleDays,
+        criticalDays: detector.config.criticalDays,
+        criticalControls: detector.config.criticalControls,
+        minimumEvidence: detector.config.minimumEvidence
+      }
+    });
+  } catch (err) {
+    console.error('Error updating gap config:', err);
+    res.status(500).json({ error: 'Failed to update gap detection configuration' });
+  }
+});
+
+// ===================
+// COLLECTOR ENDPOINTS
+// ===================
+
+// Lazy load collector manager
+let collectorManager = null;
+async function getCollectorManager() {
+  if (!collectorManager) {
+    const module = await import('../services/evidence-collector.js');
+    collectorManager = module.collectorManager;
+
+    // Set up evidence submission function
+    collectorManager.setSubmitFunction(async (evidence) => {
+      if (useDatabase) {
+        await db.createEvidence(evidence);
+      } else {
+        db.fallback.createEvidence(evidence);
+      }
+      await logAudit('EVIDENCE_COLLECTED', evidence.collectedBy, {
+        controlId: evidence.controlId,
+        artifactHash: evidence.artifactHash
+      });
+    });
+  }
+  return collectorManager;
+}
+
+/**
+ * List registered collectors.
+ */
+app.get('/api/v1/collectors', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const manager = await getCollectorManager();
+    const collectors = manager.list().map(c => ({
+      id: c.id,
+      name: c.name,
+      type: c.type,
+      schedule: c.schedule,
+      controlIds: c.controlIds,
+      enabled: c.enabled
+    }));
+
+    res.json({ collectors, total: collectors.length });
+  } catch (err) {
+    console.error('Error listing collectors:', err);
+    res.status(500).json({ error: 'Failed to list collectors' });
+  }
+});
+
+/**
+ * Test all collector connections.
+ */
+app.get('/api/v1/collectors/test', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const manager = await getCollectorManager();
+    const results = await manager.testAll();
+
+    await logAudit('COLLECTORS_TESTED', req.user.email, {
+      totalTested: Object.keys(results).length,
+      successful: Object.values(results).filter(r => r.success).length
+    });
+
+    res.json({ results });
+  } catch (err) {
+    console.error('Error testing collectors:', err);
+    res.status(500).json({ error: 'Failed to test collectors' });
+  }
+});
+
+/**
+ * Run all enabled collectors.
+ */
+app.post('/api/v1/collectors/run', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const manager = await getCollectorManager();
+    const results = await manager.runAll();
+
+    const totalCollected = Object.values(results).reduce((sum, r) => sum + r.collected, 0);
+    const totalErrors = Object.values(results).reduce((sum, r) => sum + r.errors.length, 0);
+
+    await logAudit('COLLECTORS_RUN', req.user.email, {
+      collectorsRun: Object.keys(results).length,
+      totalCollected,
+      totalErrors
+    });
+
+    res.json({
+      success: totalErrors === 0,
+      results,
+      summary: {
+        collectorsRun: Object.keys(results).length,
+        totalCollected,
+        totalErrors
+      }
+    });
+  } catch (err) {
+    console.error('Error running collectors:', err);
+    res.status(500).json({ error: 'Failed to run collectors' });
+  }
+});
+
+/**
+ * Run a specific collector.
+ */
+app.post('/api/v1/collectors/:id/run', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const manager = await getCollectorManager();
+    const result = await manager.runCollector(req.params.id);
+
+    await logAudit('COLLECTOR_RUN', req.user.email, {
+      collectorId: req.params.id,
+      collected: result.collected,
+      errors: result.errors.length
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error running collector:', err);
+    res.status(500).json({ error: 'Failed to run collector' });
+  }
+});
+
+// ===================
 // TOKEN ENDPOINTS (for demo)
 // ===================
 
