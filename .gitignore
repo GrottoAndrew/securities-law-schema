@@ -29,9 +29,9 @@ tmp/
 temp/
 *.tmp
 
-# Large source files (keep in source/ but may want to exclude from commits)
+# Large regulation files (keep in regulations/ but may want to exclude from commits)
 # Uncomment if CFR XML files are too large:
-# source/cfr/*.xml
+# regulations/cfr/*.xml
 
 # Credentials (never commit)
 *.pem
