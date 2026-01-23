@@ -211,12 +211,19 @@ function safeParseInt(value, defaultValue) {
 app.get('/api/v1/health', async (_req, res) => {
   const dbConnected = useDatabase ? await db.testConnection() : false;
   const memoryStats = !useDatabase ? db.fallback.getMemoryStats() : null;
+  const processMemory = process.memoryUsage();
 
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '0.2.0',
     database: useDatabase ? (dbConnected ? 'connected' : 'error') : 'in-memory',
+    process: {
+      heapUsedMB: Math.round(processMemory.heapUsed / 1024 / 1024),
+      heapTotalMB: Math.round(processMemory.heapTotal / 1024 / 1024),
+      rssMB: Math.round(processMemory.rss / 1024 / 1024),
+      externalMB: Math.round(processMemory.external / 1024 / 1024)
+    },
     ...(memoryStats && {
       inMemoryUsage: {
         evidence: `${memoryStats.evidence.percentUsed}% (${memoryStats.evidence.count}/${memoryStats.evidence.limit})`,

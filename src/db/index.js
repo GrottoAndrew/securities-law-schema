@@ -23,7 +23,46 @@ let evidenceLimitWarned = false;
 let auditLimitWarned = false;
 
 /**
+ * Fetch with exponential backoff retry
+ * @param {string} url - URL to fetch
+ * @param {Object} options - Fetch options
+ * @param {number} maxRetries - Maximum retry attempts
+ * @returns {Promise<Response>}
+ */
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) return response;
+      lastError = new Error(`HTTP ${response.status}: ${response.statusText}`);
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < maxRetries) {
+      const backoffMs = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+      await new Promise(resolve => setTimeout(resolve, backoffMs));
+    }
+  }
+  throw lastError;
+}
+
+/**
+ * Send email notification (fallback for webhook failures)
+ * @param {string} to - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} body - Email body
+ */
+function sendEmailNotification(to, subject, body) {
+  // Best practice: Use nodemailer with SMTP, SendGrid, AWS SES, or similar.
+  // Configure via SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS env vars.
+  // For now, log to stderr for external log aggregation (Datadog, Splunk, etc.)
+  console.error(`[EMAIL NOTIFICATION] To: ${to} Subject: ${subject} Body: ${body}`);
+}
+
+/**
  * Send notification via configured channels (email, Slack, Teams)
+ * Retries webhooks 3 times with exponential backoff before falling back to email.
  * @param {string} subject - Notification subject
  * @param {string} message - Notification body
  */
@@ -31,11 +70,12 @@ async function sendNotification(subject, message) {
   if (!config.notifications?.enabled) return;
 
   const timestamp = new Date().toISOString();
+  const failures = [];
 
-  // Slack webhook
+  // Slack webhook with retry
   if (config.notifications.slackWebhook) {
     try {
-      await fetch(config.notifications.slackWebhook, {
+      await fetchWithRetry(config.notifications.slackWebhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -43,14 +83,15 @@ async function sendNotification(subject, message) {
         })
       });
     } catch (err) {
-      console.error('Slack notification failed:', err.message);
+      console.error('Slack notification failed after 3 retries:', err.message);
+      failures.push(`Slack: ${err.message}`);
     }
   }
 
-  // Teams webhook
+  // Teams webhook with retry
   if (config.notifications.teamsWebhook) {
     try {
-      await fetch(config.notifications.teamsWebhook, {
+      await fetchWithRetry(config.notifications.teamsWebhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -64,14 +105,18 @@ async function sendNotification(subject, message) {
         })
       });
     } catch (err) {
-      console.error('Teams notification failed:', err.message);
+      console.error('Teams notification failed after 3 retries:', err.message);
+      failures.push(`Teams: ${err.message}`);
     }
   }
 
-  // Email (placeholder - requires SMTP integration)
+  // Email notification (always sent if configured, plus failure report)
   if (config.notifications.email) {
-    // Log intent - actual SMTP implementation requires nodemailer or similar
-    console.error(`[EMAIL NOTIFICATION] To: ${config.notifications.email} Subject: ${subject} Body: ${message}`);
+    let emailBody = message;
+    if (failures.length > 0) {
+      emailBody += `\n\nWebhook delivery failures:\n${failures.join('\n')}`;
+    }
+    sendEmailNotification(config.notifications.email, subject, emailBody);
   }
 }
 

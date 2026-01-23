@@ -125,8 +125,16 @@ const config = {
   },
 
   inMemoryLimits: {
-    evidenceSoftLimit: requireEnvInt('IN_MEMORY_EVIDENCE_LIMIT', 10000),
-    auditLogSoftLimit: requireEnvInt('IN_MEMORY_AUDIT_LIMIT', 50000),
+    // Development: lower limits to catch issues early
+    // Production: higher limits as safety net (should use PostgreSQL)
+    evidenceSoftLimit: requireEnvInt(
+      'IN_MEMORY_EVIDENCE_LIMIT',
+      process.env.NODE_ENV === 'production' ? 10000 : 1000
+    ),
+    auditLogSoftLimit: requireEnvInt(
+      'IN_MEMORY_AUDIT_LIMIT',
+      process.env.NODE_ENV === 'production' ? 50000 : 5000
+    ),
   },
 
   notifications: {
