@@ -135,50 +135,20 @@ Controls follow NIST OSCAL format with extensions:
 | `SLACK_WEBHOOK_URL` | No | - | Slack incoming webhook URL for notifications |
 | `TEAMS_WEBHOOK_URL` | No | - | Microsoft Teams webhook URL for notifications |
 
-## Steps to Enterprise Grade
+## Roadmap
 
-### Step 1: Foundation (Complete)
+This repository provides a complete foundation for securities compliance automation:
 
 - [x] JSON-LD schemas for Regulation D (230.500-508)
 - [x] OSCAL control catalog with 16 controls
 - [x] REST API with JWT authentication
-- [x] PostgreSQL database with migrations
+- [x] PostgreSQL database with RLS multi-tenancy
 - [x] Hash-chained immutable audit trail
+- [x] Audit export for regulators (hashed evidence only)
 - [x] Docker Compose local environment
-- [x] 51 automated tests
-- [x] Seed data generator (200+ records)
+- [x] 42+ automated tests
 
-### Step 2: Production Deployment
-
-- [ ] Deploy to cloud provider (Railway, Render, or AWS)
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up monitoring and alerting
-- [ ] Implement backup and disaster recovery
-- [ ] Security audit and penetration testing
-
-### Step 3: Compliance Hardening
-
-- [ ] WORM storage for SEC Rule 17a-4 compliance
-- [ ] Third-party timestamping service integration
-- [ ] SOC 2 Type II audit preparation
-- [ ] Key management with HSM
-- [ ] Geographic redundancy
-
-### Step 4: Additional Regulations
-
-- [ ] Regulation A (230.251-263)
-- [ ] Regulation S (230.901-905)
-- [ ] Regulation Crowdfunding
-- [ ] Investment Company Act (3(c)(1), 3(c)(7))
-- [ ] FINRA Rules (3110, 4511, 4530)
-
-### Step 5: Enterprise Features
-
-- [ ] SSO integration (Okta, Azure AD)
-- [ ] Role-based access control refinement
-- [ ] Workflow automation
-- [ ] Reporting and analytics dashboard
-- [ ] API rate limiting and throttling
+Enterprise deployment, additional regulations, and compliance certifications available. Contact for details.
 
 ## Documentation
 
