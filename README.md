@@ -117,6 +117,18 @@ Controls follow NIST OSCAL format with extensions:
 - `regulation-ref` - JSON-LD reference for machine linking
 - `evidence-requirements` - What evidence satisfies the control
 
+## Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `PORT` | No | `3001` | API server port |
+| `DATABASE_URL` | No | - | PostgreSQL connection string. If not set, uses in-memory storage |
+| `DATABASE_SSL` | No | `false` | Set to `true` to enable SSL for database connection |
+| `JWT_SECRET` | Yes (prod) | dev secret | Secret for signing JWT tokens. Required in production |
+| `SEED_DATA` | No | `false` | Set to `true` to seed 200+ demo records on startup (only if DB is empty) |
+| `CORS_ORIGINS` | No | localhost | Comma-separated list of allowed CORS origins |
+| `NODE_ENV` | No | `development` | Set to `production` for production mode |
+
 ## Steps to Enterprise Grade
 
 ### Step 1: Foundation (Complete)

@@ -3,6 +3,8 @@
  *
  * PostgreSQL connection and query methods for the Evidence Locker API.
  * Replaces in-memory stores with persistent storage.
+ *
+ * @module db
  */
 
 import pg from 'pg';
@@ -10,10 +12,44 @@ import { createHash } from 'crypto';
 
 const { Pool } = pg;
 
+/** @type {import('pg').Pool | null} */
 let pool = null;
+
+/** Maximum records in in-memory fallback before oldest are evicted */
+const MAX_IN_MEMORY_EVIDENCE = 10000;
+const MAX_IN_MEMORY_AUDIT_LOG = 50000;
+
+/**
+ * @typedef {Object} Evidence
+ * @property {string} id - UUID
+ * @property {string} controlId - Control identifier
+ * @property {string} artifactHash - SHA-256 hash of artifact
+ * @property {number} artifactSize - Size in bytes
+ * @property {string} contentType - MIME type
+ * @property {Object} metadata - Additional metadata
+ * @property {string} merkleLeafHash - Merkle tree leaf hash
+ * @property {string} collectedAt - ISO timestamp
+ * @property {string} collectedBy - User email
+ * @property {string} status - active|archived|deleted
+ * @property {string} [s3Key] - S3 object key
+ * @property {string} [createdAt] - ISO timestamp
+ */
+
+/**
+ * @typedef {Object} AuditEntry
+ * @property {string} id - UUID
+ * @property {string} event - Event type
+ * @property {string} actor - User or system identifier
+ * @property {Object} details - Event details
+ * @property {string} previousHash - Previous entry hash
+ * @property {string} hash - Current entry hash
+ * @property {string} timestamp - ISO timestamp
+ */
 
 /**
  * Initialize database connection pool
+ * @param {string} [databaseUrl] - PostgreSQL connection string
+ * @returns {import('pg').Pool | null}
  */
 export function initDatabase(databaseUrl) {
   if (!databaseUrl) {
@@ -38,6 +74,7 @@ export function initDatabase(databaseUrl) {
 
 /**
  * Check if database is connected
+ * @returns {boolean}
  */
 export function isConnected() {
   return pool !== null;
@@ -45,6 +82,7 @@ export function isConnected() {
 
 /**
  * Get the pool for direct queries
+ * @returns {import('pg').Pool | null}
  */
 export function getPool() {
   return pool;
@@ -52,6 +90,7 @@ export function getPool() {
 
 /**
  * Test database connection
+ * @returns {Promise<boolean>}
  */
 export async function testConnection() {
   if (!pool) return false;
@@ -68,6 +107,7 @@ export async function testConnection() {
 
 /**
  * Close database connection
+ * @returns {Promise<void>}
  */
 export async function closeDatabase() {
   if (pool) {
@@ -80,6 +120,11 @@ export async function closeDatabase() {
 // EVIDENCE OPERATIONS
 // ===================
 
+/**
+ * Create a new evidence record
+ * @param {Evidence} evidence - Evidence to create
+ * @returns {Promise<Evidence>}
+ */
 export async function createEvidence(evidence) {
   if (!pool) throw new Error('Database not connected');
 
@@ -104,6 +149,11 @@ export async function createEvidence(evidence) {
   return rowToEvidence(result.rows[0]);
 }
 
+/**
+ * Get evidence by ID
+ * @param {string} id - Evidence UUID
+ * @returns {Promise<Evidence | null>}
+ */
 export async function getEvidence(id) {
   if (!pool) throw new Error('Database not connected');
 
@@ -116,6 +166,15 @@ export async function getEvidence(id) {
   return rowToEvidence(result.rows[0]);
 }
 
+/**
+ * List evidence records with optional filters
+ * @param {Object} [filters] - Filter options
+ * @param {string} [filters.controlId] - Filter by control ID
+ * @param {string} [filters.status] - Filter by status
+ * @param {number} [filters.limit] - Max records to return
+ * @param {number} [filters.offset] - Records to skip
+ * @returns {Promise<Evidence[]>}
+ */
 export async function listEvidence(filters = {}) {
   if (!pool) throw new Error('Database not connected');
 
@@ -149,6 +208,13 @@ export async function listEvidence(filters = {}) {
   return result.rows.map(rowToEvidence);
 }
 
+/**
+ * Count evidence records with optional filters
+ * @param {Object} [filters] - Filter options
+ * @param {string} [filters.controlId] - Filter by control ID
+ * @param {string} [filters.status] - Filter by status
+ * @returns {Promise<number>}
+ */
 export async function countEvidence(filters = {}) {
   if (!pool) throw new Error('Database not connected');
 
@@ -170,6 +236,10 @@ export async function countEvidence(filters = {}) {
   return parseInt(result.rows[0].count, 10);
 }
 
+/**
+ * Get evidence counts grouped by control ID
+ * @returns {Promise<Object.<string, {count: number, lastEvidence: string}>>}
+ */
 export async function getEvidenceByControl() {
   if (!pool) throw new Error('Database not connected');
 
@@ -214,6 +284,13 @@ function rowToEvidence(row) {
 // AUDIT LOG OPERATIONS
 // ===================
 
+/**
+ * Create a new audit log entry with hash chain
+ * @param {string} event - Event type
+ * @param {string} actor - User or system identifier
+ * @param {Object} details - Event details
+ * @returns {Promise<AuditEntry>}
+ */
 export async function createAuditEntry(event, actor, details) {
   if (!pool) throw new Error('Database not connected');
 
@@ -240,6 +317,15 @@ export async function createAuditEntry(event, actor, details) {
   return rowToAuditEntry(result.rows[0]);
 }
 
+/**
+ * List audit log entries with optional filters
+ * @param {Object} [filters] - Filter options
+ * @param {string} [filters.eventType] - Filter by event type
+ * @param {string} [filters.actor] - Filter by actor
+ * @param {number} [filters.limit] - Max records to return
+ * @param {number} [filters.offset] - Records to skip
+ * @returns {Promise<AuditEntry[]>}
+ */
 export async function listAuditLog(filters = {}) {
   if (!pool) throw new Error('Database not connected');
 
@@ -273,6 +359,12 @@ export async function listAuditLog(filters = {}) {
   return result.rows.map(rowToAuditEntry);
 }
 
+/**
+ * Count audit log entries with optional filters
+ * @param {Object} [filters] - Filter options
+ * @param {string} [filters.eventType] - Filter by event type
+ * @returns {Promise<number>}
+ */
 export async function countAuditLog(filters = {}) {
   if (!pool) throw new Error('Database not connected');
 
@@ -309,11 +401,24 @@ function rowToAuditEntry(row) {
 const inMemoryEvidence = new Map();
 const inMemoryAuditLog = [];
 
+/**
+ * In-memory fallback for development/testing when DATABASE_URL is not set.
+ * Includes size limits to prevent unbounded memory growth.
+ */
 export const fallback = {
   evidence: inMemoryEvidence,
   auditLog: inMemoryAuditLog,
 
+  /**
+   * @param {Evidence} evidence
+   * @returns {Evidence}
+   */
   createEvidence(evidence) {
+    // Evict oldest entries if at capacity
+    if (inMemoryEvidence.size >= MAX_IN_MEMORY_EVIDENCE) {
+      const oldestKey = inMemoryEvidence.keys().next().value;
+      inMemoryEvidence.delete(oldestKey);
+    }
     inMemoryEvidence.set(evidence.id, evidence);
     return evidence;
   },
@@ -352,7 +457,17 @@ export const fallback = {
     return byControl;
   },
 
+  /**
+   * @param {string} event
+   * @param {string} actor
+   * @param {Object} details
+   * @returns {AuditEntry}
+   */
   createAuditEntry(event, actor, details) {
+    // Evict oldest entries if at capacity (FIFO)
+    while (inMemoryAuditLog.length >= MAX_IN_MEMORY_AUDIT_LOG) {
+      inMemoryAuditLog.shift();
+    }
     const entry = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
