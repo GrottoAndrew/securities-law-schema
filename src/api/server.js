@@ -210,12 +210,23 @@ function safeParseInt(value, defaultValue) {
 
 app.get('/api/v1/health', async (_req, res) => {
   const dbConnected = useDatabase ? await db.testConnection() : false;
+  const memoryStats = !useDatabase ? db.fallback.getMemoryStats() : null;
 
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '0.2.0',
-    database: useDatabase ? (dbConnected ? 'connected' : 'error') : 'in-memory'
+    database: useDatabase ? (dbConnected ? 'connected' : 'error') : 'in-memory',
+    ...(memoryStats && {
+      inMemoryUsage: {
+        evidence: `${memoryStats.evidence.percentUsed}% (${memoryStats.evidence.count}/${memoryStats.evidence.limit})`,
+        auditLog: `${memoryStats.auditLog.percentUsed}% (${memoryStats.auditLog.count}/${memoryStats.auditLog.limit})`,
+        warnings: {
+          evidenceLimitReached: memoryStats.evidence.limitWarned,
+          auditLogLimitReached: memoryStats.auditLog.limitWarned
+        }
+      }
+    })
   });
 });
 

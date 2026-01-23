@@ -9,6 +9,7 @@
 
 import pg from 'pg';
 import { createHash } from 'crypto';
+import config from '../config/index.js';
 
 const { Pool } = pg;
 
@@ -16,10 +17,63 @@ const { Pool } = pg;
 let pool = null;
 
 /** Soft limits for in-memory fallback - warn but never delete */
-const SOFT_LIMIT_EVIDENCE = 10000;
-const SOFT_LIMIT_AUDIT_LOG = 50000;
+const SOFT_LIMIT_EVIDENCE = config.inMemoryLimits?.evidenceSoftLimit || 10000;
+const SOFT_LIMIT_AUDIT_LOG = config.inMemoryLimits?.auditLogSoftLimit || 50000;
 let evidenceLimitWarned = false;
 let auditLimitWarned = false;
+
+/**
+ * Send notification via configured channels (email, Slack, Teams)
+ * @param {string} subject - Notification subject
+ * @param {string} message - Notification body
+ */
+async function sendNotification(subject, message) {
+  if (!config.notifications?.enabled) return;
+
+  const timestamp = new Date().toISOString();
+
+  // Slack webhook
+  if (config.notifications.slackWebhook) {
+    try {
+      await fetch(config.notifications.slackWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: `*${subject}*\n${message}\n_${timestamp}_`
+        })
+      });
+    } catch (err) {
+      console.error('Slack notification failed:', err.message);
+    }
+  }
+
+  // Teams webhook
+  if (config.notifications.teamsWebhook) {
+    try {
+      await fetch(config.notifications.teamsWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          '@type': 'MessageCard',
+          summary: subject,
+          sections: [{
+            activityTitle: subject,
+            text: message,
+            facts: [{ name: 'Timestamp', value: timestamp }]
+          }]
+        })
+      });
+    } catch (err) {
+      console.error('Teams notification failed:', err.message);
+    }
+  }
+
+  // Email (placeholder - requires SMTP integration)
+  if (config.notifications.email) {
+    // Log intent - actual SMTP implementation requires nodemailer or similar
+    console.error(`[EMAIL NOTIFICATION] To: ${config.notifications.email} Subject: ${subject} Body: ${message}`);
+  }
+}
 
 /**
  * @typedef {Object} Evidence
@@ -418,7 +472,9 @@ export const fallback = {
   createEvidence(evidence) {
     // Soft limit: warn but never delete (7-year retention requirement)
     if (inMemoryEvidence.size >= SOFT_LIMIT_EVIDENCE && !evidenceLimitWarned) {
-      console.error(`WARNING: In-memory evidence store exceeded ${SOFT_LIMIT_EVIDENCE} records. Configure DATABASE_URL for production use.`);
+      const msg = `In-memory evidence store exceeded ${SOFT_LIMIT_EVIDENCE} records. Configure DATABASE_URL for production use.`;
+      console.error(`WARNING: ${msg}`);
+      sendNotification('In-Memory Evidence Limit Exceeded', msg);
       evidenceLimitWarned = true;
     }
     inMemoryEvidence.set(evidence.id, evidence);
@@ -468,7 +524,9 @@ export const fallback = {
   createAuditEntry(event, actor, details) {
     // Soft limit: warn but never delete (7-year retention requirement)
     if (inMemoryAuditLog.length >= SOFT_LIMIT_AUDIT_LOG && !auditLimitWarned) {
-      console.error(`WARNING: In-memory audit log exceeded ${SOFT_LIMIT_AUDIT_LOG} entries. Configure DATABASE_URL for production use.`);
+      const msg = `In-memory audit log exceeded ${SOFT_LIMIT_AUDIT_LOG} entries. Configure DATABASE_URL for production use.`;
+      console.error(`WARNING: ${msg}`);
+      sendNotification('In-Memory Audit Log Limit Exceeded', msg);
       auditLimitWarned = true;
     }
     const entry = {
@@ -509,5 +567,26 @@ export const fallback = {
     inMemoryAuditLog.length = 0;
     evidenceLimitWarned = false;
     auditLimitWarned = false;
+  },
+
+  /**
+   * Get memory usage statistics for health endpoint
+   * @returns {Object} Memory stats
+   */
+  getMemoryStats() {
+    return {
+      evidence: {
+        count: inMemoryEvidence.size,
+        limit: SOFT_LIMIT_EVIDENCE,
+        percentUsed: Math.round((inMemoryEvidence.size / SOFT_LIMIT_EVIDENCE) * 100),
+        limitWarned: evidenceLimitWarned
+      },
+      auditLog: {
+        count: inMemoryAuditLog.length,
+        limit: SOFT_LIMIT_AUDIT_LOG,
+        percentUsed: Math.round((inMemoryAuditLog.length / SOFT_LIMIT_AUDIT_LOG) * 100),
+        limitWarned: auditLimitWarned
+      }
+    };
   }
 };

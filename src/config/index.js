@@ -124,6 +124,18 @@ const config = {
     enableWormStorage: requireEnvBool('ENABLE_WORM_STORAGE', true),
   },
 
+  inMemoryLimits: {
+    evidenceSoftLimit: requireEnvInt('IN_MEMORY_EVIDENCE_LIMIT', 10000),
+    auditLogSoftLimit: requireEnvInt('IN_MEMORY_AUDIT_LIMIT', 50000),
+  },
+
+  notifications: {
+    enabled: requireEnvBool('NOTIFICATIONS_ENABLED', false),
+    email: process.env.NOTIFICATION_EMAIL || 'andrew@irongrotto.com',
+    slackWebhook: process.env.SLACK_WEBHOOK_URL,
+    teamsWebhook: process.env.TEAMS_WEBHOOK_URL,
+  },
+
   testing: {
     cadence: process.env.TEST_CADENCE || 'hot',
     enableRedteam: requireEnvBool('ENABLE_REDTEAM', true),

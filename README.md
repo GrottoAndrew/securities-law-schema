@@ -128,6 +128,12 @@ Controls follow NIST OSCAL format with extensions:
 | `SEED_DATA` | No | `false` | Set to `true` to seed 200+ demo records on startup (only if DB is empty) |
 | `CORS_ORIGINS` | No | localhost | Comma-separated list of allowed CORS origins |
 | `NODE_ENV` | No | `development` | Set to `production` for production mode |
+| `IN_MEMORY_EVIDENCE_LIMIT` | No | `10000` | Soft limit for in-memory evidence records (warns, never deletes) |
+| `IN_MEMORY_AUDIT_LIMIT` | No | `50000` | Soft limit for in-memory audit log entries (warns, never deletes) |
+| `NOTIFICATIONS_ENABLED` | No | `false` | Enable notifications when limits exceeded |
+| `NOTIFICATION_EMAIL` | No | - | Email address for limit warnings |
+| `SLACK_WEBHOOK_URL` | No | - | Slack incoming webhook URL for notifications |
+| `TEAMS_WEBHOOK_URL` | No | - | Microsoft Teams webhook URL for notifications |
 
 ## Steps to Enterprise Grade
 
