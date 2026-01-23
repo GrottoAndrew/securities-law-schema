@@ -64,7 +64,20 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: config.corsOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    // Check explicit origins
+    if (config.corsOrigins.includes(origin)) return callback(null, true);
+
+    // Check bolt.new wildcard patterns
+    if (origin.endsWith('.bolt.new') || origin.endsWith('.lite.bolt.new')) {
+      return callback(null, true);
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
