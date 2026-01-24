@@ -1,4 +1,12 @@
 # Security Policy
+## For this Repo
+please email 'ops@irongrotto.com' or message the author if you find any issues.
+
+Below is generally an outline of what we think security policy should be if you plan to BYOC and fork.
+
+We follow similar for the repo itself but, this is largely explanatory for your benefit. We kindly ask you treat these guidlines as applicable to the repo if you find any issues to bring to our attention.
+
+Email 'ops@irongrotto.com' for any reporting or security concerns.
 
 ## Supported Versions
 
@@ -19,8 +27,9 @@ We take security seriously. If you discover a security vulnerability, please fol
 
 ### DO
 
-1. **Email** security concerns to: `security@[your-domain].com`
-2. **Include** in your report:
+1. **Email** security concerns to: `ops@irongrotto.com` __**Replace with your own email address for forked builds**__
+   
+3. **Include** in your report:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
