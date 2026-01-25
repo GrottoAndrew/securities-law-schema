@@ -102,10 +102,7 @@
   "overrides": {
     "enabled": true,
     "description": "Per-offering schedule customization",
-    "allowedModifications": [
-      "increase_frequency",
-      "decrease_frequency_with_approval"
-    ],
+    "allowedModifications": ["increase_frequency", "decrease_frequency_with_approval"],
     "approvalRequired": {
       "decrease_frequency": ["cco", "compliance_manager"]
     }
@@ -138,11 +135,7 @@
       "dataResidency": "us-east-1",
       "piiHandling": "on-premise-only",
       "auditLogging": true,
-      "humanApprovalRequired": [
-        "regulatory_filing",
-        "investor_communication",
-        "evidence_deletion"
-      ]
+      "humanApprovalRequired": ["regulatory_filing", "investor_communication", "evidence_deletion"]
     }
   },
   "reporting": {

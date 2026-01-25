@@ -62,6 +62,7 @@ cat controls/regulation-d-controls.json | jq '
 ```
 
 Output:
+
 ```json
 {
   "control_id": "ctrl-ai-natural-person-income",
@@ -86,6 +87,7 @@ cat schemas/regulation-d/17cfr230.501.jsonld | jq '
 ```
 
 Output:
+
 ```json
 {
   "id": "cfr:17/230.501(a)(6)",

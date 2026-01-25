@@ -64,11 +64,13 @@ The Regulation D schema implementation (230.500-230.508) and OSCAL control catal
 **Issue**: Control `ctrl-purchaser-count-stmt` prose still mentions "230.501(b)" but the regulation-ref was correctly changed to "cfr:17/230.501(e)".
 
 **Current Prose**:
+
 ```
 "the organization shall maintain a count of purchasers applying the exclusion and counting rules in 17 CFR 230.501(b)"
 ```
 
 **Should Be**:
+
 ```
 "the organization shall maintain a count of purchasers applying the exclusion and counting rules in 17 CFR 230.501(e)"
 ```
@@ -82,6 +84,7 @@ The Regulation D schema implementation (230.500-230.508) and OSCAL control catal
 **Issue**: Cross-references don't consistently include all related sections.
 
 **Examples**:
+
 - 230.500 should reference 230.505 (reserved status affects regulation scope)
 - 230.506 should reference 230.503 (Form D filing is required for 506 offerings)
 
@@ -103,12 +106,14 @@ The Regulation D schema implementation (230.500-230.508) and OSCAL control catal
 
 **Priority**: HIGH
 **Issue**: No automated validation for:
+
 - JSON-LD syntax validity
 - JSON Schema compliance
 - OSCAL schema validation
 - Cross-reference link verification
 
 **Recommendation**: Create validation scripts:
+
 ```bash
 # Suggested tooling
 scripts/
@@ -127,15 +132,15 @@ scripts/
 
 **Recommended Tests**:
 
-| Test | Purpose |
-|------|---------|
-| `test_json_syntax.py` | All .jsonld files parse as valid JSON |
-| `test_jsonld_context.py` | Context file resolves correctly |
-| `test_schema_structure.py` | Required fields present (citation, @id, @type) |
-| `test_oscal_links.py` | All regulation-ref values match existing schema @id values |
-| `test_citation_format.py` | Citations follow "17 CFR 230.XXX" format |
-| `test_no_empty_text.py` | No empty string values in text fields |
-| `test_amendment_dates.py` | Amendment dates are valid FR citations |
+| Test                       | Purpose                                                    |
+| -------------------------- | ---------------------------------------------------------- |
+| `test_json_syntax.py`      | All .jsonld files parse as valid JSON                      |
+| `test_jsonld_context.py`   | Context file resolves correctly                            |
+| `test_schema_structure.py` | Required fields present (citation, @id, @type)             |
+| `test_oscal_links.py`      | All regulation-ref values match existing schema @id values |
+| `test_citation_format.py`  | Citations follow "17 CFR 230.XXX" format                   |
+| `test_no_empty_text.py`    | No empty string values in text fields                      |
+| `test_amendment_dates.py`  | Amendment dates are valid FR citations                     |
 
 ---
 
@@ -145,6 +150,7 @@ scripts/
 **Issue**: No mechanism to track which eCFR version schemas are based on.
 
 **Recommendation**: Add to each schema:
+
 ```json
 "_source": {
   "ecfrVersion": "2025-12-30",  // Already present as asOfDate
@@ -160,28 +166,28 @@ scripts/
 
 Components ranked by maintenance priority:
 
-| Rank | Component | File | Reason for Attention |
-|------|-----------|------|---------------------|
-| 1 | Accredited Investor Definition | 17cfr230.501.jsonld (subsection a) | Frequently amended (2020, 2025), highest regulatory impact |
-| 2 | Bad Actor Provisions | 17cfr230.506.jsonld (subsection d) | Complex disqualification rules, frequent enforcement updates |
-| 3 | 506(c) Verification Methods | 17cfr230.506.jsonld (c)(2)(ii) | Evolving verification standards |
-| 4 | Form D Filing Requirements | 17cfr230.503.jsonld | SEC form updates affect requirements |
-| 5 | General Solicitation Rules | 17cfr230.502.jsonld (subsection c) | Digital marketing evolution |
-| 6 | OSCAL Control Catalog | regulation-d-controls.json | Must track all schema changes |
-| 7 | Information Requirements | 17cfr230.502.jsonld (subsection b) | Complex nested structure |
-| 8 | Net Worth Calculation | 17cfr230.501.jsonld (a)(5) | Primary residence rules |
-| 9 | Integration Safe Harbor | 17cfr230.502.jsonld (subsection a) | References 230.152 |
-| 10 | Professional Certifications | 17cfr230.501.jsonld (a)(10) | SEC designation updates |
-| 11 | Purchaser Counting Rules | 17cfr230.501.jsonld (subsection e) | Calculation complexity |
-| 12 | Resale Restrictions | 17cfr230.502.jsonld (subsection d) | Legend requirements |
-| 13 | $10M Offering Limit | 17cfr230.504.jsonld (b)(2) | Threshold may change |
-| 14 | Anti-Evasion Provision | 17cfr230.500.jsonld (subsection e) | Foundational rule |
-| 15 | Issuer Definition | 17cfr230.501.jsonld (subsection h) | Bankruptcy provisions |
-| 16 | JSON-LD Context | securities-context.jsonld | Vocabulary foundation |
-| 17 | ADR-001 Technology Decisions | adr-001-audit-trail-technology.md | AWS service deprecations |
-| 18 | Purchaser Representative | 17cfr230.501.jsonld (subsection i) | Complex conditions |
-| 19 | Family Office Rules | 17cfr230.501.jsonld (a)(12-13) | 2020 addition |
-| 20 | Knowledgeable Employee | 17cfr230.501.jsonld (a)(11) | Investment Company Act refs |
+| Rank | Component                      | File                               | Reason for Attention                                         |
+| ---- | ------------------------------ | ---------------------------------- | ------------------------------------------------------------ |
+| 1    | Accredited Investor Definition | 17cfr230.501.jsonld (subsection a) | Frequently amended (2020, 2025), highest regulatory impact   |
+| 2    | Bad Actor Provisions           | 17cfr230.506.jsonld (subsection d) | Complex disqualification rules, frequent enforcement updates |
+| 3    | 506(c) Verification Methods    | 17cfr230.506.jsonld (c)(2)(ii)     | Evolving verification standards                              |
+| 4    | Form D Filing Requirements     | 17cfr230.503.jsonld                | SEC form updates affect requirements                         |
+| 5    | General Solicitation Rules     | 17cfr230.502.jsonld (subsection c) | Digital marketing evolution                                  |
+| 6    | OSCAL Control Catalog          | regulation-d-controls.json         | Must track all schema changes                                |
+| 7    | Information Requirements       | 17cfr230.502.jsonld (subsection b) | Complex nested structure                                     |
+| 8    | Net Worth Calculation          | 17cfr230.501.jsonld (a)(5)         | Primary residence rules                                      |
+| 9    | Integration Safe Harbor        | 17cfr230.502.jsonld (subsection a) | References 230.152                                           |
+| 10   | Professional Certifications    | 17cfr230.501.jsonld (a)(10)        | SEC designation updates                                      |
+| 11   | Purchaser Counting Rules       | 17cfr230.501.jsonld (subsection e) | Calculation complexity                                       |
+| 12   | Resale Restrictions            | 17cfr230.502.jsonld (subsection d) | Legend requirements                                          |
+| 13   | $10M Offering Limit            | 17cfr230.504.jsonld (b)(2)         | Threshold may change                                         |
+| 14   | Anti-Evasion Provision         | 17cfr230.500.jsonld (subsection e) | Foundational rule                                            |
+| 15   | Issuer Definition              | 17cfr230.501.jsonld (subsection h) | Bankruptcy provisions                                        |
+| 16   | JSON-LD Context                | securities-context.jsonld          | Vocabulary foundation                                        |
+| 17   | ADR-001 Technology Decisions   | adr-001-audit-trail-technology.md  | AWS service deprecations                                     |
+| 18   | Purchaser Representative       | 17cfr230.501.jsonld (subsection i) | Complex conditions                                           |
+| 19   | Family Office Rules            | 17cfr230.501.jsonld (a)(12-13)     | 2020 addition                                                |
+| 20   | Knowledgeable Employee         | 17cfr230.501.jsonld (a)(11)        | Investment Company Act refs                                  |
 
 ---
 
@@ -189,12 +195,12 @@ Components ranked by maintenance priority:
 
 ### References Requiring Verification
 
-| File | Reference | Issue |
-|------|-----------|-------|
+| File                | Reference                 | Issue                                |
+| ------------------- | ------------------------- | ------------------------------------ |
 | 17cfr230.501.jsonld | 90 FR 9687, Feb. 18, 2025 | Verify this is most recent amendment |
-| 17cfr230.502.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments |
-| 17cfr230.506.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments |
-| ADR-001 | QLDB deprecation 2024 | Verify AWS timeline |
+| 17cfr230.502.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments       |
+| 17cfr230.506.jsonld | 86 FR 3598, Jan. 14, 2021 | Check for 2024-2025 amendments       |
+| ADR-001             | QLDB deprecation 2024     | Verify AWS timeline                  |
 
 ---
 
@@ -202,13 +208,13 @@ Components ranked by maintenance priority:
 
 ### Suggested Renames
 
-| Current | Suggested | Rationale |
-|---------|-----------|-----------|
-| `17cfr230.XXX.jsonld` | Keep as-is | Matches CFR citation format |
-| `regulation-d-controls.json` | Keep as-is | Clear purpose |
-| `securities-context.jsonld` | Keep as-is | Standard JSON-LD naming |
-| `_source.asOfDate` | `_source.ecfrAsOfDate` | Clarity about what date refers to |
-| `headingText` | Remove or `officialHeading` | Many CFR paragraphs lack official headings |
+| Current                      | Suggested                   | Rationale                                  |
+| ---------------------------- | --------------------------- | ------------------------------------------ |
+| `17cfr230.XXX.jsonld`        | Keep as-is                  | Matches CFR citation format                |
+| `regulation-d-controls.json` | Keep as-is                  | Clear purpose                              |
+| `securities-context.jsonld`  | Keep as-is                  | Standard JSON-LD naming                    |
+| `_source.asOfDate`           | `_source.ecfrAsOfDate`      | Clarity about what date refers to          |
+| `headingText`                | Remove or `officialHeading` | Many CFR paragraphs lack official headings |
 
 ---
 

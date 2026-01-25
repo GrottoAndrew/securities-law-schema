@@ -81,8 +81,9 @@ export async function extractText(input, options = {}) {
       metadata: {
         error: 'tesseract.js not installed',
         installCommand: 'npm install tesseract.js',
-        productionRecommendation: 'Use AWS Textract, Azure Document Intelligence, or Google Document AI'
-      }
+        productionRecommendation:
+          'Use AWS Textract, Azure Document Intelligence, or Google Document AI',
+      },
     };
   }
 
@@ -109,8 +110,8 @@ export async function extractText(input, options = {}) {
         words: data.words?.length || 0,
         lines: data.lines?.length || 0,
         paragraphs: data.paragraphs?.length || 0,
-        warning: 'DEMO ONLY - Use production OCR service for compliance workloads'
-      }
+        warning: 'DEMO ONLY - Use production OCR service for compliance workloads',
+      },
     };
   } catch (err) {
     return {
@@ -120,8 +121,9 @@ export async function extractText(input, options = {}) {
       processingTimeMs: Date.now() - startTime,
       metadata: {
         error: err.message,
-        productionRecommendation: 'Use AWS Textract, Azure Document Intelligence, or Google Document AI'
-      }
+        productionRecommendation:
+          'Use AWS Textract, Azure Document Intelligence, or Google Document AI',
+      },
     };
   }
 }
@@ -155,8 +157,8 @@ export async function extractTextProduction(documentBuffer, options = {}) {
 
   throw new Error(
     `Production OCR not configured. ` +
-    `Provider: ${provider}, Document type: ${documentType}. ` +
-    `Configure ${provider.toUpperCase()}_* environment variables and install SDK.`
+      `Provider: ${provider}, Document type: ${documentType}. ` +
+      `Configure ${provider.toUpperCase()}_* environment variables and install SDK.`
   );
 }
 
@@ -172,36 +174,36 @@ export const OCR_PROVIDERS = {
     costPer1000Pages: 0,
     accuracy: 'Low-Medium',
     speed: 'Slow',
-    compliance: 'Local processing only'
+    compliance: 'Local processing only',
   },
   aws: {
     name: 'AWS Textract',
     type: 'production',
     install: 'npm install @aws-sdk/client-textract',
     config: ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION'],
-    costPer1000Pages: 1.50,
+    costPer1000Pages: 1.5,
     accuracy: 'High',
     speed: 'Fast',
-    compliance: 'HIPAA, SOC 2, FedRAMP'
+    compliance: 'HIPAA, SOC 2, FedRAMP',
   },
   azure: {
     name: 'Azure Document Intelligence',
     type: 'production',
     install: 'npm install @azure/ai-form-recognizer',
     config: ['AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT', 'AZURE_DOCUMENT_INTELLIGENCE_KEY'],
-    costPer1000Pages: 1.50,
+    costPer1000Pages: 1.5,
     accuracy: 'High',
     speed: 'Fast',
-    compliance: 'HIPAA, SOC 2, ISO 27001'
+    compliance: 'HIPAA, SOC 2, ISO 27001',
   },
   google: {
     name: 'Google Document AI',
     type: 'production',
     install: 'npm install @google-cloud/documentai',
     config: ['GOOGLE_APPLICATION_CREDENTIALS', 'GOOGLE_CLOUD_PROJECT'],
-    costPer1000Pages: 1.50,
+    costPer1000Pages: 1.5,
     accuracy: 'Highest',
     speed: 'Fast',
-    compliance: 'HIPAA, SOC 2, ISO 27001'
-  }
+    compliance: 'HIPAA, SOC 2, ISO 27001',
+  },
 };

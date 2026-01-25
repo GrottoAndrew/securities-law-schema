@@ -44,18 +44,18 @@ function loadConfig() {
           unit: { cron: '*/15 * * * *', description: 'Every 15 minutes' },
           integration: { cron: '0 * * * *', description: 'Every hour' },
           redTeam: { cron: '0 * * * *', description: 'Hourly' },
-          e2e: { cron: '0 */4 * * *', description: 'Every 4 hours' }
-        }
+          e2e: { cron: '0 */4 * * *', description: 'Every 4 hours' },
+        },
       },
       cold: {
         testSchedule: {
           unit: { cron: '0 */6 * * *', description: 'Every 6 hours' },
           integration: { cron: '0 4 * * *', description: 'Daily at 4 AM' },
           redTeam: { cron: '0 4 * * *', description: 'Daily' },
-          e2e: { cron: '0 4 * * 0', description: 'Weekly on Sunday' }
-        }
-      }
-    }
+          e2e: { cron: '0 4 * * 0', description: 'Weekly on Sunday' },
+        },
+      },
+    },
   };
 }
 
@@ -67,20 +67,22 @@ function runTest(testType, script) {
     const proc = spawn('npm', ['run', script], {
       cwd: projectRoot,
       stdio: 'inherit',
-      shell: true
+      shell: true,
     });
 
-    proc.on('close', (code) => {
+    proc.on('close', code => {
       if (code === 0) {
         console.log(`[${new Date().toISOString()}] ${testType} tests PASSED`);
         promiseResolve({ testType, status: 'passed', code });
       } else {
-        console.error(`[${new Date().toISOString()}] ${testType} tests FAILED (exit code: ${code})`);
+        console.error(
+          `[${new Date().toISOString()}] ${testType} tests FAILED (exit code: ${code})`
+        );
         promiseResolve({ testType, status: 'failed', code });
       }
     });
 
-    proc.on('error', (err) => {
+    proc.on('error', err => {
       console.error(`[${new Date().toISOString()}] ${testType} tests ERROR:`, err);
       promiseReject(err);
     });
@@ -116,7 +118,7 @@ function startScheduler() {
     unit: 'test:unit',
     integration: 'test:integration',
     redTeam: 'test:redteam',
-    e2e: 'test:e2e'
+    e2e: 'test:e2e',
   };
 
   // Schedule each test type
@@ -145,7 +147,7 @@ function startScheduler() {
           timestamp: new Date().toISOString(),
           testType,
           cadence,
-          ...result
+          ...result,
         };
         console.log('Test Result:', JSON.stringify(logEntry));
       } catch (err) {

@@ -32,7 +32,7 @@ function loadSchemaFiles() {
     .map(f => ({
       name: f,
       path: join(schemasDir, f),
-      content: JSON.parse(readFileSync(join(schemasDir, f), 'utf-8'))
+      content: JSON.parse(readFileSync(join(schemasDir, f), 'utf-8')),
     }));
   return files;
 }
@@ -67,7 +67,7 @@ describe('Schema Structure Tests', () => {
       '17cfr230.505.jsonld',
       '17cfr230.506.jsonld',
       '17cfr230.507.jsonld',
-      '17cfr230.508.jsonld'
+      '17cfr230.508.jsonld',
     ];
 
     const actualFiles = schemas.map(s => s.name);
@@ -245,7 +245,7 @@ describe('OSCAL Controls Validation', () => {
       'ctrl-ai-natural-person-income',
       'ctrl-ai-natural-person-net-worth',
       'ctrl-form-d-filing',
-      'ctrl-bad-actor-check'
+      'ctrl-bad-actor-check',
     ];
 
     function findControl(obj, targetId) {
@@ -278,9 +278,8 @@ describe('OSCAL Controls Validation', () => {
       if (!found) return;
 
       // Check for evidence-requirements part
-      const hasEvidenceReqs = found.parts?.some(p =>
-        p.name === 'evidence-requirements' ||
-        p.id?.includes('evidence')
+      const hasEvidenceReqs = found.parts?.some(
+        p => p.name === 'evidence-requirements' || p.id?.includes('evidence')
       );
       expect(hasEvidenceReqs, `Control ${ctrlId} missing evidence requirements`).toBe(true);
     });

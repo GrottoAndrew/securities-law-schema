@@ -349,10 +349,11 @@ class Migrator {
     try {
       await client.query('BEGIN');
       await client.query(migration.up);
-      await client.query(
-        'INSERT INTO migrations (version, name, checksum) VALUES ($1, $2, $3)',
-        [migration.version, migration.name, checksum]
-      );
+      await client.query('INSERT INTO migrations (version, name, checksum) VALUES ($1, $2, $3)', [
+        migration.version,
+        migration.name,
+        checksum,
+      ]);
       await client.query('COMMIT');
       console.log(`  Applied migration ${migration.version}: ${migration.name}`);
     } catch (err) {
@@ -382,8 +383,8 @@ class Migrator {
 
   async migrate() {
     const applied = await this.getAppliedMigrations();
-    const appliedVersions = new Set(applied.map((m) => m.version));
-    const pending = migrations.filter((m) => !appliedVersions.has(m.version));
+    const appliedVersions = new Set(applied.map(m => m.version));
+    const pending = migrations.filter(m => !appliedVersions.has(m.version));
 
     if (pending.length === 0) {
       console.log('Database is up to date');
@@ -411,7 +412,7 @@ class Migrator {
     console.log(`Rolling back ${toRollback.length} migration(s)...`);
 
     for (const appliedMigration of toRollback) {
-      const migration = migrations.find((m) => m.version === appliedMigration.version);
+      const migration = migrations.find(m => m.version === appliedMigration.version);
       if (migration) {
         await this.rollbackMigration(migration);
       }
@@ -422,7 +423,7 @@ class Migrator {
 
   async status() {
     const applied = await this.getAppliedMigrations();
-    const appliedVersions = new Set(applied.map((m) => m.version));
+    const appliedVersions = new Set(applied.map(m => m.version));
 
     console.log('\nMigration Status:');
     console.log('=================');
