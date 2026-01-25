@@ -1,4 +1,6 @@
-# Implementation Guide for Legal Practitioners
+# Implementation Checklist for Compliance Teams
+
+Step-by-step guide to deploying this framework in your organization.
 
 This guide helps legal and compliance professionals implement and extend this securities compliance framework.
 

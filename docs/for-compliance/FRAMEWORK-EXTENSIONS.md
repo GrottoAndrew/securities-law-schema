@@ -1,4 +1,6 @@
-# Securities Compliance Framework Recipes
+# Framework Extensions
+
+How to extend this framework to additional compliance domains (broker-dealer, fund finance, CFIUS, etc.).
 
 This document provides actionable recipes for extending the securities-law-schema framework to additional compliance domains. Each recipe includes implementation guidance, cost estimates, and ROI projections for middle-market firms.
 

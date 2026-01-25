@@ -282,3 +282,4 @@ with open('compliance-matrix.csv', 'w', newline='') as f:
 1. Read the [Architecture Overview](../architecture/overview.md)
 2. See [Control-Regulation Mapping Example](../../examples/control-regulation-mapping.md)
 3. Check [CONTRIBUTING.md](../../CONTRIBUTING.md) to add regulations
+4. Review [Framework Extensions](../for-compliance/FRAMEWORK-EXTENSIONS.md) for additional compliance domains

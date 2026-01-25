@@ -154,9 +154,10 @@ Enterprise deployment, additional regulations, and compliance certifications cou
 
 | Document | Audience | Description |
 |----------|----------|-------------|
-| [IMPLEMENTATION-GUIDE.md](docs/IMPLEMENTATION-GUIDE.md) | Legal/Compliance | CFR download instructions, JSON-LD explanation, 22 best practices |
-| [COMPLIANCE-RECIPES.md](docs/COMPLIANCE-RECIPES.md) | Technical | 11 framework extensions with cost/ROI analysis |
-| [UNDERSTANDING.md](UNDERSTANDING.md) | Lawyers | Non-technical introduction |
+| [SCHEMA-GUIDE.md](docs/for-lawyers/SCHEMA-GUIDE.md) | Lawyers | Non-technical introduction to machine-readable regulations |
+| [IMPLEMENTATION-CHECKLIST.md](docs/for-compliance/IMPLEMENTATION-CHECKLIST.md) | Compliance Teams | CFR download instructions, design questions, 22 best practices |
+| [FRAMEWORK-EXTENSIONS.md](docs/for-compliance/FRAMEWORK-EXTENSIONS.md) | Compliance/Technical | 11 framework extensions (broker-dealer, fund finance, etc.) with cost/ROI |
+| [quick-start.md](docs/for-developers/quick-start.md) | Developers | 5-minute setup and basic queries |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Developers | Contribution guidelines |
 
 ## License
