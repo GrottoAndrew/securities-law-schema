@@ -2,7 +2,7 @@
   "$schema": "./testing-cadence-schema.json",
   "_meta": {
     "description": "Testing cadence configuration for hot and cold databases",
-    "documentation": "See CONSOLIDATION-GUIDE.md for full explanation"
+    "documentation": "See docs/for-compliance/IMPLEMENTATION-CHECKLIST.md for configuration details"
   },
   "defaults": {
     "timezone": "America/New_York",

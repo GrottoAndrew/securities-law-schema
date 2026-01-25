@@ -1,4 +1,6 @@
-# Regulation D No-Action Letters and Regulatory Guidance
+# SEC No-Action Letters Reference
+
+Regulation D no-action letters and regulatory guidance for legal practitioners.
 
 This document compiles significant SEC no-action letters, interpretive releases, and staff guidance related to Regulation D private placements.
 
