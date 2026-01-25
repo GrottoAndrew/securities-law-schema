@@ -5,7 +5,7 @@
       "title": "Regulation D Compliance Control Catalog",
       "last-modified": "2026-01-19T00:00:00Z",
       "version": "1.0.0",
-      "oscal-version": "1.1.2",
+      "oscal-version": "1.2.0",
       "remarks": "Control catalog for SEC Regulation D private placement exemptions. Controls map to 17 CFR 230.500-508.",
       "props": [
         {

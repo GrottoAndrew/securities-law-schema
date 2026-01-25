@@ -21,7 +21,7 @@ Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL contr
 ### Run Locally with Docker
 
 ```bash
-docker compose -f docker-compose.demo.yml up --build
+docker compose up --build
 ```
 
 After ~30 seconds:
@@ -78,7 +78,7 @@ securities-law-schema/
 │   ├── for-compliance/         # Implementation and framework docs
 │   ├── for-developers/         # Quick start and API reference
 │   └── architecture/           # System design documentation
-├── docker-compose.demo.yml     # Local demo environment
+├── docker-compose.yml          # Local development environment
 └── Dockerfile                  # Production container
 ```
 

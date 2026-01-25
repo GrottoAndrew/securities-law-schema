@@ -10,7 +10,7 @@ Get up and running with the securities law schema in 5 minutes.
 ## Installation
 
 ```bash
-git clone https://github.com/your-org/securities-law-schema.git
+git clone https://github.com/GrottoAndrew/securities-law-schema.git
 cd securities-law-schema
 ```
 

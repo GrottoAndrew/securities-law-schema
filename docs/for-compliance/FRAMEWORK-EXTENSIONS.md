@@ -1160,7 +1160,7 @@ Rule 506 offerings still require state notice filings (Form D) within 15 days of
 | `src/db/index.js` | All (PostgreSQL integration) |
 | `scripts/seed-demo-data.js` | All (evidence generation) |
 | `scripts/start-server.js` | All (Docker deployment) |
-| `docker-compose.demo.yml` | All (local demo) |
+| `docker-compose.yml` | All (local development) |
 | `terraform/` | Production deployment |
 | `schemas/regulation-d/` | Recipe 1, 3, 9, 11 |
 
