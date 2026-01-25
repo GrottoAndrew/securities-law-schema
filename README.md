@@ -172,8 +172,46 @@ Enterprise deployment, additional regulations, and compliance certifications cou
 
 MIT License - see [LICENSE](LICENSE)
 
+## Regulatory Change Monitoring
+
+Built-in monitoring for regulatory changes via official government APIs:
+
+```bash
+# Daily: Check eCFR for CFR amendments, SEC RSS feeds
+npm run regulatory:daily
+
+# Weekly: Federal Register deep scan for SEC rulemaking
+npm run regulatory:weekly
+
+# Full scan: All sources
+npm run regulatory:full
+```
+
+**Data Sources:**
+
+| Source                                                             | Frequency | What's Monitored                      |
+| ------------------------------------------------------------------ | --------- | ------------------------------------- |
+| [eCFR API](https://www.ecfr.gov/developers/documentation/api/v1)   | Daily     | 17 CFR 230.500-508 amendments         |
+| [SEC RSS Feeds](https://www.sec.gov/about/secrss.htm)              | Daily     | No-action letters, enforcement, rules |
+| [Federal Register API](https://www.federalregister.gov/developers) | Weekly    | Proposed/final SEC rules              |
+
+**Schedule with cron:**
+
+```bash
+# Daily at 6 AM ET
+0 6 * * * cd /app && npm run regulatory:daily
+
+# Weekly on Monday at 7 AM ET
+0 7 * * 1 cd /app && npm run regulatory:weekly
+```
+
+Set `SLACK_WEBHOOK_URL` to receive alerts when changes are detected.
+
 ## Related Standards
 
 - [OSCAL](https://pages.nist.gov/OSCAL/) - NIST Open Security Controls Assessment Language
 - [JSON-LD](https://json-ld.org/) - JSON for Linked Data
 - [eCFR](https://www.ecfr.gov/) - Electronic Code of Federal Regulations
+- [eCFR API Documentation](https://www.ecfr.gov/developers/documentation/api/v1) - REST API for CFR data
+- [Federal Register API](https://www.federalregister.gov/developers/documentation/api/v1) - Rulemaking documents
+- [GovInfo CFR](https://www.govinfo.gov/app/collection/cfr) - Official published CFR (annual edition)

@@ -33,6 +33,9 @@
     "seed": "node scripts/seed-demo-data.js --api",
     "seed:json": "node scripts/seed-demo-data.js --json",
     "seed:sql": "node scripts/seed-demo-data.js --sql",
+    "regulatory:daily": "node scripts/regulatory-check.js --daily",
+    "regulatory:weekly": "node scripts/regulatory-check.js --weekly",
+    "regulatory:full": "node scripts/regulatory-check.js --full",
     "prepare": "husky"
   },
   "keywords": [
