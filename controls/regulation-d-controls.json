@@ -6,7 +6,7 @@
       "last-modified": "2026-01-19T00:00:00Z",
       "version": "1.0.0",
       "oscal-version": "1.2.0",
-      "remarks": "Control catalog for SEC Regulation D private placement exemptions. Controls map to 17 CFR 230.500-508.",
+      "remarks": "Control catalog for SEC Regulation D private placement exemptions. Controls map to 17 CFR 230.500-508. DISCLAIMER: Control statements are illustrative interpretations of regulatory requirements, not legal advice. Each control mapping requires case-by-case legal review before reliance. Verify against current eCFR and consult securities counsel.",
       "props": [
         {
           "name": "catalog-type",
@@ -15,6 +15,10 @@
         {
           "name": "regulatory-authority",
           "value": "SEC"
+        },
+        {
+          "name": "legal-status",
+          "value": "illustrative-requires-legal-review"
         }
       ],
       "links": [
@@ -223,6 +227,32 @@
                 "id": "ctrl-ai-verification-guidance",
                 "name": "guidance",
                 "prose": "Verification must be performed using reasonable steps as defined in 17 CFR 230.506(c)(2)(ii). Documentation of verification method and results must be retained."
+              },
+              {
+                "id": "ctrl-ai-verification-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-ai-verification-evidence-1",
+                    "name": "evidence-item",
+                    "prose": "Investor accreditation questionnaire or self-certification form"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-2",
+                    "name": "evidence-item",
+                    "prose": "Third-party verification letter (attorney, CPA, broker-dealer, or investment adviser)"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-3",
+                    "name": "evidence-item",
+                    "prose": "Supporting documentation (tax returns, W-2s, bank statements, brokerage statements) if self-verified"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-4",
+                    "name": "evidence-item",
+                    "prose": "Verification procedure documentation showing reasonable steps taken"
+                  }
+                ]
               }
             ],
             "controls": [
