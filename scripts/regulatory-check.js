@@ -26,12 +26,18 @@
 
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { spawn } from 'child_process';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import {
   checkECFRChanges,
   checkSECFeeds,
   checkFederalRegister,
   runAllMonitors,
 } from '../src/services/regulatory-monitor.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const STATE_FILE = process.env.STATE_FILE || '.regulatory-monitor-state.json';
 
@@ -172,6 +178,45 @@ async function runDailyChecks(state) {
 }
 
 /**
+ * Run amendment date verification against eCFR
+ */
+async function runAmendmentVerification() {
+  return new Promise((resolve, reject) => {
+    const verifyScript = join(__dirname, '..', 'tests', 'verify-amendment-dates.js');
+
+    const proc = spawn('node', [verifyScript], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout.on('data', data => {
+      stdout += data;
+      process.stdout.write(data);
+    });
+
+    proc.stderr.on('data', data => {
+      stderr += data;
+      process.stderr.write(data);
+    });
+
+    proc.on('close', code => {
+      resolve({
+        exitCode: code,
+        hasStaleAmendments: code !== 0,
+        output: stdout,
+        error: stderr,
+      });
+    });
+
+    proc.on('error', err => {
+      reject(err);
+    });
+  });
+}
+
+/**
  * Run weekly deep checks
  */
 async function runWeeklyChecks(state) {
@@ -181,8 +226,27 @@ async function runWeeklyChecks(state) {
     ? new Date(state.lastWeeklyCheck)
     : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  // Check Federal Register for SEC rules
-  console.log('1. Checking Federal Register for SEC rulemaking...');
+  // 1. Verify amendment dates against eCFR
+  console.log('1. Verifying schema amendment dates against eCFR...\n');
+  let amendmentResult;
+  try {
+    amendmentResult = await runAmendmentVerification();
+
+    if (amendmentResult.hasStaleAmendments) {
+      await sendAlert('Schema Amendment Dates Out of Sync', [
+        {
+          type: 'STALE_AMENDMENTS',
+          message: 'One or more schema files have outdated amendment dates. Update required.',
+        },
+      ]);
+    }
+  } catch (err) {
+    console.log(`   ERROR: ${err.message}`);
+    amendmentResult = { error: err.message };
+  }
+
+  // 2. Check Federal Register for SEC rules
+  console.log('\n2. Checking Federal Register for SEC rulemaking...');
   const frResult = await checkFederalRegister(since);
 
   if (frResult.error) {
@@ -198,7 +262,7 @@ async function runWeeklyChecks(state) {
 
   state.lastWeeklyCheck = new Date().toISOString();
 
-  return { frResult };
+  return { amendmentResult, frResult };
 }
 
 /**

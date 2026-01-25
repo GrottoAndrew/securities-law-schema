@@ -174,35 +174,54 @@ class RedTeamAnalyzer {
   }
 
   /**
-   * Check for stale amendment references
+   * Check amendment currency against eCFR API
+   * Note: Full verification runs via npm run verify:amendments (weekly)
+   * Red team does a quick check that _source.asOfDate is within 90 days
    */
   analyzeAmendmentCurrency() {
     const schemasDir = join(projectRoot, 'schemas', 'regulation-d');
     const files = readdirSync(schemasDir).filter(f => f.endsWith('.jsonld'));
 
-    // Get current year
-    const currentYear = new Date().getFullYear();
-    const staleThreshold = currentYear - 3; // Warn if no amendments in 3 years
+    const now = new Date();
+    const staleThresholdDays = 90;
 
     files.forEach(file => {
       const content = JSON.parse(readFileSync(join(schemasDir, file), 'utf-8'));
 
-      if (content.amendmentHistory && content.amendmentHistory.length > 0) {
-        // Extract year from most recent amendment
-        const latestAmendment = content.amendmentHistory[content.amendmentHistory.length - 1];
-        const yearMatch = latestAmendment.match(/\b(20\d{2})\b/);
+      // Check _source.asOfDate - when was this schema last verified against eCFR?
+      const asOfDate = content._source?.asOfDate;
+      if (!asOfDate) {
+        this.addFinding(
+          'MEDIUM',
+          'MISSING_SOURCE_DATE',
+          'Schema missing _source.asOfDate - cannot verify currency',
+          file
+        );
+        return;
+      }
 
-        if (yearMatch) {
-          const amendmentYear = parseInt(yearMatch[1]);
-          if (amendmentYear < staleThreshold) {
-            this.addFinding(
-              'LOW',
-              'STALE_AMENDMENT',
-              `Last amendment from ${amendmentYear}, may need review`,
-              file
-            );
-          }
-        }
+      const verifiedDate = new Date(asOfDate);
+      const daysSinceVerification = Math.floor(
+        (now.getTime() - verifiedDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysSinceVerification > staleThresholdDays) {
+        this.addFinding(
+          'MEDIUM',
+          'STALE_VERIFICATION',
+          `Schema last verified ${daysSinceVerification} days ago (${asOfDate}). Run: npm run verify:amendments`,
+          file
+        );
+      }
+
+      // Check that lastAmendment field exists
+      if (!content._source?.lastAmendment) {
+        this.addFinding(
+          'MEDIUM',
+          'MISSING_AMENDMENT_REF',
+          'Schema missing _source.lastAmendment field',
+          file
+        );
       }
     });
   }
