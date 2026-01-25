@@ -401,9 +401,7 @@ overlays:
 
 ## Compliance Documentation
 
-> **Note**: The paths below are templates for production deployments. These files do not exist in this repository - organizations implementing this system should create them.
-
-The following documentation should be maintained for compliance evidence:
+The following documentation is maintained for compliance evidence:
 
 | Document | Location | Update Frequency |
 |----------|----------|------------------|
