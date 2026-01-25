@@ -390,6 +390,7 @@ export async function getEvidenceByControl() {
     GROUP BY control_id
   `);
 
+  /** @type {Object.<string, {count: number, lastEvidence: string}>} */
   const byControl = {};
   for (const row of result.rows) {
     byControl[row.control_id] = {
@@ -610,16 +611,21 @@ export const fallback = {
       sendNotification('In-Memory Audit Log Limit Exceeded', msg);
       auditLimitWarned = true;
     }
+    const previousHash = inMemoryAuditLog.length > 0 ? inMemoryAuditLog[inMemoryAuditLog.length - 1].hash : '0'.repeat(64);
+    const id = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+    const preimage = `${id}${timestamp}${event}${JSON.stringify(details)}${previousHash}`;
+    const hash = createHash('sha256').update(preimage).digest('hex');
+    /** @type {AuditEntry} */
     const entry = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
+      id,
+      timestamp,
       event,
       actor,
       details,
-      previousHash: inMemoryAuditLog.length > 0 ? inMemoryAuditLog[inMemoryAuditLog.length - 1].hash : '0'.repeat(64)
+      previousHash,
+      hash
     };
-    const preimage = `${entry.id}${entry.timestamp}${entry.event}${JSON.stringify(entry.details)}${entry.previousHash}`;
-    entry.hash = createHash('sha256').update(preimage).digest('hex');
     inMemoryAuditLog.push(entry);
     return entry;
   },

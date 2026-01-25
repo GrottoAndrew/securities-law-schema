@@ -509,6 +509,7 @@ export class CollectorManager {
    * @returns {Promise<Object.<string, {success: boolean, collected: number, errors: string[]}>>}
    */
   async runAll() {
+    /** @type {Object.<string, {success: boolean, collected: number, errors: string[]}>} */
     const results = {};
 
     for (const [id, collector] of this.collectors) {
@@ -526,6 +527,7 @@ export class CollectorManager {
    * @returns {Promise<Object.<string, {success: boolean, message: string}>>}
    */
   async testAll() {
+    /** @type {Object.<string, {success: boolean, message: string}>} */
     const results = {};
 
     for (const [id, collector] of this.collectors) {
