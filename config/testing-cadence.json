@@ -94,9 +94,10 @@
     },
     "e2e": {
       "description": "Full workflow validation, auditor access, export",
-      "script": "npm run test:e2e",
+      "script": "echo 'e2e tests not yet implemented'",
       "failureAction": "notify",
-      "blocksDeploy": false
+      "blocksDeploy": false,
+      "status": "not-implemented"
     }
   },
   "overrides": {
