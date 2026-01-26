@@ -174,14 +174,7 @@
     }
   ],
 
-  "amendmentHistory": [
-    "73 FR 10615, Feb. 27, 2008",
-    "81 FR 83553, Nov. 21, 2016"
-  ],
+  "amendmentHistory": ["73 FR 10615, Feb. 27, 2008", "81 FR 83553, Nov. 21, 2016"],
 
-  "crossReference": [
-    "cfr:17/230.504",
-    "cfr:17/230.506",
-    "cfr:17/239.500"
-  ]
+  "crossReference": ["cfr:17/230.504", "cfr:17/230.506", "cfr:17/239.500"]
 }

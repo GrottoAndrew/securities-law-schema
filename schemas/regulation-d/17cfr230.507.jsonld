@@ -34,14 +34,7 @@
     }
   ],
 
-  "amendmentHistory": [
-    "54 FR 11374, Mar. 20, 1989",
-    "81 FR 83553, Nov. 21, 2016"
-  ],
+  "amendmentHistory": ["54 FR 11374, Mar. 20, 1989", "81 FR 83553, Nov. 21, 2016"],
 
-  "crossReference": [
-    "cfr:17/230.503",
-    "cfr:17/230.504",
-    "cfr:17/230.506"
-  ]
+  "crossReference": ["cfr:17/230.503", "cfr:17/230.504", "cfr:17/230.506"]
 }
