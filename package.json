@@ -37,7 +37,7 @@
     "regulatory:weekly": "node scripts/regulatory-check.js --weekly",
     "regulatory:full": "node scripts/regulatory-check.js --full",
     "verify:amendments": "node tests/verify-amendment-dates.js",
-    "prepare": "node -e \"try { require.resolve('husky') } catch (e) { process.exit(0) }\" && husky"
+    "prepare": "husky || true"
   },
   "keywords": [
     "securities",
