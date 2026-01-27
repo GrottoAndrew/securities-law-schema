@@ -82,7 +82,7 @@ export class GapDetector {
       let daysSinceEvidence = null;
       if (evidence.lastEvidence) {
         const lastDate = new Date(evidence.lastEvidence);
-        daysSinceEvidence = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+        daysSinceEvidence = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
       }
 
       // Check for missing evidence (no evidence at all)

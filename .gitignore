@@ -33,6 +33,9 @@ temp/
 # Uncomment if CFR XML files are too large:
 # source/cfr/*.xml
 
+# Demo database persistence (user-generated, not source)
+data/demo-db/
+
 # Credentials (never commit)
 *.pem
 *.key

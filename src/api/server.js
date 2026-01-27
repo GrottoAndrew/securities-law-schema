@@ -21,32 +21,32 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createHash } from 'crypto';
 import * as db from '../db/index.js';
+import centralConfig from '../config/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '../..');
 
-// Configuration with strict validation
+// Configuration — delegates to centralized config module for validation
 const config = {
-  port: parseInt(process.env.PORT, 10) || 3001,
-  jwtSecret: process.env.JWT_SECRET,
-  corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
-  nodeEnv: process.env.NODE_ENV || 'development',
-  databaseUrl: process.env.DATABASE_URL
+  port: centralConfig.port,
+  jwtSecret: centralConfig.auth.jwtSecret,
+  corsOrigins: centralConfig.cors.origins,
+  nodeEnv: centralConfig.env,
+  databaseUrl: centralConfig.database.url
 };
 
 // Initialize database connection
 db.initDatabase(config.databaseUrl);
 const useDatabase = db.isConnected();
 
-// Fail fast on missing JWT secret in production
-if (!config.jwtSecret) {
-  if (config.nodeEnv === 'production') {
-    console.error('FATAL: JWT_SECRET environment variable is required in production');
-    process.exit(1);
-  }
-  config.jwtSecret = 'development-only-secret-do-not-use-in-production';
-  console.warn('WARNING: Using development JWT secret. Set JWT_SECRET in production.');
+// Fail fast on insecure JWT secret in production
+if (config.nodeEnv === 'production' && config.jwtSecret === 'development-secret-change-in-production') {
+  console.error('FATAL: JWT_SECRET must be changed from default value in production');
+  process.exit(1);
+}
+if (config.jwtSecret === 'development-secret-change-in-production') {
+  console.warn('WARNING: Using development JWT secret. Set JWT_SECRET for production.');
 }
 
 const app = express();
@@ -68,13 +68,11 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
 
-    // Check explicit origins
+    // Check explicit origins from CORS_ORIGINS env var
     if (config.corsOrigins.includes(origin)) return callback(null, true);
 
-    // Check bolt.new wildcard patterns
-    if (origin.endsWith('.bolt.new') || origin.endsWith('.lite.bolt.new')) {
-      return callback(null, true);
-    }
+    // Allow the Regulation D compliance demo frontend
+    if (origin === 'https://reg-d-compliance-demo.bolt.host') return callback(null, true);
 
     callback(new Error('Not allowed by CORS'));
   },
@@ -709,14 +707,12 @@ app.get('/api/v1/audit-export', authenticateToken, requireRole('admin', 'auditor
     }));
 
     // 5. Compute catalog hash for integrity verification
-    const catalogHash = require('crypto')
-      .createHash('sha256')
+    const catalogHash = createHash('sha256')
       .update(JSON.stringify(flatControls))
       .digest('hex');
 
     // 6. Compute evidence manifest hash
-    const manifestHash = require('crypto')
-      .createHash('sha256')
+    const manifestHash = createHash('sha256')
       .update(JSON.stringify(evidenceManifest))
       .digest('hex');
 
@@ -731,8 +727,7 @@ app.get('/api/v1/audit-export', authenticateToken, requireRole('admin', 'auditor
       integrity: {
         catalogHash,
         manifestHash,
-        combinedHash: require('crypto')
-          .createHash('sha256')
+        combinedHash: createHash('sha256')
           .update(catalogHash + manifestHash)
           .digest('hex'),
         // Note: For production, sign with HSM-backed key

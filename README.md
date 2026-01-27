@@ -10,8 +10,8 @@ Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL contr
 | **OSCAL Controls** | 16 compliance controls mapped to regulatory requirements |
 | **REST API** | Express.js API with JWT authentication, evidence submission, compliance status |
 | **PostgreSQL Integration** | Database schema with migrations, hash-chained audit trail |
-| **Docker Compose** | One-command local demo with PostgreSQL, MinIO, auto-seeding |
-| **Test Suite** | 51 tests (unit, integration, schema validation) via Vitest |
+| **Docker Compose** | One-command local demo with PostgreSQL, LocalStack (S3/KMS mock), Redis |
+| **Test Suite** | 44 tests (unit, integration, red team analysis) via Vitest |
 | **Terraform IaC** | AWS ECS Fargate deployment configuration |
 | **Seed Data Generator** | 200+ realistic evidence records for demos |
 | **Compliance Recipes** | 11 framework extensions (broker-dealer, fund finance, pre-IPO, etc.) |
@@ -21,12 +21,14 @@ Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL contr
 ### Run Locally with Docker
 
 ```bash
-docker compose -f docker-compose.demo.yml up --build
+docker compose up --build
 ```
+
+**Prerequisites:** Copy `.env.example` to `.env` and set `POSTGRES_PASSWORD` and `JWT_SECRET`.
 
 After ~30 seconds:
 - API: http://localhost:3001/api/v1/health
-- MinIO Console: http://localhost:9001 (minioadmin/minioadmin123)
+- Dashboard: http://localhost:8080
 
 ### Test the API
 
@@ -77,7 +79,7 @@ securities-law-schema/
 │   ├── COMPLIANCE-RECIPES.md   # 11 framework extensions
 │   ├── IMPLEMENTATION-GUIDE.md # Guide for legal practitioners
 │   └── architecture/           # System design documentation
-├── docker-compose.demo.yml     # Local demo environment
+├── docker-compose.yml          # Local demo environment
 └── Dockerfile                  # Production container
 ```
 

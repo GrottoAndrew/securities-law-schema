@@ -154,6 +154,22 @@ const config = {
     datadogApiKey: process.env.DD_API_KEY,
   },
 
+  llm: {
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    anthropicModel: process.env.ANTHROPIC_MODEL || 'claude-opus-4-5-20251101',
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    openaiModel: process.env.OPENAI_MODEL || 'gpt-4o',
+    mistralApiKey: process.env.MISTRAL_API_KEY,
+    mistralModel: process.env.MISTRAL_MODEL || 'mistral-large-latest',
+    llamaApiUrl: process.env.LLAMA_API_URL || 'http://localhost:11434/api',
+    llamaApiKey: process.env.LLAMA_API_KEY,
+    llamaModel: process.env.LLAMA_MODEL || 'llama3.1:70b',
+    testAnalysisProvider: process.env.LLM_TEST_ANALYSIS_PROVIDER || 'claude',
+    classificationProvider: process.env.LLM_CLASSIFICATION_PROVIDER || 'mistral',
+    securityProvider: process.env.LLM_SECURITY_PROVIDER || 'claude',
+    webhookUrl: process.env.LLM_WEBHOOK_URL,
+  },
+
   integrations: {
     pershingApiUrl: process.env.PERSHING_API_URL,
     pershingApiKey: process.env.PERSHING_API_KEY,

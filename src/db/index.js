@@ -9,6 +9,7 @@
 
 import pg from 'pg';
 import { createHash } from 'crypto';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import config from '../config/index.js';
 
 const { Pool } = pg;
@@ -390,6 +391,7 @@ export async function getEvidenceByControl() {
     GROUP BY control_id
   `);
 
+  /** @type {Record<string, {count: number, lastEvidence: string}>} */
   const byControl = {};
   for (const row of result.rows) {
     byControl[row.control_id] = {
@@ -531,12 +533,65 @@ function rowToAuditEntry(row) {
 }
 
 // ===================
-// IN-MEMORY FALLBACK
+// IN-MEMORY FALLBACK WITH FILE PERSISTENCE
 // ===================
 
 // Used when DATABASE_URL is not set (for tests/development)
+// Data is persisted to data/demo-db/ so it survives process restarts.
+// PRODUCTION: Use PostgreSQL via DATABASE_URL. This is demo-only.
 const inMemoryEvidence = new Map();
 const inMemoryAuditLog = [];
+
+const DEMO_DB_DIR = new URL('../../data/demo-db', import.meta.url).pathname;
+const DEMO_EVIDENCE_FILE = `${DEMO_DB_DIR}/evidence.json`;
+const DEMO_AUDIT_FILE = `${DEMO_DB_DIR}/audit-log.json`;
+
+/**
+ * Load persisted demo data from disk on startup.
+ * Silently skips if files don't exist (first run).
+ */
+function loadPersistedData() {
+  try {
+    if (!existsSync(DEMO_DB_DIR)) {
+      mkdirSync(DEMO_DB_DIR, { recursive: true });
+    }
+    if (existsSync(DEMO_EVIDENCE_FILE)) {
+      const data = JSON.parse(readFileSync(DEMO_EVIDENCE_FILE, 'utf-8'));
+      for (const [key, value] of Object.entries(data)) {
+        inMemoryEvidence.set(key, value);
+      }
+      console.log(`[demo-db] Loaded ${inMemoryEvidence.size} evidence records from disk`);
+    }
+    if (existsSync(DEMO_AUDIT_FILE)) {
+      const data = JSON.parse(readFileSync(DEMO_AUDIT_FILE, 'utf-8'));
+      inMemoryAuditLog.push(...data);
+      console.log(`[demo-db] Loaded ${inMemoryAuditLog.length} audit entries from disk`);
+    }
+  } catch {
+    // First run or test environment — no persisted data
+  }
+}
+
+/** Persist current in-memory state to disk (debounced, 1s). */
+let persistTimer = null;
+function schedulePersist() {
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    try {
+      if (!existsSync(DEMO_DB_DIR)) {
+        mkdirSync(DEMO_DB_DIR, { recursive: true });
+      }
+      const evidenceObj = Object.fromEntries(inMemoryEvidence);
+      writeFileSync(DEMO_EVIDENCE_FILE, JSON.stringify(evidenceObj, null, 2));
+      writeFileSync(DEMO_AUDIT_FILE, JSON.stringify(inMemoryAuditLog, null, 2));
+    } catch {
+      // Persistence is best-effort for demo
+    }
+  }, 1000);
+}
+
+// Load any previously persisted demo data
+loadPersistedData();
 
 /**
  * In-memory fallback for development/testing when DATABASE_URL is not set.
@@ -559,6 +614,7 @@ export const fallback = {
       evidenceLimitWarned = true;
     }
     inMemoryEvidence.set(evidence.id, evidence);
+    schedulePersist();
     return evidence;
   },
 
@@ -610,17 +666,22 @@ export const fallback = {
       sendNotification('In-Memory Audit Log Limit Exceeded', msg);
       auditLimitWarned = true;
     }
+    const previousHash = inMemoryAuditLog.length > 0 ? inMemoryAuditLog[inMemoryAuditLog.length - 1].hash : '0'.repeat(64);
+    const id = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+    const preimage = `${id}${timestamp}${event}${JSON.stringify(details)}${previousHash}`;
+    const hash = createHash('sha256').update(preimage).digest('hex');
     const entry = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
+      id,
+      timestamp,
       event,
       actor,
       details,
-      previousHash: inMemoryAuditLog.length > 0 ? inMemoryAuditLog[inMemoryAuditLog.length - 1].hash : '0'.repeat(64)
+      previousHash,
+      hash
     };
-    const preimage = `${entry.id}${entry.timestamp}${entry.event}${JSON.stringify(entry.details)}${entry.previousHash}`;
-    entry.hash = createHash('sha256').update(preimage).digest('hex');
     inMemoryAuditLog.push(entry);
+    schedulePersist();
     return entry;
   },
 

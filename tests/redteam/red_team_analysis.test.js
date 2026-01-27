@@ -336,9 +336,23 @@ class RedTeamAnalyzer {
   }
 }
 
-// Run analysis
-const analyzer = new RedTeamAnalyzer();
-const report = analyzer.runFullAnalysis();
+import { describe, it, expect } from 'vitest';
 
-// Exit with error code if critical/high issues found
-process.exit(report.passed ? 0 : 1);
+describe('Red Team Analysis', () => {
+  it('should pass with no critical or high findings', () => {
+    const analyzer = new RedTeamAnalyzer();
+    const report = analyzer.runFullAnalysis();
+
+    expect(report.passed).toBe(true);
+    expect(report.summary.critical).toBe(0);
+    expect(report.summary.high).toBe(0);
+  });
+
+  it('should analyze all schema files', () => {
+    const analyzer = new RedTeamAnalyzer();
+    const report = analyzer.runFullAnalysis();
+
+    expect(report.findings).toBeDefined();
+    expect(report.findings.length).toBeGreaterThan(0);
+  });
+});

@@ -4,7 +4,7 @@
   "@type": "Section",
 
   "_source": {
-    "description": "Text extracted from eCFR bulk data XML",
+    "description": "Text extracted from eCFR bulk data XML. Rule 505 was repealed effective May 22, 2017 (81 FR 83553). Fields effectiveDate, federalRegisterCitation, lastAmendment, amendmentHistory, and crossReference are intentionally omitted because this section is reserved.",
     "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
     "asOfDate": "2025-12-30",
     "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."

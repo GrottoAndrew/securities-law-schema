@@ -68,6 +68,7 @@ export async function extractText(input, options = {}) {
   // Check if tesseract.js is available
   let Tesseract;
   try {
+    // @ts-ignore - tesseract.js is an optional dependency, installed separately
     Tesseract = await import('tesseract.js');
   } catch {
     // Tesseract not installed - return placeholder response
@@ -129,9 +130,9 @@ export async function extractText(input, options = {}) {
  * Extract text using production OCR service (placeholder)
  *
  * @param {Buffer} documentBuffer - Document content
- * @param {Object} options - Service options
- * @param {string} options.provider - 'aws' | 'azure' | 'google'
- * @param {string} options.documentType - 'general' | 'form' | 'table' | 'invoice'
+ * @param {Object} [options] - Service options
+ * @param {string} [options.provider='aws'] - 'aws' | 'azure' | 'google'
+ * @param {string} [options.documentType='general'] - 'general' | 'form' | 'table' | 'invoice'
  * @returns {Promise<OCRResult>}
  */
 export async function extractTextProduction(documentBuffer, options = {}) {

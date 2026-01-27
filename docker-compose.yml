@@ -19,11 +19,12 @@ services:
       target: production
     ports:
       - "3001:3001"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - JWT_SECRET=local-dev-secret-change-in-production-min-32-chars
-      - DATABASE_URL=postgresql://compliance:compliance@postgres:5432/evidence_locker
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-compliance}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-evidence_locker}
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8080
       - LOG_LEVEL=debug
     depends_on:
@@ -45,10 +46,12 @@ services:
   # ---------------------------------------------------------------------------
   postgres:
     image: postgres:15-alpine
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=compliance
-      - POSTGRES_PASSWORD=compliance
-      - POSTGRES_DB=evidence_locker
+      - POSTGRES_USER=${POSTGRES_USER:-compliance}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-evidence_locker}
     ports:
       - "5432:5432"
     volumes:

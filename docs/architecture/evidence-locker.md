@@ -50,7 +50,7 @@ CREATE TABLE evidence (
 
     -- Control linkage
     control_id VARCHAR(100) NOT NULL,
-    catalog_version VARCHAR(50) NOT NULL,
+    catalog_version_id UUID NOT NULL,
 
     -- Artifact reference
     artifact_s3_bucket VARCHAR(255) NOT NULL,
@@ -82,13 +82,13 @@ CREATE TABLE evidence (
     deleted_by VARCHAR(255),
     deletion_reason TEXT,
 
-    CONSTRAINT fk_control FOREIGN KEY (control_id, catalog_version)
+    CONSTRAINT fk_control FOREIGN KEY (control_id, catalog_version_id)
         REFERENCES controls(id, catalog_version_id) DEFERRABLE
 );
 
 -- Indexes for common queries
 CREATE INDEX idx_evidence_control ON evidence(control_id);
-CREATE INDEX idx_evidence_catalog_version ON evidence(catalog_version);
+CREATE INDEX idx_evidence_catalog_version ON evidence(catalog_version_id);
 CREATE INDEX idx_evidence_investor ON evidence(investor_id) WHERE investor_id IS NOT NULL;
 CREATE INDEX idx_evidence_offering ON evidence(offering_id) WHERE offering_id IS NOT NULL;
 CREATE INDEX idx_evidence_created ON evidence(created_at);
@@ -581,7 +581,7 @@ SELECT
     END as status
 FROM controls c
 LEFT JOIN evidence e ON e.control_id = c.id
-    AND e.catalog_version = c.catalog_version_id::text
+    AND e.catalog_version_id = c.catalog_version_id
     AND e.deleted_at IS NULL
 WHERE c.catalog_version_id = (
     SELECT id FROM catalog_versions WHERE is_current = TRUE

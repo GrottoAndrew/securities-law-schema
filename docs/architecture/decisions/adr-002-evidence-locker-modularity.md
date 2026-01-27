@@ -62,10 +62,10 @@ We adopt a **modular evidence locker architecture** with clearly defined interfa
 │  │        │          PLUGGABLE ADAPTERS   │               │              │   │
 │  │        │               │               │               │              │   │
 │  │   ┌────┴────┐     ┌────┴────┐     ┌────┴────┐     ┌────┴────┐        │   │
-│  │   │PostgreSQL│    │   S3    │     │AWS KMS  │     │  QLDB   │        │   │
-│  │   │ MySQL   │     │  GCS    │     │Azure KV │     │Postgres │        │   │
-│  │   │ Aurora  │     │  Azure  │     │HashiCorp│     │  Object │        │   │
-│  │   │ CockroachDB│  │  MinIO  │     │  Vault  │     │  Store  │        │   │
+│  │   │PostgreSQL│    │   S3    │     │AWS KMS  │     │Postgres │        │   │
+│  │   │ MySQL   │     │  GCS    │     │Azure KV │     │ Hash    │        │   │
+│  │   │ Aurora  │     │  Azure  │     │HashiCorp│     │ Chain   │        │   │
+│  │   │ CockroachDB│  │  MinIO  │     │  Vault  │     │  (ADR-1)│        │   │
 │  │   └─────────┘     └─────────┘     └─────────┘     └─────────┘        │   │
 │  └──────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -319,7 +319,7 @@ deployment:
   metadata_store: "Amazon Aurora PostgreSQL"
   artifact_store: "Amazon S3"
   crypto_service: "AWS KMS"
-  audit_trail: "Amazon QLDB"
+  audit_trail: "Aurora PostgreSQL hash-chain (per ADR-001)"
 
   compliance_certifications:
     - "SOC 2 Type II"

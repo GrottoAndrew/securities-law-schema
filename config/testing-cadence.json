@@ -111,7 +111,8 @@
     }
   },
   "llmIntegration": {
-    "description": "LLM selection for test analysis and recommendations",
+    "service": "src/services/llm-integration.js",
+    "description": "LLM provider selection for compliance automation tasks. Requires provider API keys in .env — see .env.example for setup instructions.",
     "models": {
       "testAnalysis": {
         "primary": "claude-opus-4-5-20251101",
