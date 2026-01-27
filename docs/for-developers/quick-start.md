@@ -10,7 +10,7 @@ Get up and running with the securities law schema in 5 minutes.
 ## Installation
 
 ```bash
-git clone https://github.com/your-org/securities-law-schema.git
+git clone https://github.com/GrottoAndrew/securities-law-schema.git
 cd securities-law-schema
 ```
 
@@ -282,3 +282,4 @@ with open('compliance-matrix.csv', 'w', newline='') as f:
 1. Read the [Architecture Overview](../architecture/overview.md)
 2. See [Control-Regulation Mapping Example](../../examples/control-regulation-mapping.md)
 3. Check [CONTRIBUTING.md](../../CONTRIBUTING.md) to add regulations
+4. Review [Framework Extensions](../for-compliance/FRAMEWORK-EXTENSIONS.md) for additional compliance domains

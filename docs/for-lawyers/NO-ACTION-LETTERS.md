@@ -1,4 +1,6 @@
-# Regulation D No-Action Letters and Regulatory Guidance
+# SEC No-Action Letters Reference
+
+Regulation D no-action letters and regulatory guidance for legal practitioners.
 
 This document compiles significant SEC no-action letters, interpretive releases, and staff guidance related to Regulation D private placements.
 
@@ -164,17 +166,17 @@ This document compiles significant SEC no-action letters, interpretive releases,
 
 ### Foundational Releases
 
-| Release | Date | Topic |
-|---------|------|-------|
-| 33-6389 | March 8, 1982 | Original Regulation D adoption |
-| 33-6455 | March 3, 1983 | Regulation D amendments |
-| 33-6758 | March 3, 1988 | Accredited investor revisions |
-| 33-7644 | February 25, 1999 | Regulation D simplification |
-| 33-9415 | July 10, 2013 | Rule 506(c) general solicitation |
-| 33-9414 | July 10, 2013 | Bad actor disqualification |
-| 33-10649 | April 22, 2019 | Concept release on harmonization |
-| 33-10824 | August 26, 2020 | Accredited investor update |
-| 33-10884 | November 2, 2020 | Integration framework |
+| Release  | Date              | Topic                            |
+| -------- | ----------------- | -------------------------------- |
+| 33-6389  | March 8, 1982     | Original Regulation D adoption   |
+| 33-6455  | March 3, 1983     | Regulation D amendments          |
+| 33-6758  | March 3, 1988     | Accredited investor revisions    |
+| 33-7644  | February 25, 1999 | Regulation D simplification      |
+| 33-9415  | July 10, 2013     | Rule 506(c) general solicitation |
+| 33-9414  | July 10, 2013     | Bad actor disqualification       |
+| 33-10649 | April 22, 2019    | Concept release on harmonization |
+| 33-10824 | August 26, 2020   | Accredited investor update       |
+| 33-10884 | November 2, 2020  | Integration framework            |
 
 ### Where to Find SEC Releases
 
@@ -204,6 +206,7 @@ The SEC maintains a searchable database of no-action letters:
 ### Third-Party Resources
 
 Commercial databases with compiled no-action letters:
+
 - Westlaw: SEC No-Action Letters database
 - LexisNexis: Federal Securities library
 - Bloomberg Law: Securities Practice Center
@@ -221,16 +224,19 @@ This document covers approximately 25-30 key letters and releases. A comprehensi
 ### Expansion Plan
 
 **Phase 1 - High Priority (Next Update)**:
+
 - [ ] Add all C&DI questions related to Regulation D (approximately 50 items)
 - [ ] Include FINRA guidance on Regulation D offerings
 - [ ] Add state blue sky coordination letters
 
 **Phase 2 - Medium Priority**:
+
 - [ ] Historical no-action letters (1982-2000) establishing foundational interpretations
 - [ ] Recent enforcement actions providing interpretive guidance
 - [ ] SEC speeches and public statements on Regulation D
 
 **Phase 3 - Comprehensive**:
+
 - [ ] All Form D filing guidance
 - [ ] Integration doctrine evolution (complete history)
 - [ ] Issuer-specific letters with broad applicability
@@ -239,6 +245,7 @@ This document covers approximately 25-30 key letters and releases. A comprehensi
 ### Automation Opportunity
 
 Consider building a scraper for:
+
 1. SEC no-action letter database
 2. SEC C&DI pages
 3. Federal Register Regulation D amendments
@@ -251,13 +258,13 @@ Output: Structured JSON for programmatic access to this guidance.
 
 **Validation Date**: 2026-01-19
 
-| Link | Status | Notes |
-|------|--------|-------|
+| Link                                  | Status | Notes                             |
+| ------------------------------------- | ------ | --------------------------------- |
 | sec.gov/rules/final/2020/33-10824.pdf | Verify | SEC reorganizes URLs periodically |
-| sec.gov/rules/final/2013/33-9415.pdf | Verify | May have moved |
-| sec.gov/divisions/corpfin/guidance | Active | C&DI page location |
-| sec.gov/files/formd.pdf | Verify | Form location |
-| sec.gov/edgar | Active | EDGAR search |
+| sec.gov/rules/final/2013/33-9415.pdf  | Verify | May have moved                    |
+| sec.gov/divisions/corpfin/guidance    | Active | C&DI page location                |
+| sec.gov/files/formd.pdf               | Verify | Form location                     |
+| sec.gov/edgar                         | Active | EDGAR search                      |
 
 **Recommendation**: Before relying on any link, verify it resolves correctly. SEC website URLs change during reorganizations. If a link fails, search sec.gov for the release number (e.g., "33-10824").
 
@@ -265,6 +272,6 @@ Output: Structured JSON for programmatic access to this guidance.
 
 ## Version History
 
-| Date | Change |
-|------|--------|
+| Date       | Change              |
+| ---------- | ------------------- |
 | 2026-01-19 | Initial compilation |

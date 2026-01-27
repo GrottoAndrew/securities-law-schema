@@ -17,7 +17,7 @@ API_URL="http://localhost:3001"
 case "${1:-start}" in
   start)
     echo -e "${BLUE}Starting Evidence Locker Demo Environment...${NC}"
-    docker compose -f docker-compose.demo.yml up -d
+    docker compose up -d
 
     echo -e "${BLUE}Waiting for services to be healthy...${NC}"
     sleep 5
@@ -31,22 +31,22 @@ case "${1:-start}" in
     echo ""
     echo "Access points:"
     echo "  API:        $API_URL"
-    echo "  Dashboard:  http://localhost:8080"
-    echo "  MinIO:      http://localhost:9001 (minioadmin / minioadmin123)"
-    echo "  Postgres:   localhost:5432 (evidence_admin / demo_password_only)"
+    echo "  Dashboard:  https://reg-d-compliance-demo.bolt.host"
+    echo "  LocalStack: http://localhost:4566 (S3/KMS mock)"
+    echo "  Postgres:   localhost:5432 (compliance / compliance)"
     echo ""
     echo "Run './scripts/demo.sh seed' to populate with sample data"
     ;;
 
   stop)
     echo -e "${BLUE}Stopping demo environment...${NC}"
-    docker compose -f docker-compose.demo.yml down
+    docker compose down
     echo -e "${GREEN}✓ Stopped${NC}"
     ;;
 
   clean)
     echo -e "${RED}Removing demo environment and all data...${NC}"
-    docker compose -f docker-compose.demo.yml down -v
+    docker compose down -v
     echo -e "${GREEN}✓ Cleaned${NC}"
     ;;
 
@@ -133,7 +133,7 @@ case "${1:-start}" in
     echo ""
     echo -e "${GREEN}✓ Demo data seeded${NC}"
     echo ""
-    echo "View at: http://localhost:8080"
+    echo "View at: https://reg-d-compliance-demo.bolt.host"
     ;;
 
   test)

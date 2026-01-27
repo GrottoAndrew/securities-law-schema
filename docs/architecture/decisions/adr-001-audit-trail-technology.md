@@ -8,6 +8,7 @@
 ## Context
 
 The compliance management system requires an immutable, cryptographically verifiable audit trail for:
+
 - Evidence submission and modification events
 - Catalog version publications
 - Access grants and revocations
@@ -15,6 +16,7 @@ The compliance management system requires an immutable, cryptographically verifi
 - System configuration changes
 
 This audit trail must:
+
 1. Be append-only (no updates or deletes)
 2. Provide cryptographic verification of integrity
 3. Support regulatory retention requirements (7+ years)
@@ -37,16 +39,16 @@ Blockchain and distributed ledger technologies are frequently proposed for audit
 
 #### Attack Surface Multiplication
 
-| Attack Vector | Centralized Audit Trail | Distributed Ledger |
-|---------------|------------------------|-------------------|
-| **Network endpoints** | 1 (database) | N nodes × M peers |
-| **Authentication points** | 1 | N nodes + consensus protocol |
-| **Key management** | 1 signing key | N node keys + validator keys |
-| **Consensus vulnerabilities** | N/A | BFT attacks, 51% attacks, selfish mining |
-| **Smart contract bugs** | N/A | Reentrancy, overflow, logic errors |
-| **P2P protocol attacks** | N/A | Eclipse attacks, Sybil attacks, routing attacks |
-| **State synchronization** | N/A | Fork resolution, chain reorganization |
-| **Dependency chain** | Database + OS | Blockchain client + P2P stack + consensus + crypto libraries + VM |
+| Attack Vector                 | Centralized Audit Trail | Distributed Ledger                                                |
+| ----------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| **Network endpoints**         | 1 (database)            | N nodes × M peers                                                 |
+| **Authentication points**     | 1                       | N nodes + consensus protocol                                      |
+| **Key management**            | 1 signing key           | N node keys + validator keys                                      |
+| **Consensus vulnerabilities** | N/A                     | BFT attacks, 51% attacks, selfish mining                          |
+| **Smart contract bugs**       | N/A                     | Reentrancy, overflow, logic errors                                |
+| **P2P protocol attacks**      | N/A                     | Eclipse attacks, Sybil attacks, routing attacks                   |
+| **State synchronization**     | N/A                     | Fork resolution, chain reorganization                             |
+| **Dependency chain**          | Database + OS           | Blockchain client + P2P stack + consensus + crypto libraries + VM |
 
 **Each additional node and protocol layer creates new opportunities for exploitation.**
 
@@ -86,6 +88,7 @@ Blockchain and distributed ledger technologies are frequently proposed for audit
 #### When Blockchain Might Be Appropriate (Not This System)
 
 Blockchain/DLT may be justified when:
+
 - Multiple **mutually distrusting parties** must share a ledger
 - No single party can be trusted to maintain the authoritative record
 - Regulatory mandate **specifically requires** distributed ledger (rare)
@@ -129,6 +132,7 @@ Complexity: Low
 ```
 
 This approach provides:
+
 - **Equivalent cryptographic integrity** to blockchain
 - **Smaller attack surface** (single database, single signing key)
 - **Simpler operations** (standard database administration)
@@ -157,6 +161,7 @@ This approach provides:
 | Compliance | SOC 1/2/3, PCI DSS, HIPAA, FedRAMP High, SEC 17a-4 |
 
 **Architecture**:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │            AURORA PostgreSQL + S3 OBJECT LOCK                   │
@@ -178,6 +183,7 @@ This approach provides:
 ```
 
 **Pros**:
+
 - Mature, well-understood technology
 - Full SQL query capabilities
 - FedRAMP authorized (Aurora)
@@ -186,11 +192,13 @@ This approach provides:
 - Cloud-portable concepts (PostgreSQL + object storage)
 
 **Cons**:
+
 - Must implement hash chain verification at application layer
 - Two-tier architecture (database + object storage)
 - Requires understanding of S3 Object Lock modes
 
 **When to Choose**:
+
 - Most deployments (this is the recommended default)
 - Need for complex audit queries
 - Cost-sensitive environments
@@ -212,6 +220,7 @@ This approach provides:
 | Compliance | Depends on provider certifications |
 
 **Architecture**:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                 HARDENED COMPUTE INSTANCE                       │
@@ -239,6 +248,7 @@ This approach provides:
 ```
 
 **Required Hardening**:
+
 ```sql
 -- Prevent all modifications except INSERT
 REVOKE ALL ON audit_log FROM PUBLIC;
@@ -263,18 +273,21 @@ CREATE EVENT TRIGGER protect_audit_log ON sql_drop
 ```
 
 **Pros**:
+
 - Cloud-agnostic (portable)
 - Lower cost at scale
 - Full SQL query capabilities
 - Complete control over implementation
 
 **Cons**:
+
 - Operational overhead
 - Must implement verification logic
 - Requires security expertise to harden properly
 - Immutability is application-enforced, not hardware-enforced
 
 **When to Choose**:
+
 - Multi-cloud or cloud-agnostic requirements
 - Cost-sensitive deployments
 - Teams with strong database operations capability
@@ -287,6 +300,7 @@ CREATE EVENT TRIGGER protect_audit_log ON sql_drop
 **Description**: Append-only audit records stored in object storage with retention locks, plus a verification index.
 
 **Architecture**:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │              IMMUTABLE OBJECT STORAGE                           │
@@ -313,17 +327,20 @@ CREATE EVENT TRIGGER protect_audit_log ON sql_drop
 ```
 
 **Pros**:
+
 - Very low cost for long retention
 - Object Lock provides regulatory-grade immutability
 - Scales infinitely
 - Simple disaster recovery
 
 **Cons**:
+
 - Two-tier architecture complexity
 - Query performance depends on index
 - Object Lock modes have different guarantees
 
 **When to Choose**:
+
 - Very long retention requirements
 - Cost-sensitive with high volume
 - Already using object storage extensively
@@ -335,6 +352,7 @@ CREATE EVENT TRIGGER protect_audit_log ON sql_drop
 Regardless of technology choice, implementations MUST:
 
 ### 1. Hash Chain Integrity
+
 ```
 Each record MUST include:
 - sequence_number: Monotonically increasing
@@ -347,22 +365,24 @@ Each record MUST include:
 
 The pseudocode examples in this repository (e.g., in `evidence-locker.md`) are **illustrative, not production-ready**. A production Merkle tree implementation must handle:
 
-| Edge Case | Required Handling |
-|-----------|-------------------|
-| Odd number of leaves | Duplicate last leaf OR use different tree structure |
-| Empty tree | Define null root hash consistently |
-| Concurrent inserts | Ensure deterministic ordering (by timestamp, sequence, or mutex) |
-| Very large trees | Consider incremental/streaming construction |
-| Proof generation | Store intermediate nodes OR recompute on demand |
-| Tree rebalancing | Append-only trees don't rebalance; plan for depth |
+| Edge Case            | Required Handling                                                |
+| -------------------- | ---------------------------------------------------------------- |
+| Odd number of leaves | Duplicate last leaf OR use different tree structure              |
+| Empty tree           | Define null root hash consistently                               |
+| Concurrent inserts   | Ensure deterministic ordering (by timestamp, sequence, or mutex) |
+| Very large trees     | Consider incremental/streaming construction                      |
+| Proof generation     | Store intermediate nodes OR recompute on demand                  |
+| Tree rebalancing     | Append-only trees don't rebalance; plan for depth                |
 
 **Do not use example code in production without**:
+
 - Formal specification of leaf hash construction
 - Test vectors covering edge cases
 - Security review by qualified cryptographic engineer
 - Consideration of timing attacks on comparison operations
 
 ### 2. Cryptographic Signing
+
 ```
 Checkpoint records MUST be signed:
 - Algorithm: ECDSA P-256 (ES256) minimum
@@ -371,6 +391,7 @@ Checkpoint records MUST be signed:
 ```
 
 ### 3. TLS Requirements
+
 ```
 All connections MUST use:
 - TLS 1.2 minimum (TLS 1.0/1.1 prohibited)
@@ -381,6 +402,7 @@ All connections MUST use:
 ```
 
 **Practical note**: While TLS 1.3 is preferred, some legacy systems and integrations may require TLS 1.2. The key requirements are:
+
 1. **All data encrypted in transit** - no plaintext connections
 2. **No deprecated protocols** - TLS 1.0 and 1.1 are prohibited by PCI DSS and most modern standards
 3. **Strong cipher suites** - avoid known-weak algorithms
@@ -419,25 +441,25 @@ Backups:
 
 ## Decision Matrix
 
-| Requirement | Aurora + S3 (Recommended) | Hardened Instance | Object Storage Only |
-|-------------|---------------------------|-------------------|---------------------|
-| Immutability | ★★★★☆ | ★★★☆☆ | ★★★★☆ (see warning) |
-| Operational Simplicity | ★★★★☆ | ★★☆☆☆ | ★★★☆☆ |
-| Cost (at scale) | ★★★★☆ | ★★★★☆ | ★★★★★ |
-| Query Performance | ★★★★★ | ★★★★★ | ★★★☆☆ |
-| Cloud Portability | ★★★☆☆ | ★★★★★ | ★★★☆☆ |
-| Compliance Coverage | ★★★★★ | ★★★☆☆ | ★★★★☆ |
-| 99.95% SLA Achievable | ✓ | ✓ | ✓ |
-| QLDB Replacement | ✓ (recommended) | ✓ | ✓ |
+| Requirement            | Aurora + S3 (Recommended) | Hardened Instance | Object Storage Only |
+| ---------------------- | ------------------------- | ----------------- | ------------------- |
+| Immutability           | ★★★★☆                     | ★★★☆☆             | ★★★★☆ (see warning) |
+| Operational Simplicity | ★★★★☆                     | ★★☆☆☆             | ★★★☆☆               |
+| Cost (at scale)        | ★★★★☆                     | ★★★★☆             | ★★★★★               |
+| Query Performance      | ★★★★★                     | ★★★★★             | ★★★☆☆               |
+| Cloud Portability      | ★★★☆☆                     | ★★★★★             | ★★★☆☆               |
+| Compliance Coverage    | ★★★★★                     | ★★★☆☆             | ★★★★☆               |
+| 99.95% SLA Achievable  | ✓                         | ✓                 | ✓                   |
+| QLDB Replacement       | ✓ (recommended)           | ✓                 | ✓                   |
 
 ### Critical Warning: Object Lock Modes
 
 If using object storage with retention locks, understand the difference between lock modes:
 
-| Mode | Can Root/Admin Override? | Regulatory Suitability |
-|------|--------------------------|------------------------|
-| **GOVERNANCE** | **YES** - users with special permissions can delete | **NOT suitable for SEC 17a-4 or true WORM requirements** |
-| **COMPLIANCE** | **NO** - cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements |
+| Mode           | Can Root/Admin Override?                                                      | Regulatory Suitability                                   |
+| -------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------- |
+| **GOVERNANCE** | **YES** - users with special permissions can delete                           | **NOT suitable for SEC 17a-4 or true WORM requirements** |
+| **COMPLIANCE** | **NO** - cannot be deleted by anyone, including root, until retention expires | Suitable for regulatory WORM requirements                |
 
 **If you configure GOVERNANCE mode thinking you have immutability, you do not.** GOVERNANCE mode is designed for testing or soft retention policies. For audit trails subject to SEC 17a-4, FINRA 4511, or similar regulations, you MUST use COMPLIANCE mode.
 
@@ -448,6 +470,7 @@ If using object storage with retention locks, understand the difference between 
 AWS announced that QLDB would not accept new customers and recommended existing customers migrate to alternatives. This is why Option A now recommends Aurora PostgreSQL + S3 Object Lock instead of QLDB.
 
 For organizations with existing QLDB deployments:
+
 - Existing workloads continue to function during the deprecation period
 - Plan migration to Aurora PostgreSQL + S3 Object Lock architecture
 - Export all data and verify integrity before migration
@@ -458,16 +481,19 @@ For organizations with existing QLDB deployments:
 ## Consequences
 
 ### Positive
+
 - Flexibility to choose based on organizational constraints
 - Clear requirements regardless of implementation
 - Compliance mappings documented per option
 
 ### Negative
+
 - Multiple code paths for different backends
 - Testing must cover all supported options
 - Documentation overhead
 
 ### Risks
+
 - Hardened instance option requires security expertise
 - Misconfiguration could compromise immutability
 - Migration between options is complex
@@ -476,15 +502,15 @@ For organizations with existing QLDB deployments:
 
 ## Compliance Mapping
 
-| Framework | Relevant Controls | How This ADR Addresses |
-|-----------|-------------------|------------------------|
-| NIST CSF 2.0 | PR.DS-1, PR.DS-2, DE.CM-3 | Cryptographic integrity, audit logging |
-| SOC 2 | CC6.1, CC7.2 | Logical access, system monitoring |
-| FedRAMP | AU-2, AU-3, AU-9 | Audit events, content, protection |
-| PCI DSS 4.0 | 10.2, 10.3, 10.5 | Audit trails, protection, retention |
-| HIPAA | §164.312(b) | Audit controls |
-| SEC Rule 17a-4 | (f)(2)(ii)(A) | WORM storage requirements |
-| FINRA Rule 4511 | Books and records | Retention, integrity |
+| Framework       | Relevant Controls         | How This ADR Addresses                 |
+| --------------- | ------------------------- | -------------------------------------- |
+| NIST CSF 2.0    | PR.DS-1, PR.DS-2, DE.CM-3 | Cryptographic integrity, audit logging |
+| SOC 2           | CC6.1, CC7.2              | Logical access, system monitoring      |
+| FedRAMP         | AU-2, AU-3, AU-9          | Audit events, content, protection      |
+| PCI DSS 4.0     | 10.2, 10.3, 10.5          | Audit trails, protection, retention    |
+| HIPAA           | §164.312(b)               | Audit controls                         |
+| SEC Rule 17a-4  | (f)(2)(ii)(A)             | WORM storage requirements              |
+| FINRA Rule 4511 | Books and records         | Retention, integrity                   |
 
 ---
 
@@ -492,12 +518,12 @@ For organizations with existing QLDB deployments:
 
 The following standards inform this ADR. Verify current versions before reliance:
 
-| Standard | Description | Where to Find |
-|----------|-------------|---------------|
-| NIST SP 800-92 | Guide to Computer Security Log Management | Search NIST CSRC publications |
-| NIST CSF 2.0 | Cybersecurity Framework | nist.gov/cyberframework |
-| SEC Rule 17a-4 | Records to be preserved by brokers and dealers | Search SEC.gov rules |
-| FINRA Rule 4511 | General requirements for books and records | FINRA.org rulebook |
-| FedRAMP AU controls | Audit and Accountability control family | FedRAMP.gov baselines |
+| Standard            | Description                                    | Where to Find                 |
+| ------------------- | ---------------------------------------------- | ----------------------------- |
+| NIST SP 800-92      | Guide to Computer Security Log Management      | Search NIST CSRC publications |
+| NIST CSF 2.0        | Cybersecurity Framework                        | nist.gov/cyberframework       |
+| SEC Rule 17a-4      | Records to be preserved by brokers and dealers | Search SEC.gov rules          |
+| FINRA Rule 4511     | General requirements for books and records     | FINRA.org rulebook            |
+| FedRAMP AU controls | Audit and Accountability control family        | FedRAMP.gov baselines         |
 
 **Note**: URLs are not provided because government and regulatory websites frequently reorganize. Search the authoritative source directly for current versions.

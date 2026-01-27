@@ -16,11 +16,11 @@ This document describes the security model for the compliance management system.
 
 ### Identity Providers
 
-| User Type | Auth Method | Identity Provider |
-|-----------|-------------|-------------------|
-| Internal Users | SSO/SAML | Corporate IdP (Okta, Azure AD) |
-| Auditors | Time-limited JWT | Issued by system admin |
-| Service Accounts | API Keys + mTLS | Internal PKI |
+| User Type        | Auth Method      | Identity Provider              |
+| ---------------- | ---------------- | ------------------------------ |
+| Internal Users   | SSO/SAML         | Corporate IdP (Okta, Azure AD) |
+| Auditors         | Time-limited JWT | Issued by system admin         |
+| Service Accounts | API Keys + mTLS  | Internal PKI                   |
 
 ### Role-Based Access Control (RBAC)
 
@@ -67,6 +67,7 @@ This document describes the security model for the compliance management system.
 ```
 
 **Constraints**:
+
 - Maximum token lifetime: 7 days (configurable)
 - No refresh tokens for auditors (must request new access)
 - All auditor requests logged to audit trail
@@ -81,17 +82,20 @@ This document describes the security model for the compliance management system.
 **Algorithm**: ES256 (ECDSA with P-256 and SHA-256)
 
 **Process**:
+
 1. Compute SHA-256 hash of each file
 2. Create manifest.json with all hashes
 3. Sign manifest with catalog signing key
 4. Store detached signature as manifest.json.sig
 
 **Key Management**:
+
 - Signing keys stored in HSM (AWS CloudHSM or similar)
 - Key rotation: Annual, or on suspected compromise
 - Multi-party approval required for signing
 
 **Verification**:
+
 ```
 1. Fetch manifest.json and manifest.json.sig
 2. Verify signature against public key
@@ -104,6 +108,7 @@ This document describes the security model for the compliance management system.
 ### Evidence Hashing (Merkle Tree)
 
 **Leaf Hash Construction**:
+
 ```
 leaf_hash = SHA-256(
     evidence_id ||
@@ -114,12 +119,14 @@ leaf_hash = SHA-256(
 ```
 
 **Tree Construction**:
+
 - Binary Merkle tree
 - Leaves sorted by timestamp (deterministic order)
 - Odd leaf count: duplicate last leaf
 - Internal nodes: `H(left || right)`
 
 **Checkpoint Signing**:
+
 ```json
 {
   "checkpoint_id": "uuid",
@@ -134,12 +141,14 @@ leaf_hash = SHA-256(
 ### Audit Trail Immutability
 
 **Option A: Amazon QLDB**
+
 - Built-in cryptographic verification
 - Journal is append-only by design
 - SHA-256 hash chaining
 - Document-level verification API
 
 **Option B: Custom Implementation**
+
 ```
 Each entry:
 {
@@ -158,12 +167,12 @@ Each entry:
 
 ### Encryption at Rest
 
-| Data Store | Encryption | Key Management |
-|------------|------------|----------------|
-| S3 (Catalog) | SSE-S3 or SSE-KMS | AWS managed or CMK |
-| S3 (Evidence) | SSE-KMS | CMK with key policy |
-| PostgreSQL | TDE (RDS) | AWS managed |
-| Audit Trail | QLDB native / DB TDE | AWS managed |
+| Data Store    | Encryption           | Key Management      |
+| ------------- | -------------------- | ------------------- |
+| S3 (Catalog)  | SSE-S3 or SSE-KMS    | AWS managed or CMK  |
+| S3 (Evidence) | SSE-KMS              | CMK with key policy |
+| PostgreSQL    | TDE (RDS)            | AWS managed         |
+| Audit Trail   | QLDB native / DB TDE | AWS managed         |
 
 ### Encryption in Transit
 
@@ -194,10 +203,7 @@ Each entry:
       "Effect": "Deny",
       "Principal": "*",
       "Action": "s3:*",
-      "Resource": [
-        "arn:aws:s3:::evidence-bucket",
-        "arn:aws:s3:::evidence-bucket/*"
-      ],
+      "Resource": ["arn:aws:s3:::evidence-bucket", "arn:aws:s3:::evidence-bucket/*"],
       "Condition": {
         "Bool": {
           "aws:SecureTransport": "false"
@@ -246,12 +252,12 @@ Each entry:
 
 ### Security Groups
 
-| Service | Inbound | Outbound |
-|---------|---------|----------|
-| ALB | 443 from 0.0.0.0/0 | App subnet |
-| API Service | ALB SG only | DB subnet, S3 endpoint |
-| PostgreSQL | App SG only | None |
-| S3 | VPC endpoint only | N/A |
+| Service     | Inbound            | Outbound               |
+| ----------- | ------------------ | ---------------------- |
+| ALB         | 443 from 0.0.0.0/0 | App subnet             |
+| API Service | ALB SG only        | DB subnet, S3 endpoint |
+| PostgreSQL  | App SG only        | None                   |
+| S3          | VPC endpoint only  | N/A                    |
 
 ---
 
@@ -259,39 +265,42 @@ Each entry:
 
 ### Log Sources
 
-| Source | Destination | Retention |
-|--------|-------------|-----------|
-| API Access Logs | CloudWatch + S3 | 90 days / 7 years |
-| Application Logs | CloudWatch | 30 days |
-| Audit Trail | QLDB | Indefinite |
-| VPC Flow Logs | CloudWatch + S3 | 90 days |
-| CloudTrail | S3 | 7 years |
+| Source           | Destination     | Retention         |
+| ---------------- | --------------- | ----------------- |
+| API Access Logs  | CloudWatch + S3 | 90 days / 7 years |
+| Application Logs | CloudWatch      | 30 days           |
+| Audit Trail      | QLDB            | Indefinite        |
+| VPC Flow Logs    | CloudWatch + S3 | 90 days           |
+| CloudTrail       | S3              | 7 years           |
 
 ### Security Alerts
 
-| Event | Alert Level | Response |
-|-------|-------------|----------|
-| Failed auth > 5/min | High | Block IP, notify |
-| Catalog signing attempted | Info | Verify authorized |
-| Auditor access granted | Info | Log and track |
-| Evidence deletion attempted | Critical | Block, investigate |
-| Unusual data export | Medium | Review access |
+| Event                       | Alert Level | Response           |
+| --------------------------- | ----------- | ------------------ |
+| Failed auth > 5/min         | High        | Block IP, notify   |
+| Catalog signing attempted   | Info        | Verify authorized  |
+| Auditor access granted      | Info        | Log and track      |
+| Evidence deletion attempted | Critical    | Block, investigate |
+| Unusual data export         | Medium      | Review access      |
 
 ---
 
 ## Compliance Considerations
 
 ### Data Residency
+
 - All data stored in specified AWS region(s)
 - No cross-region replication without explicit approval
 - S3 bucket policies enforce region restrictions
 
 ### Retention
+
 - Evidence: Minimum 7 years (configurable)
 - Audit trail: Indefinite (regulatory requirement)
 - Catalog versions: Indefinite (never delete)
 
 ### Right to be Forgotten (GDPR/CCPA)
+
 - Investor PII may need deletion capability
 - Evidence metadata anonymization process
 - Audit trail entries cannot be deleted (regulatory conflict - document exception)

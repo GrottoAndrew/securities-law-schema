@@ -2,7 +2,7 @@
   "$schema": "./testing-cadence-schema.json",
   "_meta": {
     "description": "Testing cadence configuration for hot and cold databases",
-    "documentation": "See CONSOLIDATION-GUIDE.md for full explanation"
+    "documentation": "See docs/for-compliance/IMPLEMENTATION-CHECKLIST.md for configuration details"
   },
   "defaults": {
     "timezone": "America/New_York",
@@ -94,18 +94,16 @@
     },
     "e2e": {
       "description": "Full workflow validation, auditor access, export",
-      "script": "npm run test:e2e",
+      "script": "echo 'e2e tests not yet implemented'",
       "failureAction": "notify",
-      "blocksDeploy": false
+      "blocksDeploy": false,
+      "status": "not-implemented"
     }
   },
   "overrides": {
     "enabled": true,
     "description": "Per-offering schedule customization",
-    "allowedModifications": [
-      "increase_frequency",
-      "decrease_frequency_with_approval"
-    ],
+    "allowedModifications": ["increase_frequency", "decrease_frequency_with_approval"],
     "approvalRequired": {
       "decrease_frequency": ["cco", "compliance_manager"]
     }
@@ -138,11 +136,7 @@
       "dataResidency": "us-east-1",
       "piiHandling": "on-premise-only",
       "auditLogging": true,
-      "humanApprovalRequired": [
-        "regulatory_filing",
-        "investor_communication",
-        "evidence_deletion"
-      ]
+      "humanApprovalRequired": ["regulatory_filing", "investor_communication", "evidence_deletion"]
     }
   },
   "reporting": {

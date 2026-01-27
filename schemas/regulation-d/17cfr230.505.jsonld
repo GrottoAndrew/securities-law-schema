@@ -7,6 +7,7 @@
     "description": "Text extracted from eCFR bulk data XML",
     "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
     "asOfDate": "2025-12-30",
+    "lastAmendment": "81 FR 83553, Nov. 21, 2016",
     "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."
   },
 
