@@ -1,0 +1,43 @@
+# =============================================================================
+# Evidence Locker Infrastructure - Example Variables
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in your values
+# NEVER commit terraform.tfvars to version control
+# =============================================================================
+
+# Required: Environment
+environment = "dev"  # dev, staging, or prod
+
+# Required: Database credentials
+db_username = "evidence_admin"
+db_password = "your-secure-password-minimum-16-chars"
+
+# Required: JWT secret for API authentication (minimum 32 characters)
+jwt_secret = "your-jwt-secret-minimum-32-characters-here"
+
+# Optional: Customize project name
+# project_name = "evidence-locker"
+
+# Optional: AWS region
+# aws_region = "us-east-1"
+
+# Optional: VPC CIDR
+# vpc_cidr = "10.0.0.0/16"
+
+# Optional: Database instance size
+# db_instance_class = "db.t3.medium"
+
+# Optional: SEC retention period (minimum 7 years)
+# sec_retention_years = 7
+
+# Optional: Enable WORM storage (recommended for production)
+# enable_worm_storage = true
+
+# Optional: ECS task sizing
+# ecs_task_cpu    = 256
+# ecs_task_memory = 512
+# ecs_desired_count = 2
+
+# Optional: Domain configuration (for HTTPS)
+# domain_name     = "evidence.example.com"
+# certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc123"

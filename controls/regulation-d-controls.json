@@ -1,0 +1,864 @@
+{
+  "catalog": {
+    "uuid": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+    "metadata": {
+      "title": "Regulation D Compliance Control Catalog",
+      "last-modified": "2026-01-19T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.2.0",
+      "remarks": "Control catalog for SEC Regulation D private placement exemptions. Controls map to 17 CFR 230.500-508. DISCLAIMER: Control statements are illustrative interpretations of regulatory requirements, not legal advice. Each control mapping requires case-by-case legal review before reliance. Verify against current eCFR and consult securities counsel.",
+      "props": [
+        {
+          "name": "catalog-type",
+          "value": "securities-compliance"
+        },
+        {
+          "name": "regulatory-authority",
+          "value": "SEC"
+        },
+        {
+          "name": "legal-status",
+          "value": "illustrative-requires-legal-review"
+        }
+      ],
+      "links": [
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.500.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.501.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.502.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.503.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.504.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.505.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.506.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.507.jsonld",
+          "media-type": "application/ld+json"
+        },
+        {
+          "rel": "reference",
+          "href": "../schemas/regulation-d/17cfr230.508.jsonld",
+          "media-type": "application/ld+json"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "grp-regulatory-foundation",
+        "title": "Regulatory Foundation Controls",
+        "props": [
+          {
+            "name": "regulation-part",
+            "value": "17 CFR 230.500"
+          }
+        ],
+        "controls": [
+          {
+            "id": "ctrl-anti-evasion",
+            "title": "Anti-Evasion Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(f)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(f)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/5",
+                "text": "Anti-evasion provision"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-anti-evasion-stmt",
+                "name": "statement",
+                "prose": "Regulation D is not available to any issuer for any transaction or chain of transactions that, although in technical compliance with Regulation D, is part of a plan or scheme to evade the registration provisions of the Act."
+              },
+              {
+                "id": "ctrl-anti-evasion-guidance",
+                "name": "guidance",
+                "prose": "Ensure all offerings have a legitimate business purpose and are not structured solely to circumvent registration requirements."
+              }
+            ]
+          },
+          {
+            "id": "ctrl-issuer-only",
+            "title": "Issuer-Only Exemption",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(d)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(d)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/3",
+                "text": "Issuer-only exemption"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-issuer-only-stmt",
+                "name": "statement",
+                "prose": "Regulation D is available only to the issuer of the securities and not to any affiliate of that issuer or to any other person for resales of the issuer's securities."
+              }
+            ]
+          },
+          {
+            "id": "ctrl-state-compliance",
+            "title": "State Law Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.500(b)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.500(b)"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-compliance"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.500.jsonld#/subsection/1",
+                "text": "State law compliance"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-state-compliance-stmt",
+                "name": "statement",
+                "prose": "Compliance with Regulation D does not obviate the need to comply with applicable state securities laws (blue sky laws). Verify state notice filing requirements and fee obligations."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "grp-investor-qualification",
+        "title": "Investor Qualification Controls",
+        "props": [
+          {
+            "name": "regulation-part",
+            "value": "17 CFR 230.501"
+          }
+        ],
+        "controls": [
+          {
+            "id": "ctrl-ai-verification",
+            "title": "Accredited Investor Verification",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.501(a)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.501(a)"
+              },
+              {
+                "name": "control-family",
+                "value": "investor-qualification"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/0",
+                "text": "Accredited Investor Definition"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-ai-verification-stmt",
+                "name": "statement",
+                "prose": "The organization shall verify that each investor qualifies as an accredited investor under one or more categories defined in 17 CFR 230.501(a) before accepting their investment in a Rule 506(c) offering."
+              },
+              {
+                "id": "ctrl-ai-verification-guidance",
+                "name": "guidance",
+                "prose": "Verification must be performed using reasonable steps as defined in 17 CFR 230.506(c)(2)(ii). Documentation of verification method and results must be retained."
+              },
+              {
+                "id": "ctrl-ai-verification-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-ai-verification-evidence-1",
+                    "name": "evidence-item",
+                    "prose": "Investor accreditation questionnaire or self-certification form"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-2",
+                    "name": "evidence-item",
+                    "prose": "Third-party verification letter (attorney, CPA, broker-dealer, or investment adviser)"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-3",
+                    "name": "evidence-item",
+                    "prose": "Supporting documentation (tax returns, W-2s, bank statements, brokerage statements) if self-verified"
+                  },
+                  {
+                    "id": "ctrl-ai-verification-evidence-4",
+                    "name": "evidence-item",
+                    "prose": "Verification procedure documentation showing reasonable steps taken"
+                  }
+                ]
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctrl-ai-natural-person-income",
+                "title": "Natural Person Income Verification",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.501(a)(6)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.501(a)(6)"
+                  },
+                  {
+                    "name": "investor-category",
+                    "value": "natural-person-income"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/0/paragraph/5"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-ai-natural-person-income-stmt",
+                    "name": "statement",
+                    "prose": "For natural persons claiming accredited investor status based on income, verify individual income exceeds $200,000 in each of the two most recent years, OR joint income with spouse/spousal equivalent exceeds $300,000 in each of those years, AND reasonable expectation of same income level in current year."
+                  },
+                  {
+                    "id": "ctrl-ai-natural-person-income-evidence",
+                    "name": "evidence-requirements",
+                    "parts": [
+                      {
+                        "id": "ctrl-ai-natural-person-income-evidence-1",
+                        "name": "evidence-item",
+                        "prose": "IRS forms (W-2, 1099, K-1, 1040) for two most recent years"
+                      },
+                      {
+                        "id": "ctrl-ai-natural-person-income-evidence-2",
+                        "name": "evidence-item",
+                        "prose": "Written confirmation from registered broker-dealer, SEC-registered investment adviser, licensed attorney, or CPA"
+                      },
+                      {
+                        "id": "ctrl-ai-natural-person-income-evidence-3",
+                        "name": "evidence-item",
+                        "prose": "Investor representation with reasonable steps to verify"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "ctrl-ai-natural-person-net-worth",
+                "title": "Natural Person Net Worth Verification",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.501(a)(5)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.501(a)(5)"
+                  },
+                  {
+                    "name": "investor-category",
+                    "value": "natural-person-net-worth"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/0/paragraph/4"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-ai-natural-person-net-worth-stmt",
+                    "name": "statement",
+                    "prose": "For natural persons claiming accredited investor status based on net worth, verify individual or joint net worth with spouse/spousal equivalent exceeds $1,000,000, EXCLUDING the value of primary residence and applying debt calculation rules per 230.501(a)(5)(i)."
+                  },
+                  {
+                    "id": "ctrl-ai-natural-person-net-worth-exclusions",
+                    "name": "calculation-rules",
+                    "parts": [
+                      {
+                        "id": "ctrl-ai-net-worth-rule-1",
+                        "name": "rule",
+                        "props": [
+                          {
+                            "name": "regulation-ref",
+                            "value": "cfr:17/230.501(a)(5)(i)(A)"
+                          }
+                        ],
+                        "prose": "Primary residence shall NOT be included as an asset"
+                      },
+                      {
+                        "id": "ctrl-ai-net-worth-rule-2",
+                        "name": "rule",
+                        "props": [
+                          {
+                            "name": "regulation-ref",
+                            "value": "cfr:17/230.501(a)(5)(i)(B)"
+                          }
+                        ],
+                        "prose": "Mortgage debt up to fair market value of primary residence shall NOT be included as a liability, EXCEPT debt incurred within 60 days before sale (unless for acquisition)"
+                      },
+                      {
+                        "id": "ctrl-ai-net-worth-rule-3",
+                        "name": "rule",
+                        "props": [
+                          {
+                            "name": "regulation-ref",
+                            "value": "cfr:17/230.501(a)(5)(i)(C)"
+                          }
+                        ],
+                        "prose": "Mortgage debt EXCEEDING fair market value of primary residence SHALL be included as a liability"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ctrl-ai-natural-person-net-worth-evidence",
+                    "name": "evidence-requirements",
+                    "parts": [
+                      {
+                        "id": "ctrl-ai-net-worth-evidence-1",
+                        "name": "evidence-item",
+                        "prose": "Bank/brokerage statements, appraisals, tax assessments, credit reports dated within 3 months"
+                      },
+                      {
+                        "id": "ctrl-ai-net-worth-evidence-2",
+                        "name": "evidence-item",
+                        "prose": "Written confirmation from registered broker-dealer, SEC-registered investment adviser, licensed attorney, or CPA"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "ctrl-ai-entity-assets",
+                "title": "Entity Assets Verification",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.501(a)(3)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.501(a)(3)"
+                  },
+                  {
+                    "name": "investor-category",
+                    "value": "entity-assets"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/0/paragraph/2"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-ai-entity-assets-stmt",
+                    "name": "statement",
+                    "prose": "For entities (501(c)(3) organizations, corporations, LLCs, partnerships, business trusts) claiming accredited status based on assets, verify: (1) total assets exceed $5,000,000, AND (2) entity was NOT formed for the specific purpose of acquiring the securities offered."
+                  },
+                  {
+                    "id": "ctrl-ai-entity-assets-evidence",
+                    "name": "evidence-requirements",
+                    "parts": [
+                      {
+                        "id": "ctrl-ai-entity-assets-evidence-1",
+                        "name": "evidence-item",
+                        "prose": "Audited or unaudited financial statements"
+                      },
+                      {
+                        "id": "ctrl-ai-entity-assets-evidence-2",
+                        "name": "evidence-item",
+                        "prose": "Organizational documents (to verify formation date and purpose)"
+                      },
+                      {
+                        "id": "ctrl-ai-entity-assets-evidence-3",
+                        "name": "evidence-item",
+                        "prose": "Entity certification/representation letter"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "ctrl-ai-professional-certification",
+                "title": "Professional Certification Verification",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.501(a)(10)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.501(a)(10)"
+                  },
+                  {
+                    "name": "investor-category",
+                    "value": "professional-certification"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/0/paragraph/9"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-ai-professional-certification-stmt",
+                    "name": "statement",
+                    "prose": "For natural persons claiming accredited status based on professional certifications, verify the person holds in good standing a certification designated by the SEC. Currently designated: Series 7 (General Securities Representative), Series 65 (Investment Adviser Representative), Series 82 (Private Securities Offerings Representative)."
+                  },
+                  {
+                    "id": "ctrl-ai-professional-certification-evidence",
+                    "name": "evidence-requirements",
+                    "parts": [
+                      {
+                        "id": "ctrl-ai-prof-cert-evidence-1",
+                        "name": "evidence-item",
+                        "prose": "FINRA BrokerCheck verification"
+                      },
+                      {
+                        "id": "ctrl-ai-prof-cert-evidence-2",
+                        "name": "evidence-item",
+                        "prose": "State securities regulator verification"
+                      },
+                      {
+                        "id": "ctrl-ai-prof-cert-evidence-3",
+                        "name": "evidence-item",
+                        "prose": "Certification body verification letter"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ctrl-purchaser-count",
+            "title": "Purchaser Count Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.501(e)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.501(e)"
+              },
+              {
+                "name": "control-family",
+                "value": "offering-limits"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.501.jsonld#/subsection/4",
+                "text": "Calculation of number of purchasers"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-purchaser-count-stmt",
+                "name": "statement",
+                "prose": "For Rule 506(b) offerings with non-accredited investors, the organization shall maintain a count of purchasers applying the exclusion and counting rules in 17 CFR 230.501(e), ensuring no more than 35 non-accredited purchasers."
+              },
+              {
+                "id": "ctrl-purchaser-count-rules",
+                "name": "counting-rules",
+                "parts": [
+                  {
+                    "id": "ctrl-purchaser-count-rule-1",
+                    "name": "exclusion",
+                    "prose": "EXCLUDE: Relatives/spouse/spousal equivalent with same primary residence"
+                  },
+                  {
+                    "id": "ctrl-purchaser-count-rule-2",
+                    "name": "exclusion",
+                    "prose": "EXCLUDE: Trusts/estates where purchaser + family >50% beneficial interest"
+                  },
+                  {
+                    "id": "ctrl-purchaser-count-rule-3",
+                    "name": "exclusion",
+                    "prose": "EXCLUDE: Entities where purchaser + family >50% equity"
+                  },
+                  {
+                    "id": "ctrl-purchaser-count-rule-4",
+                    "name": "exclusion",
+                    "prose": "EXCLUDE: All accredited investors"
+                  },
+                  {
+                    "id": "ctrl-purchaser-count-rule-5",
+                    "name": "counting",
+                    "prose": "COUNT: Entity formed for specific purpose of acquiring securities = count each beneficial owner separately"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "grp-offering-requirements",
+        "title": "Offering Requirement Controls",
+        "props": [
+          {
+            "name": "regulation-part",
+            "value": "17 CFR 230.502-506"
+          }
+        ],
+        "controls": [
+          {
+            "id": "ctrl-general-solicitation",
+            "title": "General Solicitation Compliance",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.502(c)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.502(c)"
+              },
+              {
+                "name": "control-family",
+                "value": "marketing-restrictions"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.502.jsonld#/subsection/2",
+                "text": "Limitation on manner of offering"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-general-solicitation-stmt",
+                "name": "statement",
+                "prose": "For Rule 506(b) offerings, the organization shall NOT engage in general solicitation or general advertising. For Rule 506(c) offerings, general solicitation is permitted IF all purchasers are verified accredited investors."
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctrl-506b-no-solicitation",
+                "title": "506(b) No General Solicitation",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.506(b)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.506(b)"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/1",
+                    "text": "Conditions subject to limitation on manner of offering"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-506b-no-solicitation-stmt",
+                    "name": "statement",
+                    "prose": "Organization shall not use advertisements, articles, public seminars, mass mailings, or any form of general solicitation to market securities in a 506(b) offering."
+                  }
+                ]
+              },
+              {
+                "id": "ctrl-506c-verified-solicitation",
+                "title": "506(c) Verified Accredited Only",
+                "props": [
+                  {
+                    "name": "regulation-citation",
+                    "value": "17 CFR 230.506(c)"
+                  },
+                  {
+                    "name": "regulation-ref",
+                    "value": "cfr:17/230.506(c)"
+                  }
+                ],
+                "links": [
+                  {
+                    "rel": "reference",
+                    "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/2",
+                    "text": "Conditions not subject to limitation on manner of offering"
+                  }
+                ],
+                "parts": [
+                  {
+                    "id": "ctrl-506c-verified-solicitation-stmt",
+                    "name": "statement",
+                    "prose": "If using general solicitation under 506(c), organization SHALL take reasonable steps to verify accredited investor status and SHALL NOT sell to any non-accredited investors."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ctrl-form-d-filing",
+            "title": "Form D Filing Requirement",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.503"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.503"
+              },
+              {
+                "name": "control-family",
+                "value": "regulatory-filings"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.503.jsonld",
+                "text": "Filing of notice of sales"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-form-d-filing-stmt",
+                "name": "statement",
+                "prose": "Organization shall file Form D with the SEC no later than 15 calendar days after the first sale of securities in the offering."
+              },
+              {
+                "id": "ctrl-form-d-filing-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-form-d-evidence-1",
+                    "name": "evidence-item",
+                    "prose": "Filed Form D confirmation from EDGAR"
+                  },
+                  {
+                    "id": "ctrl-form-d-evidence-2",
+                    "name": "evidence-item",
+                    "prose": "Documentation of first sale date"
+                  },
+                  {
+                    "id": "ctrl-form-d-evidence-3",
+                    "name": "evidence-item",
+                    "prose": "Amendment filings if material changes"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ctrl-bad-actor-check",
+            "title": "Bad Actor Disqualification Check",
+            "props": [
+              {
+                "name": "regulation-citation",
+                "value": "17 CFR 230.506(d)"
+              },
+              {
+                "name": "regulation-ref",
+                "value": "cfr:17/230.506(d)"
+              },
+              {
+                "name": "control-family",
+                "value": "disqualification"
+              }
+            ],
+            "links": [
+              {
+                "rel": "reference",
+                "href": "../schemas/regulation-d/17cfr230.506.jsonld#/subsection/3",
+                "text": "Bad Actor disqualification"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-bad-actor-check-stmt",
+                "name": "statement",
+                "prose": "Before relying on Rule 506, organization shall conduct factual inquiry to determine if any covered person is subject to disqualifying events under 230.506(d)(1)."
+              },
+              {
+                "id": "ctrl-bad-actor-covered-persons",
+                "name": "covered-persons",
+                "prose": "Covered persons include: the issuer; directors/officers/general partners; 20%+ beneficial owners; promoters; investment managers; directors/officers/general partners of general partners; compensated solicitors and their directors/officers/general partners."
+              },
+              {
+                "id": "ctrl-bad-actor-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-bad-actor-evidence-1",
+                    "name": "evidence-item",
+                    "prose": "Background check reports for covered persons"
+                  },
+                  {
+                    "id": "ctrl-bad-actor-evidence-2",
+                    "name": "evidence-item",
+                    "prose": "SEC EDGAR search for prior enforcement actions"
+                  },
+                  {
+                    "id": "ctrl-bad-actor-evidence-3",
+                    "name": "evidence-item",
+                    "prose": "FINRA BrokerCheck for securities industry persons"
+                  },
+                  {
+                    "id": "ctrl-bad-actor-evidence-4",
+                    "name": "evidence-item",
+                    "prose": "Questionnaire responses from covered persons"
+                  },
+                  {
+                    "id": "ctrl-bad-actor-evidence-5",
+                    "name": "evidence-item",
+                    "prose": "Legal opinion or certification of no disqualifying events"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "grp-documentation",
+        "title": "Documentation and Record-Keeping Controls",
+        "controls": [
+          {
+            "id": "ctrl-investor-records",
+            "title": "Investor Record Retention",
+            "props": [
+              {
+                "name": "control-family",
+                "value": "record-keeping"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-investor-records-stmt",
+                "name": "statement",
+                "prose": "Organization shall maintain complete records of investor qualification documentation, verification methods used, and all investor communications for a minimum of 5 years after the offering closes."
+              },
+              {
+                "id": "ctrl-investor-records-items",
+                "name": "record-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-investor-records-item-1",
+                    "name": "record-item",
+                    "prose": "Subscription agreements"
+                  },
+                  {
+                    "id": "ctrl-investor-records-item-2",
+                    "name": "record-item",
+                    "prose": "Accredited investor questionnaires"
+                  },
+                  {
+                    "id": "ctrl-investor-records-item-3",
+                    "name": "record-item",
+                    "prose": "Verification documentation (tax returns, statements, third-party letters)"
+                  },
+                  {
+                    "id": "ctrl-investor-records-item-4",
+                    "name": "record-item",
+                    "prose": "Communications regarding investor qualification"
+                  },
+                  {
+                    "id": "ctrl-investor-records-item-5",
+                    "name": "record-item",
+                    "prose": "Purchaser representative acknowledgments (if applicable)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ctrl-offering-materials",
+            "title": "Offering Materials Retention",
+            "props": [
+              {
+                "name": "control-family",
+                "value": "record-keeping"
+              }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-offering-materials-stmt",
+                "name": "statement",
+                "prose": "Organization shall retain all versions of offering materials, including PPMs, term sheets, and marketing materials, with version dates and distribution records."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

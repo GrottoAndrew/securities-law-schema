@@ -1,0 +1,180 @@
+{
+  "@context": "../../contexts/securities-context.jsonld",
+  "@id": "cfr:17/230.503",
+  "@type": "Section",
+
+  "_source": {
+    "description": "Text extracted from eCFR bulk data XML",
+    "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
+    "asOfDate": "2025-12-30",
+    "lastAmendment": "81 FR 83553, Nov. 21, 2016",
+    "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."
+  },
+
+  "citation": "17 CFR 230.503",
+  "title": "Filing of notice of sales",
+  "sectionNumber": "230.503",
+  "effectiveDate": "2016-11-21",
+  "federalRegisterCitation": "81 FR 83553",
+
+  "subsection": [
+    {
+      "@id": "cfr:17/230.503(a)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.503(a)",
+      "designation": "(a)",
+      "title": "When notice of sales on Form D is required and permitted to be filed",
+      "text": "When notice of sales on Form D is required and permitted to be filed.",
+
+      "paragraph": [
+        {
+          "@id": "cfr:17/230.503(a)(1)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(a)(1)",
+          "designation": "(1)",
+          "text": "An issuer offering or selling securities in reliance on §230.504 or §230.506 must file with the Commission a notice of sales containing the information required by Form D (17 CFR 239.500) for each new offering of securities no later than 15 calendar days after the first sale of securities in the offering, unless the end of that period falls on a Saturday, Sunday or holiday, in which case the due date would be the first business day following."
+        },
+        {
+          "@id": "cfr:17/230.503(a)(2)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(a)(2)",
+          "designation": "(2)",
+          "text": "An issuer may file an amendment to a previously filed notice of sales on Form D at any time."
+        },
+        {
+          "@id": "cfr:17/230.503(a)(3)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(a)(3)",
+          "designation": "(3)",
+          "text": "An issuer must file an amendment to a previously filed notice of sales on Form D for an offering:",
+
+          "clause": [
+            {
+              "@id": "cfr:17/230.503(a)(3)(i)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.503(a)(3)(i)",
+              "designation": "(i)",
+              "text": "To correct a material mistake of fact or error in the previously filed notice of sales on Form D, as soon as practicable after discovery of the mistake or error;"
+            },
+            {
+              "@id": "cfr:17/230.503(a)(3)(ii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.503(a)(3)(ii)",
+              "designation": "(ii)",
+              "text": "To reflect a change in the information provided in the previously filed notice of sales on Form D, as soon as practicable after the change, except that no amendment is required to reflect a change that occurs after the offering terminates or a change that occurs solely in the following information:",
+
+              "subclause": [
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(A)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(A)",
+                  "designation": "(A)",
+                  "text": "The address or relationship to the issuer of a related person identified in response to Item 3 of the notice of sales on Form D;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(B)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(B)",
+                  "designation": "(B)",
+                  "text": "An issuer's revenues or aggregate net asset value;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(C)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(C)",
+                  "designation": "(C)",
+                  "text": "The minimum investment amount, if the change is an increase, or if the change, together with all other changes in that amount since the previously filed notice of sales on Form D, does not result in a decrease of more than 10%;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(D)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(D)",
+                  "designation": "(D)",
+                  "text": "Any address or state(s) of solicitation shown in response to Item 12 of the notice of sales on Form D;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(E)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(E)",
+                  "designation": "(E)",
+                  "text": "The total offering amount, if the change is a decrease, or if the change, together with all other changes in that amount since the previously filed notice of sales on Form D, does not result in an increase of more than 10%;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(F)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(F)",
+                  "designation": "(F)",
+                  "text": "The amount of securities sold in the offering or the amount remaining to be sold;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(G)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(G)",
+                  "designation": "(G)",
+                  "text": "The number of non-accredited investors who have invested in the offering, as long as the change does not increase the number to more than 35;"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(H)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(H)",
+                  "designation": "(H)",
+                  "text": "The total number of investors who have invested in the offering; or"
+                },
+                {
+                  "@id": "cfr:17/230.503(a)(3)(ii)(I)",
+                  "@type": "Subclause",
+                  "citation": "17 CFR 230.503(a)(3)(ii)(I)",
+                  "designation": "(I)",
+                  "text": "The amount of sales commissions, finders' fees or use of proceeds for payments to executive officers, directors or promoters, if the change is a decrease, or if the change, together with all other changes in that amount since the previously filed notice of sales on Form D, does not result in an increase of more than 10%; and"
+                }
+              ]
+            },
+            {
+              "@id": "cfr:17/230.503(a)(3)(iii)",
+              "@type": "Clause",
+              "citation": "17 CFR 230.503(a)(3)(iii)",
+              "designation": "(iii)",
+              "text": "Annually, on or before the first anniversary of the filing of the notice of sales on Form D or the filing of the most recent amendment to the notice of sales on Form D, if the offering is continuing at that time."
+            }
+          ]
+        },
+        {
+          "@id": "cfr:17/230.503(a)(4)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(a)(4)",
+          "designation": "(4)",
+          "text": "An issuer that files an amendment to a previously filed notice of sales on Form D must provide current information in response to all requirements of the notice of sales on Form D regardless of why the amendment is filed."
+        }
+      ]
+    },
+    {
+      "@id": "cfr:17/230.503(b)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.503(b)",
+      "designation": "(b)",
+      "title": "How notice of sales on Form D must be filed and signed",
+      "text": "How notice of sales on Form D must be filed and signed.",
+
+      "paragraph": [
+        {
+          "@id": "cfr:17/230.503(b)(1)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(b)(1)",
+          "designation": "(1)",
+          "text": "A notice of sales on Form D must be filed with the Commission in electronic format by means of the Commission's Electronic Data Gathering, Analysis, and Retrieval System (EDGAR) in accordance with EDGAR rules set forth in Regulation S-T (17 CFR Part 232)."
+        },
+        {
+          "@id": "cfr:17/230.503(b)(2)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.503(b)(2)",
+          "designation": "(2)",
+          "text": "Every notice of sales on Form D must be signed by a person duly authorized by the issuer."
+        }
+      ]
+    }
+  ],
+
+  "amendmentHistory": ["73 FR 10615, Feb. 27, 2008", "81 FR 83553, Nov. 21, 2016"],
+
+  "crossReference": ["cfr:17/230.504", "cfr:17/230.506", "cfr:17/239.500"]
+}

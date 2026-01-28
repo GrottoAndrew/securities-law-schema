@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "testing-cadence-schema.json",
+  "title": "Testing Cadence Configuration",
+  "description": "Schema for hot/cold database testing cadence configuration",
+  "type": "object",
+  "required": ["defaults", "databases", "testTypes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "documentation": { "type": "string" }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "required": ["timezone"],
+      "properties": {
+        "timezone": { "type": "string" },
+        "notificationChannels": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["slack", "email", "teams", "pagerduty"] }
+        },
+        "failureEscalation": {
+          "type": "object",
+          "properties": {
+            "critical": { "type": "array", "items": { "type": "string", "format": "email" } },
+            "high": { "type": "array", "items": { "type": "string", "format": "email" } },
+            "medium": { "type": "array", "items": { "type": "string", "format": "email" } }
+          }
+        }
+      }
+    },
+    "databases": {
+      "type": "object",
+      "patternProperties": {
+        "^(hot|cold|warm)$": {
+          "type": "object",
+          "required": ["description", "criteria", "testSchedule"],
+          "properties": {
+            "description": { "type": "string" },
+            "criteria": {
+              "type": "object",
+              "properties": {
+                "lastEvidenceSubmission": { "type": "string" },
+                "offeringStatus": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "testSchedule": {
+              "type": "object",
+              "patternProperties": {
+                ".*": {
+                  "type": "object",
+                  "required": ["cron", "description"],
+                  "properties": {
+                    "cron": { "type": "string", "pattern": "^[0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+$" },
+                    "description": { "type": "string" },
+                    "timeout": { "type": "integer", "minimum": 1000 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "testTypes": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "required": ["description", "script", "failureAction"],
+          "properties": {
+            "description": { "type": "string" },
+            "script": { "type": "string" },
+            "failureAction": { "type": "string", "enum": ["notify", "escalate", "block"] },
+            "blocksDeploy": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "overrides": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "description": { "type": "string" },
+        "allowedModifications": { "type": "array", "items": { "type": "string" } },
+        "approvalRequired": { "type": "object" }
+      }
+    },
+    "llmIntegration": {
+      "type": "object",
+      "properties": {
+        "service": { "type": "string" },
+        "description": { "type": "string" },
+        "models": { "type": "object" },
+        "complianceConstraints": {
+          "type": "object",
+          "properties": {
+            "dataResidency": { "type": "string" },
+            "piiHandling": { "type": "string" },
+            "auditLogging": { "type": "boolean" },
+            "humanApprovalRequired": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "reporting": { "type": "object" }
+  },
+  "additionalProperties": false
+}

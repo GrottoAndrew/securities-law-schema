@@ -1,0 +1,114 @@
+version: '3.8'
+
+# =============================================================================
+# Securities Law Schema - Local Development Stack
+# =============================================================================
+# Usage:
+#   docker-compose up -d        # Start all services
+#   docker-compose logs -f api  # Follow API logs
+#   docker-compose down         # Stop all services
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # API Server
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      target: production
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-compliance}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-evidence_locker}
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://reg-d-compliance-demo.bolt.host
+      - LOG_LEVEL=debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount schemas for hot reload in development
+      - ./schemas:/app/schemas:ro
+      - ./controls:/app/controls:ro
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3001/api/v1/health',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-compliance}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-evidence_locker}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U compliance -d evidence_locker']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # LocalStack (AWS Services Mock)
+  # ---------------------------------------------------------------------------
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=s3,kms
+      - DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Redis (Rate Limiting & Caching)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  localstack_data:
+  redis_data:
+
+networks:
+  default:
+    name: evidence-locker-network

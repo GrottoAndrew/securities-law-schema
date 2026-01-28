@@ -1,0 +1,68 @@
+{
+  "@context": "../../contexts/securities-context.jsonld",
+  "@id": "cfr:17/230.508",
+  "@type": "Section",
+
+  "_source": {
+    "description": "Text extracted from eCFR bulk data XML",
+    "sourceUrl": "https://www.govinfo.gov/bulkdata/ECFR/title-17/ECFR-title17.xml",
+    "asOfDate": "2025-12-30",
+    "lastAmendment": "81 FR 83553, Nov. 21, 2016",
+    "disclaimer": "Verify against current eCFR before reliance. This is reference data, not legal advice."
+  },
+
+  "citation": "17 CFR 230.508",
+  "title": "Insignificant deviations from a term, condition or requirement of Regulation D",
+  "sectionNumber": "230.508",
+  "effectiveDate": "2016-11-21",
+  "federalRegisterCitation": "81 FR 83553",
+
+  "subsection": [
+    {
+      "@id": "cfr:17/230.508(a)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.508(a)",
+      "designation": "(a)",
+      "text": "A failure to comply with a term, condition or requirement of §230.504 or §230.506 will not result in the loss of the exemption from the requirements of section 5 of the Act for any offer or sale to a particular individual or entity, if the person relying on the exemption shows:",
+
+      "paragraph": [
+        {
+          "@id": "cfr:17/230.508(a)(1)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.508(a)(1)",
+          "designation": "(1)",
+          "text": "The failure to comply did not pertain to a term, condition or requirement directly intended to protect that particular individual or entity; and"
+        },
+        {
+          "@id": "cfr:17/230.508(a)(2)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.508(a)(2)",
+          "designation": "(2)",
+          "text": "The failure to comply was insignificant with respect to the offering as a whole, provided that any failure to comply with paragraph (c) of §230.502, paragraph (b)(2) of §230.504 and paragraph (b)(2)(i) of §230.506 shall be deemed to be significant to the offering as a whole; and"
+        },
+        {
+          "@id": "cfr:17/230.508(a)(3)",
+          "@type": "Paragraph",
+          "citation": "17 CFR 230.508(a)(3)",
+          "designation": "(3)",
+          "text": "A good faith and reasonable attempt was made to comply with all applicable terms, conditions and requirements of §230.504 or §230.506."
+        }
+      ]
+    },
+    {
+      "@id": "cfr:17/230.508(b)",
+      "@type": "Subsection",
+      "citation": "17 CFR 230.508(b)",
+      "designation": "(b)",
+      "text": "A transaction made in reliance on §230.504 or §230.506 shall comply with all applicable terms, conditions and requirements of Regulation D. Where an exemption is established only through reliance upon paragraph (a) of this section, the failure to comply shall nonetheless be actionable by the Commission under section 20 of the Act."
+    }
+  ],
+
+  "amendmentHistory": [
+    "54 FR 11374, Mar. 20, 1989",
+    "57 FR 36473, Aug. 13, 1992",
+    "81 FR 83553, Nov. 21, 2016"
+  ],
+
+  "crossReference": ["cfr:17/230.502", "cfr:17/230.504", "cfr:17/230.506"]
+}
