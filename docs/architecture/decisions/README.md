@@ -17,15 +17,16 @@ This directory contains Architecture Decision Records (ADRs) documenting signifi
 
 ## Index
 
-| ADR | Title | Status | Date |
-|-----|-------|--------|------|
-| [ADR-001](adr-001-audit-trail-technology.md) | Audit Trail Technology Selection | Accepted | 2026-01-19 |
-| [ADR-002](adr-002-evidence-locker-modularity.md) | Evidence Locker Modularity | Accepted | 2026-01-19 |
-| [ADR-003](adr-003-compliance-framework-alignment.md) | Compliance Framework Alignment | Accepted | 2026-01-19 |
+| ADR                                                  | Title                            | Status   | Date       |
+| ---------------------------------------------------- | -------------------------------- | -------- | ---------- |
+| [ADR-001](adr-001-audit-trail-technology.md)         | Audit Trail Technology Selection | Accepted | 2026-01-19 |
+| [ADR-002](adr-002-evidence-locker-modularity.md)     | Evidence Locker Modularity       | Accepted | 2026-01-19 |
+| [ADR-003](adr-003-compliance-framework-alignment.md) | Compliance Framework Alignment   | Accepted | 2026-01-19 |
 
 ## ADR Format
 
 Each ADR follows this structure:
+
 - **Status**: Proposed, Accepted, Deprecated, Superseded
 - **Context**: Why we need to make this decision
 - **Decision**: What we decided
@@ -50,14 +51,14 @@ While these ADRs are published in a public repository for reference and transpar
 
 Before selecting tooling, understand these terms:
 
-| Term | Definition |
-|------|------------|
-| **GRC** | Governance, Risk, and Compliance. Software platforms that help organizations manage policies, assess risks, and demonstrate regulatory compliance. These tools typically include control libraries, evidence collection, audit workflows, and reporting. |
-| **SBOM** | Software Bill of Materials. A formal, machine-readable inventory of software components and dependencies in a codebase. Required by some regulations and useful for vulnerability management. |
-| **ADR** | Architecture Decision Record. A document capturing a significant architectural decision, its context, and consequences. |
-| **Control Catalog** | A structured list of security or compliance controls (requirements) that an organization must implement. Examples: NIST 800-53, CIS Controls, or custom organizational controls. |
-| **Evidence** | Documentation proving that a control is implemented. Examples: screenshots, configuration exports, audit logs, attestation letters. |
-| **BAA** | Business Associate Agreement. Required under HIPAA when a vendor will handle Protected Health Information (PHI). Without a signed BAA, the tool cannot be used for HIPAA-regulated data. |
+| Term                | Definition                                                                                                                                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GRC**             | Governance, Risk, and Compliance. Software platforms that help organizations manage policies, assess risks, and demonstrate regulatory compliance. These tools typically include control libraries, evidence collection, audit workflows, and reporting. |
+| **SBOM**            | Software Bill of Materials. A formal, machine-readable inventory of software components and dependencies in a codebase. Required by some regulations and useful for vulnerability management.                                                            |
+| **ADR**             | Architecture Decision Record. A document capturing a significant architectural decision, its context, and consequences.                                                                                                                                  |
+| **Control Catalog** | A structured list of security or compliance controls (requirements) that an organization must implement. Examples: NIST 800-53, CIS Controls, or custom organizational controls.                                                                         |
+| **Evidence**        | Documentation proving that a control is implemented. Examples: screenshots, configuration exports, audit logs, attestation letters.                                                                                                                      |
+| **BAA**             | Business Associate Agreement. Required under HIPAA when a vendor will handle Protected Health Information (PHI). Without a signed BAA, the tool cannot be used for HIPAA-regulated data.                                                                 |
 
 ---
 
@@ -70,6 +71,7 @@ The following categories describe types of tools for managing ADRs and complianc
 **What these are**: Tools that store data locally or on infrastructure you control. Data never leaves your environment unless you configure synchronization.
 
 **Characteristics**:
+
 - Full data control and sovereignty
 - No third-party access to your documentation
 - Typically free or low-cost
@@ -77,6 +79,7 @@ The following categories describe types of tools for managing ADRs and complianc
 - Generally lack enterprise audit trails and compliance certifications
 
 **Examples of this category**:
+
 - Local markdown files in version-controlled repositories
 - Self-hosted wiki software
 - Desktop knowledge management applications with local storage
@@ -93,6 +96,7 @@ The following categories describe types of tools for managing ADRs and complianc
 **What these are**: Cloud-hosted platforms for team documentation with collaboration features, permissions, and some audit capabilities.
 
 **Characteristics**:
+
 - Easy onboarding and collaboration
 - Varying levels of access control
 - Some offer SOC 2 Type II certification
@@ -101,13 +105,13 @@ The following categories describe types of tools for managing ADRs and complianc
 
 **Evaluation criteria before selection**:
 
-| Question | Why It Matters |
-|----------|----------------|
-| Does the vendor have SOC 2 Type II? | Demonstrates security controls are audited |
-| Does the vendor sign BAAs? | Required if storing any data that could be PHI-adjacent |
-| What is the data residency? | May matter for data sovereignty requirements |
-| Are audit logs available? | Needed to prove when decisions were made |
-| Can you export all data? | Avoid vendor lock-in |
+| Question                            | Why It Matters                                          |
+| ----------------------------------- | ------------------------------------------------------- |
+| Does the vendor have SOC 2 Type II? | Demonstrates security controls are audited              |
+| Does the vendor sign BAAs?          | Required if storing any data that could be PHI-adjacent |
+| What is the data residency?         | May matter for data sovereignty requirements            |
+| Are audit logs available?           | Needed to prove when decisions were made                |
+| Can you export all data?            | Avoid vendor lock-in                                    |
 
 **Important**: Many popular collaboration tools in this category do **not** offer BAAs except on their highest-tier enterprise plans. Verify before storing any sensitive compliance documentation.
 
@@ -122,6 +126,7 @@ The following categories describe types of tools for managing ADRs and complianc
 **What these are**: Platforms designed for large organizations with formal records management, retention policies, and compliance features.
 
 **Characteristics**:
+
 - Formal records management capabilities
 - Legal hold support
 - Extensive compliance certifications (FedRAMP, HIPAA, etc.)
@@ -137,6 +142,7 @@ The following categories describe types of tools for managing ADRs and complianc
 **What these are**: Governance, Risk, and Compliance platforms that treat documentation as formal compliance artifacts with evidence linkage, control mapping, and audit support.
 
 **Characteristics**:
+
 - Purpose-built for compliance programs
 - Control libraries and framework mappings
 - Evidence collection and linking
@@ -154,6 +160,7 @@ Many GRC platforms marketed to technology companies (focused on SOC 2, ISO 27001
 - Investment Company Act requirements
 
 **Financial services firms typically use**:
+
 - Specialized compliance platforms built for RIA/BD workflows
 - Communications archiving systems (for electronic communications supervision)
 - Trade surveillance systems
@@ -168,6 +175,7 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 **What these are**: For organizations with complex regulatory obligations, the "tool" is often not software but a consulting engagement with firms that specialize in compliance programs.
 
 **Characteristics**:
+
 - Major accounting/consulting firms offer GRC services
 - Specialized compliance consulting firms (often former regulators)
 - Custom implementations tailored to your regulatory profile
@@ -175,6 +183,7 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 - May include managed services, not just software
 
 **When this is appropriate**:
+
 - Public companies with SOX obligations
 - Firms under consent decrees or enhanced supervision
 - Complex multi-jurisdictional regulatory requirements
@@ -188,15 +197,15 @@ If you are a registered investment adviser, broker-dealer, or fund, consult with
 
 When evaluating any documentation or GRC platform:
 
-| Criterion | Questions to Ask |
-|-----------|------------------|
-| **Audit Trail** | Does it maintain tamper-evident version history? Can you prove when decisions were made and by whom? |
-| **Access Control** | Can you restrict who can view, edit, and approve? Does it support your identity provider? |
-| **Compliance Certifications** | SOC 2 Type II? FedRAMP? Does it meet YOUR regulatory requirements? |
-| **BAA Availability** | If you handle any health-adjacent data, can the vendor sign a BAA? |
-| **Retention & Legal Hold** | Can you enforce retention policies? Support legal holds for litigation? |
-| **Export & Portability** | Can you export all data in standard formats? What happens if the vendor shuts down? |
-| **Financial Services Suitability** | If you're SEC/FINRA regulated, does this tool understand your requirements? |
+| Criterion                          | Questions to Ask                                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Audit Trail**                    | Does it maintain tamper-evident version history? Can you prove when decisions were made and by whom? |
+| **Access Control**                 | Can you restrict who can view, edit, and approve? Does it support your identity provider?            |
+| **Compliance Certifications**      | SOC 2 Type II? FedRAMP? Does it meet YOUR regulatory requirements?                                   |
+| **BAA Availability**               | If you handle any health-adjacent data, can the vendor sign a BAA?                                   |
+| **Retention & Legal Hold**         | Can you enforce retention policies? Support legal holds for litigation?                              |
+| **Export & Portability**           | Can you export all data in standard formats? What happens if the vendor shuts down?                  |
+| **Financial Services Suitability** | If you're SEC/FINRA regulated, does this tool understand your requirements?                          |
 
 ---
 
@@ -240,12 +249,12 @@ Regardless of platform choice, ensure:
 
 ### Financial services-specific tooling categories (not covered here):
 
-| Need | Tool Category |
-|------|---------------|
-| Electronic communications supervision | Communications archiving platforms |
-| Trade surveillance | Trade monitoring systems |
-| Form ADV / Form BD filings | Regulatory filing platforms |
-| Investor onboarding / KYC | Investor verification platforms |
-| CCO workflow management | RIA/BD compliance management platforms |
+| Need                                  | Tool Category                          |
+| ------------------------------------- | -------------------------------------- |
+| Electronic communications supervision | Communications archiving platforms     |
+| Trade surveillance                    | Trade monitoring systems               |
+| Form ADV / Form BD filings            | Regulatory filing platforms            |
+| Investor onboarding / KYC             | Investor verification platforms        |
+| CCO workflow management               | RIA/BD compliance management platforms |
 
 These are specialized tools built for financial services workflows. This reference architecture is for **custom compliance evidence management**, not a replacement for industry-specific platforms.

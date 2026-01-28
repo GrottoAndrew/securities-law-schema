@@ -4,17 +4,18 @@ Machine-readable U.S. securities regulations in JSON-LD format, with OSCAL contr
 
 ## What's Included
 
-| Component | Description |
-|-----------|-------------|
-| **JSON-LD Schemas** | Complete Regulation D (17 CFR 230.500-508) in structured, queryable format |
-| **OSCAL Controls** | 16 compliance controls mapped to regulatory requirements |
-| **REST API** | Express.js API with JWT authentication, evidence submission, compliance status |
-| **PostgreSQL Integration** | Database schema with migrations, hash-chained audit trail |
-| **Docker Compose** | One-command local demo with PostgreSQL, LocalStack (S3/KMS mock), Redis |
-| **Test Suite** | 44 tests (unit, integration, red team analysis) via Vitest |
-| **Terraform IaC** | AWS ECS Fargate deployment configuration |
-| **Seed Data Generator** | 200+ realistic evidence records for demos |
-| **Compliance Recipes** | 11 framework extensions (broker-dealer, fund finance, pre-IPO, etc.) |
+| Component                  | Description                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| **JSON-LD Schemas**        | Complete Regulation D (17 CFR 230.500-508) in structured, queryable format     |
+| **OSCAL Controls**         | 16 compliance controls mapped to regulatory requirements                       |
+| **REST API**               | Express.js API with JWT authentication, evidence submission, compliance status |
+| **PostgreSQL Integration** | Database schema with migrations, hash-chained audit trail                      |
+| **Docker Compose**         | One-command local demo with PostgreSQL, LocalStack (S3/KMS mock), Redis        |
+| **Dashboard**              | [Live Demo](https://reg-d-compliance-demo.bolt.host)                           |
+| **Test Suite**             | 51 tests (unit, integration, schema validation, red team analysis) via Vitest  |
+| **Terraform IaC**          | AWS ECS Fargate deployment configuration                                       |
+| **Seed Data Generator**    | 200+ realistic evidence records for demos                                      |
+| **Compliance Recipes**     | 11 framework extensions (broker-dealer, fund finance, pre-IPO, etc.)           |
 
 ## Quick Start
 
@@ -27,8 +28,11 @@ docker compose up --build
 **Prerequisites:** Copy `.env.example` to `.env` and set `POSTGRES_PASSWORD` and `JWT_SECRET`.
 
 After ~30 seconds:
+
 - API: http://localhost:3001/api/v1/health
 - Dashboard: http://localhost:8080
+- Dashboard (Live): https://reg-d-compliance-demo.bolt.host
+- LocalStack: http://localhost:4566 (S3/KMS mock)
 
 ### Test the API
 
@@ -76,26 +80,27 @@ securities-law-schema/
 │   └── redteam/                # Security analysis
 ├── terraform/                   # AWS ECS deployment
 ├── docs/
-│   ├── COMPLIANCE-RECIPES.md   # 11 framework extensions
-│   ├── IMPLEMENTATION-GUIDE.md # Guide for legal practitioners
+│   ├── for-lawyers/            # Non-technical guides
+│   ├── for-compliance/         # Implementation and framework docs
+│   ├── for-developers/         # Quick start and API reference
 │   └── architecture/           # System design documentation
-├── docker-compose.yml          # Local demo environment
+├── docker-compose.yml          # Local development environment
 └── Dockerfile                  # Production container
 ```
 
 ## API Endpoints
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/v1/health` | GET | No | Health check with DB status |
-| `/api/v1/auth/token` | POST | No | Get JWT token |
-| `/api/v1/controls` | GET | No | List all compliance controls |
-| `/api/v1/controls/:id` | GET | No | Get specific control |
-| `/api/v1/evidence` | GET | Yes | List evidence records |
-| `/api/v1/evidence` | POST | Yes | Submit new evidence |
-| `/api/v1/evidence/:id/verify` | GET | Yes | Verify evidence integrity |
-| `/api/v1/compliance-status` | GET | Yes | Dashboard data with control coverage |
-| `/api/v1/audit-trail` | GET | Yes | Immutable audit log |
+| Endpoint                      | Method | Auth | Description                          |
+| ----------------------------- | ------ | ---- | ------------------------------------ |
+| `/api/v1/health`              | GET    | No   | Health check with DB status          |
+| `/api/v1/auth/token`          | POST   | No   | Get JWT token                        |
+| `/api/v1/controls`            | GET    | No   | List all compliance controls         |
+| `/api/v1/controls/:id`        | GET    | No   | Get specific control                 |
+| `/api/v1/evidence`            | GET    | Yes  | List evidence records                |
+| `/api/v1/evidence`            | POST   | Yes  | Submit new evidence                  |
+| `/api/v1/evidence/:id/verify` | GET    | Yes  | Verify evidence integrity            |
+| `/api/v1/compliance-status`   | GET    | Yes  | Dashboard data with control coverage |
+| `/api/v1/audit-trail`         | GET    | Yes  | Immutable audit log                  |
 
 ## Data Formats
 
@@ -107,6 +112,7 @@ Section - Subsection - Paragraph - Clause - Subclause
 ```
 
 Each element includes:
+
 - `@id` - Unique URI (e.g., `cfr:17/230.501(a)(6)`)
 - `@type` - Element type
 - `citation` - Human-readable citation
@@ -115,27 +121,28 @@ Each element includes:
 ### OSCAL Controls
 
 Controls follow NIST OSCAL format with extensions:
+
 - `regulation-citation` - Links to CFR provision
 - `regulation-ref` - JSON-LD reference for machine linking
 - `evidence-requirements` - What evidence satisfies the control
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `PORT` | No | `3001` | API server port |
-| `DATABASE_URL` | No | - | PostgreSQL connection string. If not set, uses in-memory storage |
-| `DATABASE_SSL` | No | `false` | Set to `true` to enable SSL for database connection |
-| `JWT_SECRET` | Yes (prod) | dev secret | Secret for signing JWT tokens. Required in production |
-| `SEED_DATA` | No | `false` | Set to `true` to seed 200+ demo records on startup (only if DB is empty) |
-| `CORS_ORIGINS` | No | localhost | Comma-separated list of allowed CORS origins |
-| `NODE_ENV` | No | `development` | Set to `production` for production mode |
-| `IN_MEMORY_EVIDENCE_LIMIT` | No | `1000` (dev) / `10000` (prod) | Soft limit for in-memory evidence records (warns, never deletes) |
-| `IN_MEMORY_AUDIT_LIMIT` | No | `5000` (dev) / `50000` (prod) | Soft limit for in-memory audit log entries (warns, never deletes) |
-| `NOTIFICATIONS_ENABLED` | No | `false` | Enable notifications when limits exceeded |
-| `NOTIFICATION_EMAIL` | No | - | Email address for limit warnings |
-| `SLACK_WEBHOOK_URL` | No | - | Slack incoming webhook URL for notifications |
-| `TEAMS_WEBHOOK_URL` | No | - | Microsoft Teams webhook URL for notifications |
+| Variable                   | Required   | Default                       | Description                                                              |
+| -------------------------- | ---------- | ----------------------------- | ------------------------------------------------------------------------ |
+| `PORT`                     | No         | `3001`                        | API server port                                                          |
+| `DATABASE_URL`             | No         | -                             | PostgreSQL connection string. If not set, uses in-memory storage         |
+| `DATABASE_SSL`             | No         | `false`                       | Set to `true` to enable SSL for database connection                      |
+| `JWT_SECRET`               | Yes (prod) | dev secret                    | Secret for signing JWT tokens. Required in production                    |
+| `SEED_DATA`                | No         | `false`                       | Set to `true` to seed 200+ demo records on startup (only if DB is empty) |
+| `CORS_ORIGINS`             | No         | localhost                     | Comma-separated list of allowed CORS origins                             |
+| `NODE_ENV`                 | No         | `development`                 | Set to `production` for production mode                                  |
+| `IN_MEMORY_EVIDENCE_LIMIT` | No         | `1000` (dev) / `10000` (prod) | Soft limit for in-memory evidence records (warns, never deletes)         |
+| `IN_MEMORY_AUDIT_LIMIT`    | No         | `5000` (dev) / `50000` (prod) | Soft limit for in-memory audit log entries (warns, never deletes)        |
+| `NOTIFICATIONS_ENABLED`    | No         | `false`                       | Enable notifications when limits exceeded                                |
+| `NOTIFICATION_EMAIL`       | No         | -                             | Email address for limit warnings                                         |
+| `SLACK_WEBHOOK_URL`        | No         | -                             | Slack incoming webhook URL for notifications                             |
+| `TEAMS_WEBHOOK_URL`        | No         | -                             | Microsoft Teams webhook URL for notifications                            |
 
 ## Roadmap
 
@@ -154,19 +161,60 @@ Enterprise deployment, additional regulations, and compliance certifications cou
 
 ## Documentation
 
-| Document | Audience | Description |
-|----------|----------|-------------|
-| [IMPLEMENTATION-GUIDE.md](docs/IMPLEMENTATION-GUIDE.md) | Legal/Compliance | CFR download instructions, JSON-LD explanation, 22 best practices |
-| [COMPLIANCE-RECIPES.md](docs/COMPLIANCE-RECIPES.md) | Technical | 11 framework extensions with cost/ROI analysis |
-| [UNDERSTANDING.md](UNDERSTANDING.md) | Lawyers | Non-technical introduction |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Developers | Contribution guidelines |
+| Document                                                                       | Audience             | Description                                                               |
+| ------------------------------------------------------------------------------ | -------------------- | ------------------------------------------------------------------------- |
+| [SCHEMA-GUIDE.md](docs/for-lawyers/SCHEMA-GUIDE.md)                            | Lawyers              | Non-technical introduction to machine-readable regulations                |
+| [NO-ACTION-LETTERS.md](docs/for-lawyers/NO-ACTION-LETTERS.md)                  | Lawyers              | SEC no-action letters and regulatory guidance reference                   |
+| [IMPLEMENTATION-CHECKLIST.md](docs/for-compliance/IMPLEMENTATION-CHECKLIST.md) | Compliance Teams     | CFR download instructions, design questions, 22 best practices            |
+| [FRAMEWORK-EXTENSIONS.md](docs/for-compliance/FRAMEWORK-EXTENSIONS.md)         | Compliance/Technical | 11 framework extensions (broker-dealer, fund finance, etc.) with cost/ROI |
+| [quick-start.md](docs/for-developers/quick-start.md)                           | Developers           | 5-minute setup and basic queries                                          |
+| [Architecture docs](docs/architecture/)                                        | Developers           | System design, evidence locker, security architecture                     |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                                             | Developers           | Contribution guidelines                                                   |
 
 ## License
 
 MIT License - see [LICENSE](LICENSE)
+
+## Regulatory Change Monitoring
+
+Built-in monitoring for regulatory changes via official government APIs:
+
+```bash
+# Daily: Check eCFR for CFR amendments, SEC RSS feeds
+npm run regulatory:daily
+
+# Weekly: Federal Register deep scan for SEC rulemaking
+npm run regulatory:weekly
+
+# Full scan: All sources
+npm run regulatory:full
+```
+
+**Data Sources:**
+
+| Source                                                             | Frequency | What's Monitored                      |
+| ------------------------------------------------------------------ | --------- | ------------------------------------- |
+| [eCFR API](https://www.ecfr.gov/developers/documentation/api/v1)   | Daily     | 17 CFR 230.500-508 amendments         |
+| [SEC RSS Feeds](https://www.sec.gov/about/secrss.htm)              | Daily     | No-action letters, enforcement, rules |
+| [Federal Register API](https://www.federalregister.gov/developers) | Weekly    | Proposed/final SEC rules              |
+
+**Schedule with cron:**
+
+```bash
+# Daily at 6 AM ET
+0 6 * * * cd /app && npm run regulatory:daily
+
+# Weekly on Monday at 7 AM ET
+0 7 * * 1 cd /app && npm run regulatory:weekly
+```
+
+Set `SLACK_WEBHOOK_URL` to receive alerts when changes are detected.
 
 ## Related Standards
 
 - [OSCAL](https://pages.nist.gov/OSCAL/) - NIST Open Security Controls Assessment Language
 - [JSON-LD](https://json-ld.org/) - JSON for Linked Data
 - [eCFR](https://www.ecfr.gov/) - Electronic Code of Federal Regulations
+- [eCFR API Documentation](https://www.ecfr.gov/developers/documentation/api/v1) - REST API for CFR data
+- [Federal Register API](https://www.federalregister.gov/developers/documentation/api/v1) - Rulemaking documents
+- [GovInfo CFR](https://www.govinfo.gov/app/collection/cfr) - Official published CFR (annual edition)

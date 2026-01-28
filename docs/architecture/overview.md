@@ -46,17 +46,20 @@ This document describes the reference architecture for a securities compliance m
 **Purpose**: Authoritative source for regulatory text and compliance controls.
 
 **Contents**:
+
 - `regulations/` - JSON-LD files containing verbatim CFR text
 - `controls/` - OSCAL control catalogs mapping requirements to regulations
 - `contexts/` - JSON-LD vocabulary definitions
 
 **Properties**:
+
 - Versioned (S3 versioning enabled)
 - Immutable per version (new version = new files)
 - Cryptographically signed (detached JWS signatures)
 - Content-addressable (SHA-256 manifest)
 
 **Storage Structure**:
+
 ```
 s3://compliance-catalog/
 ├── v1.0.0/
@@ -80,13 +83,14 @@ s3://compliance-catalog/
 
 **Components**:
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| Metadata Store | PostgreSQL | Queryable evidence records |
-| Artifact Store | S3 (SSE-KMS) | Encrypted evidence files |
-| Hash Index | PostgreSQL | Merkle tree leaf hashes |
+| Component      | Technology   | Purpose                    |
+| -------------- | ------------ | -------------------------- |
+| Metadata Store | PostgreSQL   | Queryable evidence records |
+| Artifact Store | S3 (SSE-KMS) | Encrypted evidence files   |
+| Hash Index     | PostgreSQL   | Merkle tree leaf hashes    |
 
 **Schema** (see `evidence-locker.md` for details):
+
 - Evidence records link to control IDs and catalog versions
 - Each record has a Merkle leaf hash for verification
 - Artifacts stored encrypted at rest with KMS
@@ -96,6 +100,7 @@ s3://compliance-catalog/
 **Purpose**: Immutable log of all compliance-relevant events.
 
 **Events Logged**:
+
 - Catalog version published
 - Evidence submitted
 - Evidence linked to control
@@ -103,6 +108,7 @@ s3://compliance-catalog/
 - Auditor access granted/revoked
 
 **Properties**:
+
 - Append-only (no updates or deletes)
 - Cryptographically signed entries
 - Periodic Merkle root checkpoints
@@ -114,25 +120,27 @@ s3://compliance-catalog/
 
 **Endpoints**:
 
-| Endpoint | Method | Description | Auth |
-|----------|--------|-------------|------|
-| `/controls` | GET | List all controls | Internal/Auditor |
-| `/controls/{id}` | GET | Get control details | Internal/Auditor |
-| `/regulations/{citation}` | GET | Get regulation text | Internal/Auditor |
-| `/evidence` | POST | Submit evidence | Internal only |
-| `/evidence/{control_id}` | GET | Get evidence for control | Internal/Auditor |
-| `/compliance-status` | GET | Overall compliance view | Internal/Auditor |
-| `/audit-trail` | GET | Query audit events | Internal/Auditor |
+| Endpoint                  | Method | Description              | Auth             |
+| ------------------------- | ------ | ------------------------ | ---------------- |
+| `/controls`               | GET    | List all controls        | Internal/Auditor |
+| `/controls/{id}`          | GET    | Get control details      | Internal/Auditor |
+| `/regulations/{citation}` | GET    | Get regulation text      | Internal/Auditor |
+| `/evidence`               | POST   | Submit evidence          | Internal only    |
+| `/evidence/{control_id}`  | GET    | Get evidence for control | Internal/Auditor |
+| `/compliance-status`      | GET    | Overall compliance view  | Internal/Auditor |
+| `/audit-trail`            | GET    | Query audit events       | Internal/Auditor |
 
 ### 5. Presentation Layer
 
 **Internal Dashboard**:
+
 - Real-time compliance status
 - Control-by-control evidence status
 - Gap analysis (missing evidence)
 - Evidence submission workflow
 
 **Auditor Portal**:
+
 - Read-only view of all data
 - Time-limited access tokens (e.g., 72 hours)
 - Export to standard formats

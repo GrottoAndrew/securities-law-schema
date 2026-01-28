@@ -34,7 +34,7 @@ const DEFAULT_CONFIG = {
   staleDays: 30,
   criticalDays: 90,
   minimumEvidence: {}, // controlId -> minimum count
-  criticalControls: [] // controls that trigger critical alerts if missing
+  criticalControls: [], // controls that trigger critical alerts if missing
 };
 
 /**
@@ -96,7 +96,7 @@ export class GapDetector {
           daysSinceLastEvidence: daysSinceEvidence,
           evidenceCount: 0,
           requiredCount,
-          detectedAt: now.toISOString()
+          detectedAt: now.toISOString(),
         });
         continue;
       }
@@ -112,7 +112,7 @@ export class GapDetector {
           daysSinceLastEvidence: daysSinceEvidence,
           evidenceCount: evidence.count,
           requiredCount,
-          detectedAt: now.toISOString()
+          detectedAt: now.toISOString(),
         });
         continue;
       }
@@ -129,7 +129,7 @@ export class GapDetector {
             daysSinceLastEvidence: daysSinceEvidence,
             evidenceCount: evidence.count,
             requiredCount,
-            detectedAt: now.toISOString()
+            detectedAt: now.toISOString(),
           });
         } else if (daysSinceEvidence >= this.config.staleDays) {
           gaps.push({
@@ -141,7 +141,7 @@ export class GapDetector {
             daysSinceLastEvidence: daysSinceEvidence,
             evidenceCount: evidence.count,
             requiredCount,
-            detectedAt: now.toISOString()
+            detectedAt: now.toISOString(),
           });
         }
       }
@@ -193,11 +193,7 @@ export class GapDetector {
       const newHigh = high.filter(g => !previousGaps.has(`${g.controlId}:${g.gapType}`));
       if (newHigh.length > 0) {
         const summary = newHigh.map(g => `- ${g.controlTitle}: ${g.message}`).join('\n');
-        await this.notify(
-          `HIGH: ${newHigh.length} Evidence Gap(s) Detected`,
-          summary,
-          'high'
-        );
+        await this.notify(`HIGH: ${newHigh.length} Evidence Gap(s) Detected`, summary, 'high');
         alertsSent++;
       }
     }
@@ -234,14 +230,14 @@ export class GapDetector {
         critical: gaps.filter(g => g.severity === 'critical').length,
         high: gaps.filter(g => g.severity === 'high').length,
         medium: gaps.filter(g => g.severity === 'medium').length,
-        low: gaps.filter(g => g.severity === 'low').length
+        low: gaps.filter(g => g.severity === 'low').length,
       },
       byType: {
         missing: gaps.filter(g => g.gapType === 'missing').length,
         stale: gaps.filter(g => g.gapType === 'stale').length,
-        insufficient: gaps.filter(g => g.gapType === 'insufficient').length
+        insufficient: gaps.filter(g => g.gapType === 'insufficient').length,
       },
-      gaps
+      gaps,
     };
   }
 
@@ -304,14 +300,19 @@ export function createNotificationHandler(options) {
 
     // Slack
     if (options.slackWebhook) {
-      const emoji = severity === 'critical' ? ':rotating_light:' : severity === 'high' ? ':warning:' : ':information_source:';
+      const emoji =
+        severity === 'critical'
+          ? ':rotating_light:'
+          : severity === 'high'
+            ? ':warning:'
+            : ':information_source:';
       try {
         await fetch(options.slackWebhook, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: `${emoji} *${subject}*\n${fullMessage}`
-          })
+            text: `${emoji} *${subject}*\n${fullMessage}`,
+          }),
         });
       } catch (err) {
         console.error('Failed to send Slack alert:', err.message);
@@ -329,15 +330,17 @@ export function createNotificationHandler(options) {
             '@type': 'MessageCard',
             themeColor: color,
             summary: subject,
-            sections: [{
-              activityTitle: subject,
-              text: fullMessage,
-              facts: [
-                { name: 'Severity', value: severity.toUpperCase() },
-                { name: 'Timestamp', value: timestamp }
-              ]
-            }]
-          })
+            sections: [
+              {
+                activityTitle: subject,
+                text: fullMessage,
+                facts: [
+                  { name: 'Severity', value: severity.toUpperCase() },
+                  { name: 'Timestamp', value: timestamp },
+                ],
+              },
+            ],
+          }),
         });
       } catch (err) {
         console.error('Failed to send Teams alert:', err.message);
@@ -346,7 +349,9 @@ export function createNotificationHandler(options) {
 
     // Email (logged for external processing)
     if (options.email) {
-      console.error(`[COMPLIANCE ALERT] To: ${options.email} Subject: ${subject} Severity: ${severity}\n${fullMessage}`);
+      console.error(
+        `[COMPLIANCE ALERT] To: ${options.email} Subject: ${subject} Severity: ${severity}\n${fullMessage}`
+      );
     }
   };
 }
@@ -354,15 +359,17 @@ export function createNotificationHandler(options) {
 // Singleton instance with default config
 export const gapDetector = new GapDetector({
   staleDays: parseInt(process.env.EVIDENCE_STALE_DAYS, 10) || 30,
-  criticalDays: parseInt(process.env.EVIDENCE_CRITICAL_DAYS, 10) || 90
+  criticalDays: parseInt(process.env.EVIDENCE_CRITICAL_DAYS, 10) || 90,
 });
 
 // Set notification handler from config
 if (config.notifications) {
-  gapDetector.setNotificationHandler(createNotificationHandler({
-    enabled: config.notifications.enabled,
-    email: config.notifications.email,
-    slackWebhook: config.notifications.slackWebhook,
-    teamsWebhook: config.notifications.teamsWebhook
-  }));
+  gapDetector.setNotificationHandler(
+    createNotificationHandler({
+      enabled: config.notifications.enabled,
+      email: config.notifications.email,
+      slackWebhook: config.notifications.slackWebhook,
+      teamsWebhook: config.notifications.teamsWebhook,
+    })
+  );
 }

@@ -1,4 +1,6 @@
-# Understanding the Schema: A Guide for Lawyers
+# Schema Guide for Legal Practitioners
+
+How to read and use machine-readable securities regulations.
 
 ## What This Is
 
@@ -86,4 +88,4 @@ Ground AI assistants in authoritative regulatory text rather than summaries or i
 
 ## Questions?
 
-Open an issue on GitHub or consult the technical documentation in `docs/for-developers/`.
+Open an issue on GitHub or consult the [Developer Quick Start](../for-developers/quick-start.md).

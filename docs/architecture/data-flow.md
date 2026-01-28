@@ -446,9 +446,9 @@ When verifying evidence integrity:
     "merkle_root": "sha256:abc123..."
   },
   "proof_path": [
-    {"position": "right", "hash": "sha256:..."},
-    {"position": "left", "hash": "sha256:..."},
-    {"position": "right", "hash": "sha256:..."}
+    { "position": "right", "hash": "sha256:..." },
+    { "position": "left", "hash": "sha256:..." },
+    { "position": "right", "hash": "sha256:..." }
   ]
 }
 ```

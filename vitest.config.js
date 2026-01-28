@@ -10,9 +10,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{js,ts}', 'scripts/**/*.{js,ts}'],
-      exclude: ['node_modules', 'tests']
+      exclude: ['node_modules', 'tests'],
     },
     testTimeout: 30000,
-    hookTimeout: 30000
-  }
+    hookTimeout: 30000,
+  },
 });

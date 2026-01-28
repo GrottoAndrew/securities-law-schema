@@ -142,7 +142,10 @@ async function seedDatabase(pool) {
   // Evidence templates
   const fileTypes = [
     { ext: 'pdf', mime: 'application/pdf' },
-    { ext: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+    {
+      ext: 'docx',
+      mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    },
     { ext: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
     { ext: 'csv', mime: 'text/csv' },
     { ext: 'json', mime: 'application/json' },
@@ -153,29 +156,71 @@ async function seedDatabase(pool) {
   ];
 
   const titles = [
-    'Accredited Investor Questionnaire', 'Net Worth Certification', 'Income Verification',
-    'Private Placement Memorandum', 'Risk Disclosure Statement', 'Subscription Agreement',
-    'Client Communication Log', 'Email Archive Export', 'Meeting Notes',
-    'Form D Filing', 'EDGAR Confirmation', 'Blue Sky Filing',
-    'Offering Circular', 'Term Sheet', 'Cap Table', 'Investor Roster',
-    'Bad Actor Questionnaire', 'Background Check Report', 'FINRA BrokerCheck',
-    'Solicitation Policy', 'Advertising Review Log', 'Marketing Compliance Memo',
-    'Record Retention Policy', 'Document Destruction Log', 'Archive Inventory',
-    'Internal Audit Report', 'Compliance Testing Results', 'Exception Report',
-    'Training Completion Report', 'Annual Certification', 'Quiz Results',
-    'KYC Documentation', 'AML Screening Report', 'OFAC Check Results',
-    'Penetration Test Report', 'Vulnerability Scan', 'Security Incident Log',
+    'Accredited Investor Questionnaire',
+    'Net Worth Certification',
+    'Income Verification',
+    'Private Placement Memorandum',
+    'Risk Disclosure Statement',
+    'Subscription Agreement',
+    'Client Communication Log',
+    'Email Archive Export',
+    'Meeting Notes',
+    'Form D Filing',
+    'EDGAR Confirmation',
+    'Blue Sky Filing',
+    'Offering Circular',
+    'Term Sheet',
+    'Cap Table',
+    'Investor Roster',
+    'Bad Actor Questionnaire',
+    'Background Check Report',
+    'FINRA BrokerCheck',
+    'Solicitation Policy',
+    'Advertising Review Log',
+    'Marketing Compliance Memo',
+    'Record Retention Policy',
+    'Document Destruction Log',
+    'Archive Inventory',
+    'Internal Audit Report',
+    'Compliance Testing Results',
+    'Exception Report',
+    'Training Completion Report',
+    'Annual Certification',
+    'Quiz Results',
+    'KYC Documentation',
+    'AML Screening Report',
+    'OFAC Check Results',
+    'Penetration Test Report',
+    'Vulnerability Scan',
+    'Security Incident Log',
   ];
 
   const clients = [
-    'Apex Capital', 'Bridgewater Holdings', 'Cascade Investments', 'Dominion Wealth',
-    'Evergreen Asset Mgmt', 'Falcon Ridge', 'Golden Gate Ventures', 'Horizon Financial',
-    'Ironwood Capital', 'Jupiter Asset Mgmt', 'Keystone Partners', 'Lighthouse Investments',
+    'Apex Capital',
+    'Bridgewater Holdings',
+    'Cascade Investments',
+    'Dominion Wealth',
+    'Evergreen Asset Mgmt',
+    'Falcon Ridge',
+    'Golden Gate Ventures',
+    'Horizon Financial',
+    'Ironwood Capital',
+    'Jupiter Asset Mgmt',
+    'Keystone Partners',
+    'Lighthouse Investments',
   ];
 
   const employees = [
-    'Sarah Johnson', 'Michael Chen', 'Emily Rodriguez', 'David Kim', 'Jennifer Walsh',
-    'Robert Martinez', 'Lisa Thompson', 'James Wilson', 'Maria Garcia', 'Christopher Lee',
+    'Sarah Johnson',
+    'Michael Chen',
+    'Emily Rodriguez',
+    'David Kim',
+    'Jennifer Walsh',
+    'Robert Martinez',
+    'Lisa Thompson',
+    'James Wilson',
+    'Maria Garcia',
+    'Christopher Lee',
   ];
 
   // Generate 200+ evidence records
@@ -204,7 +249,9 @@ async function seedDatabase(pool) {
       filename: fullTitle.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_') + '.' + fileType.ext,
       category: fileType.ext,
       collectedBy: employee,
-      source: ['Manual Upload', 'Email Archive', 'System Export', 'Scan'][Math.floor(Math.random() * 4)],
+      source: ['Manual Upload', 'Email Archive', 'System Export', 'Scan'][
+        Math.floor(Math.random() * 4)
+      ],
       tags: [controlId.split('-')[0], fileType.ext],
       retentionYears: 7,
     };
@@ -217,7 +264,17 @@ async function seedDatabase(pool) {
       await pool.query(
         `INSERT INTO evidence (id, control_id, artifact_hash, artifact_size, content_type, metadata, merkle_leaf_hash, collected_at, collected_by, status)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active')`,
-        [id, controlId, artifactHash, size, fileType.mime, JSON.stringify(metadata), merkleLeafHash, collectedAt, employee]
+        [
+          id,
+          controlId,
+          artifactHash,
+          size,
+          fileType.mime,
+          JSON.stringify(metadata),
+          merkleLeafHash,
+          collectedAt,
+          employee,
+        ]
       );
       inserted++;
     } catch (err) {
@@ -277,7 +334,6 @@ async function main() {
     // Start the server
     console.log('Starting API server...');
     await import('../src/api/server.js');
-
   } catch (err) {
     console.error('Startup failed:', err.message);
     process.exit(1);

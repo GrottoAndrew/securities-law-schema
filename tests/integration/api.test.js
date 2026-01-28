@@ -18,14 +18,14 @@ let authToken;
 
 // Start server before tests
 beforeAll(async () => {
-  await new Promise((resolve) => {
+  await new Promise(resolve => {
     server = app.listen(3002, resolve);
   });
 });
 
 // Stop server after tests
 afterAll(async () => {
-  await new Promise((resolve) => {
+  await new Promise(resolve => {
     if (server) {
       server.close(resolve);
     } else {

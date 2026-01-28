@@ -139,7 +139,7 @@ const config = {
 
   notifications: {
     enabled: requireEnvBool('NOTIFICATIONS_ENABLED', false),
-    email: process.env.NOTIFICATION_EMAIL || 'andrew@irongrotto.com',
+    email: process.env.NOTIFICATION_EMAIL,
     slackWebhook: process.env.SLACK_WEBHOOK_URL,
     teamsWebhook: process.env.TEAMS_WEBHOOK_URL,
   },

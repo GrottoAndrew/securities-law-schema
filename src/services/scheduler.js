@@ -92,11 +92,16 @@ function parseInterval(interval) {
   const num = parseInt(value, 10);
 
   switch (unit) {
-    case 's': return num * 1000;
-    case 'm': return num * 60 * 1000;
-    case 'h': return num * 60 * 60 * 1000;
-    case 'd': return num * 24 * 60 * 60 * 1000;
-    default: throw new Error(`Unknown interval unit: ${unit}`);
+    case 's':
+      return num * 1000;
+    case 'm':
+      return num * 60 * 1000;
+    case 'h':
+      return num * 60 * 60 * 1000;
+    case 'd':
+      return num * 24 * 60 * 60 * 1000;
+    default:
+      throw new Error(`Unknown interval unit: ${unit}`);
   }
 }
 
@@ -133,7 +138,7 @@ export class Scheduler {
       enabled: config.enabled !== false,
       lastRun: null,
       lastResult: null,
-      nextRun: null
+      nextRun: null,
     };
 
     this.jobs.set(job.id, job);
@@ -305,7 +310,7 @@ export class Scheduler {
       enabled: job.enabled,
       lastRun: job.lastRun,
       lastResult: job.lastResult,
-      nextRun: job.nextRun
+      nextRun: job.nextRun,
     }));
   }
 }

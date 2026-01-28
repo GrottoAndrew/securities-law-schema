@@ -41,7 +41,7 @@ try {
 const ajv = new Ajv({
   strict: true,
   allErrors: true,
-  verbose: true
+  verbose: true,
 });
 // @ts-ignore - addFormats call
 addFormats(ajv);
@@ -64,7 +64,7 @@ function validateFile(filePath) {
     return {
       file: absolutePath,
       valid: false,
-      errors: [{ message: `Failed to read/parse file: ${err.message}` }]
+      errors: [{ message: `Failed to read/parse file: ${err.message}` }],
     };
   }
 
@@ -73,12 +73,14 @@ function validateFile(filePath) {
   return {
     file: absolutePath,
     valid,
-    errors: valid ? null : validate.errors.map(err => ({
-      path: err.instancePath,
-      message: err.message,
-      params: err.params,
-      schemaPath: err.schemaPath
-    }))
+    errors: valid
+      ? null
+      : validate.errors.map(err => ({
+          path: err.instancePath,
+          message: err.message,
+          params: err.params,
+          schemaPath: err.schemaPath,
+        })),
   };
 }
 

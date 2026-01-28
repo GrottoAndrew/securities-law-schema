@@ -31,7 +31,7 @@ case "${1:-start}" in
     echo ""
     echo "Access points:"
     echo "  API:        $API_URL"
-    echo "  Dashboard:  http://localhost:8080"
+    echo "  Dashboard:  https://reg-d-compliance-demo.bolt.host"
     echo "  Postgres:   localhost:5432 (credentials in .env file)"
     echo "  NOTE: Copy .env.example to .env and set POSTGRES_PASSWORD before starting"
     echo ""
@@ -133,7 +133,7 @@ case "${1:-start}" in
     echo ""
     echo -e "${GREEN}✓ Demo data seeded${NC}"
     echo ""
-    echo "View at: http://localhost:8080"
+    echo "View at: https://reg-d-compliance-demo.bolt.host"
     ;;
 
   test)

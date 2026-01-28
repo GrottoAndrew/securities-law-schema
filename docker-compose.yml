@@ -25,7 +25,7 @@ services:
       - NODE_ENV=development
       - PORT=3001
       - DATABASE_URL=postgresql://${POSTGRES_USER:-compliance}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-evidence_locker}
-      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8080
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://reg-d-compliance-demo.bolt.host
       - LOG_LEVEL=debug
     depends_on:
       postgres:
@@ -35,7 +35,15 @@ services:
       - ./schemas:/app/schemas:ro
       - ./controls:/app/controls:ro
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/v1/health"]
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3001/api/v1/health',
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,28 +61,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB:-evidence_locker}
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U compliance -d evidence_locker"]
+      test: ['CMD-SHELL', 'pg_isready -U compliance -d evidence_locker']
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
-
-  # ---------------------------------------------------------------------------
-  # Dashboard (Static Files)
-  # ---------------------------------------------------------------------------
-  dashboard:
-    image: nginx:alpine
-    ports:
-      - "8080:80"
-    volumes:
-      - ./src/dashboard:/usr/share/nginx/html:ro
-    depends_on:
-      - api
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
@@ -83,7 +78,7 @@ services:
   localstack:
     image: localstack/localstack:latest
     ports:
-      - "4566:4566"
+      - '4566:4566'
     environment:
       - SERVICES=s3,kms
       - DEFAULT_REGION=us-east-1
@@ -99,11 +94,11 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5

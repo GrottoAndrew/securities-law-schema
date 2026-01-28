@@ -115,8 +115,8 @@ export class EvidenceCollector {
         ...evidence.metadata,
         sourceSystem: evidence.sourceSystem || this.name,
         collectorId: this.id,
-        collectorType: this.type
-      }
+        collectorType: this.type,
+      },
     };
   }
 }
@@ -142,11 +142,11 @@ export class ApiCollector extends EvidenceCollector {
     try {
       const response = await fetch(this.endpoint, {
         method: 'HEAD',
-        headers: this.getAuthHeaders()
+        headers: this.getAuthHeaders(),
       });
       return {
         success: response.ok,
-        message: response.ok ? 'Connected' : `HTTP ${response.status}`
+        message: response.ok ? 'Connected' : `HTTP ${response.status}`,
       };
     } catch (err) {
       return { success: false, message: err.message };
@@ -177,7 +177,7 @@ export class ApiCollector extends EvidenceCollector {
     }
 
     const response = await fetch(this.endpoint, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -195,10 +195,10 @@ export class ApiCollector extends EvidenceCollector {
       metadata: {
         endpoint: this.endpoint,
         responseStatus: response.status,
-        fetchedAt: new Date().toISOString()
+        fetchedAt: new Date().toISOString(),
       },
       sourceSystem: this.name,
-      collectedAt: new Date().toISOString()
+      collectedAt: new Date().toISOString(),
     }));
   }
 }
@@ -218,7 +218,7 @@ export class WebhookCollector extends EvidenceCollector {
     // Webhooks are passive; connection is valid if secret is configured
     return {
       success: !!this.secret,
-      message: this.secret ? 'Webhook configured' : 'No webhook secret configured'
+      message: this.secret ? 'Webhook configured' : 'No webhook secret configured',
     };
   }
 
@@ -262,10 +262,10 @@ export class WebhookCollector extends EvidenceCollector {
       contentType: 'application/json',
       metadata: {
         webhookId: this.id,
-        receivedAt: new Date().toISOString()
+        receivedAt: new Date().toISOString(),
       },
       sourceSystem: this.name,
-      collectedAt: new Date().toISOString()
+      collectedAt: new Date().toISOString(),
     };
   }
 }
@@ -335,10 +335,10 @@ export class FileCollector extends EvidenceCollector {
               filename: file,
               path: filePath,
               size: stat.size,
-              modified: stat.mtime.toISOString()
+              modified: stat.mtime.toISOString(),
             },
             sourceSystem: this.name,
-            collectedAt: new Date().toISOString()
+            collectedAt: new Date().toISOString(),
           });
         }
 
@@ -358,7 +358,7 @@ export class FileCollector extends EvidenceCollector {
       '.txt': 'text/plain',
       '.png': 'image/png',
       '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg'
+      '.jpeg': 'image/jpeg',
     };
     return types[ext] || 'application/octet-stream';
   }
@@ -384,7 +384,7 @@ export class DatabaseCollector extends EvidenceCollector {
     // This is a placeholder for the interface
     return {
       success: true,
-      message: 'Database collector configured (connection test requires driver)'
+      message: 'Database collector configured (connection test requires driver)',
     };
   }
 
@@ -396,7 +396,7 @@ export class DatabaseCollector extends EvidenceCollector {
     // This defines the interface; implementation depends on database type
     throw new Error(
       'Database collector requires driver integration. ' +
-      'Implement collect() with your database driver (pg, mysql2, mongodb, etc.)'
+        'Implement collect() with your database driver (pg, mysql2, mongodb, etc.)'
     );
   }
 }
@@ -499,7 +499,7 @@ export class CollectorManager {
     return {
       success: errors.length === 0,
       collected,
-      errors
+      errors,
     };
   }
 

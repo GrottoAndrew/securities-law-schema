@@ -52,32 +52,36 @@ if (config.jwtSecret === 'development-secret-change-in-production') {
 const app = express();
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "blob:"]
-    }
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+      },
+    },
+  })
+);
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
 
-    // Check explicit origins from CORS_ORIGINS env var
-    if (config.corsOrigins.includes(origin)) return callback(null, true);
+      // Check explicit origins from CORS_ORIGINS env var
+      if (config.corsOrigins.includes(origin)) return callback(null, true);
 
-    // Allow the Regulation D compliance demo frontend
-    if (origin === 'https://reg-d-compliance-demo.bolt.host') return callback(null, true);
+      // Allow the Regulation D compliance demo frontend
+      if (origin === 'https://reg-d-compliance-demo.bolt.host') return callback(null, true);
 
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -94,7 +98,9 @@ app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`${new Date().toISOString()} ${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+    console.log(
+      `${new Date().toISOString()} ${req.method} ${req.path} ${res.statusCode} ${duration}ms`
+    );
   });
   next();
 });
@@ -181,7 +187,9 @@ function authenticateToken(req, res, next) {
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token', code: 'TOKEN_INVALID' });
     }
-    return res.status(403).json({ error: 'Token verification failed', code: 'TOKEN_VERIFICATION_FAILED' });
+    return res
+      .status(403)
+      .json({ error: 'Token verification failed', code: 'TOKEN_VERIFICATION_FAILED' });
   }
 }
 
@@ -220,7 +228,7 @@ app.get('/api/v1/health', async (_req, res) => {
       heapUsedMB: Math.round(processMemory.heapUsed / 1024 / 1024),
       heapTotalMB: Math.round(processMemory.heapTotal / 1024 / 1024),
       rssMB: Math.round(processMemory.rss / 1024 / 1024),
-      externalMB: Math.round(processMemory.external / 1024 / 1024)
+      externalMB: Math.round(processMemory.external / 1024 / 1024),
     },
     ...(memoryStats && {
       inMemoryUsage: {
@@ -228,10 +236,10 @@ app.get('/api/v1/health', async (_req, res) => {
         auditLog: `${memoryStats.auditLog.percentUsed}% (${memoryStats.auditLog.count}/${memoryStats.auditLog.limit})`,
         warnings: {
           evidenceLimitReached: memoryStats.evidence.limitWarned,
-          auditLogLimitReached: memoryStats.auditLog.limitWarned
-        }
-      }
-    })
+          auditLogLimitReached: memoryStats.auditLog.limitWarned,
+        },
+      },
+    }),
   });
 });
 
@@ -259,7 +267,7 @@ app.get('/api/v1/controls', (_req, res) => {
             parentId,
             regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
             regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value,
-            hasSubControls: !!obj.controls
+            hasSubControls: !!obj.controls,
           });
         }
         if (obj.controls) {
@@ -276,10 +284,10 @@ app.get('/api/v1/controls', (_req, res) => {
       catalog: {
         uuid: controls.catalog.uuid,
         version: controls.catalog.metadata.version,
-        lastModified: controls.catalog.metadata['last-modified']
+        lastModified: controls.catalog.metadata['last-modified'],
       },
       controls: flatControls,
-      total: flatControls.length
+      total: flatControls.length,
     });
   } catch (err) {
     console.error('Error loading controls:', err);
@@ -339,9 +347,9 @@ app.get('/api/v1/regulations', (_req, res) => {
         id: s.content['@id'],
         citation: s.content.citation,
         title: s.content.title,
-        filename: s.filename
+        filename: s.filename,
       })),
-      total: schemas.length
+      total: schemas.length,
     });
   } catch (err) {
     console.error('Error loading regulations:', err);
@@ -354,10 +362,11 @@ app.get('/api/v1/regulations/:citation', (req, res) => {
     const schemas = loadSchemas();
     const citation = req.params.citation.replace(/-/g, '.');
 
-    const schema = schemas.find(s =>
-      s.content.citation === citation ||
-      s.content.citation === `17 CFR ${citation}` ||
-      s.content['@id'] === `cfr:17/${citation}`
+    const schema = schemas.find(
+      s =>
+        s.content.citation === citation ||
+        s.content.citation === `17 CFR ${citation}` ||
+        s.content['@id'] === `cfr:17/${citation}`
     );
 
     if (!schema) {
@@ -375,55 +384,60 @@ app.get('/api/v1/regulations/:citation', (req, res) => {
 // EVIDENCE ENDPOINTS
 // ===================
 
-app.post('/api/v1/evidence', authenticateToken, requireRole('admin', 'compliance'), async (req, res) => {
-  try {
-    const { controlId, metadata, artifactHash, artifactSize, contentType } = req.body;
+app.post(
+  '/api/v1/evidence',
+  authenticateToken,
+  requireRole('admin', 'compliance'),
+  async (req, res) => {
+    try {
+      const { controlId, metadata, artifactHash, artifactSize, contentType } = req.body;
 
-    if (!controlId || !artifactHash) {
-      return res.status(400).json({ error: 'controlId and artifactHash are required' });
+      if (!controlId || !artifactHash) {
+        return res.status(400).json({ error: 'controlId and artifactHash are required' });
+      }
+
+      const collectedAt = new Date().toISOString();
+      const id = uuidv4();
+      const preimage = `${id}${artifactHash}${JSON.stringify(metadata || {})}${collectedAt}`;
+      const merkleLeafHash = createHash('sha256').update(preimage).digest('hex');
+
+      const evidence = {
+        id,
+        controlId,
+        artifactHash,
+        artifactSize: artifactSize || 0,
+        contentType: contentType || 'application/octet-stream',
+        metadata: metadata || {},
+        collectedAt,
+        collectedBy: req.user.email || req.user.sub,
+        status: 'active',
+        merkleLeafHash,
+      };
+
+      if (useDatabase) {
+        await db.createEvidence(evidence);
+      } else {
+        db.fallback.createEvidence(evidence);
+      }
+
+      await logAudit('EVIDENCE_SUBMITTED', req.user.email, {
+        evidenceId: evidence.id,
+        controlId,
+        merkleLeafHash: evidence.merkleLeafHash,
+      });
+
+      res.status(201).json({
+        id: evidence.id,
+        controlId: evidence.controlId,
+        merkleLeafHash: evidence.merkleLeafHash,
+        createdAt: evidence.collectedAt,
+      });
+    } catch (err) {
+      console.error('Error submitting evidence:', err);
+      res.status(500).json({ error: 'Failed to submit evidence' });
     }
-
-    const collectedAt = new Date().toISOString();
-    const id = uuidv4();
-    const preimage = `${id}${artifactHash}${JSON.stringify(metadata || {})}${collectedAt}`;
-    const merkleLeafHash = createHash('sha256').update(preimage).digest('hex');
-
-    const evidence = {
-      id,
-      controlId,
-      artifactHash,
-      artifactSize: artifactSize || 0,
-      contentType: contentType || 'application/octet-stream',
-      metadata: metadata || {},
-      collectedAt,
-      collectedBy: req.user.email || req.user.sub,
-      status: 'active',
-      merkleLeafHash
-    };
-
-    if (useDatabase) {
-      await db.createEvidence(evidence);
-    } else {
-      db.fallback.createEvidence(evidence);
-    }
-
-    await logAudit('EVIDENCE_SUBMITTED', req.user.email, {
-      evidenceId: evidence.id,
-      controlId,
-      merkleLeafHash: evidence.merkleLeafHash
-    });
-
-    res.status(201).json({
-      id: evidence.id,
-      controlId: evidence.controlId,
-      merkleLeafHash: evidence.merkleLeafHash,
-      createdAt: evidence.collectedAt
-    });
-  } catch (err) {
-    console.error('Error submitting evidence:', err);
-    res.status(500).json({ error: 'Failed to submit evidence' });
   }
-});
+);
 
 app.get('/api/v1/evidence', authenticateToken, async (req, res) => {
   try {
@@ -441,7 +455,7 @@ app.get('/api/v1/evidence', authenticateToken, async (req, res) => {
 
     res.json({
       evidence,
-      total: evidence.length
+      total: evidence.length,
     });
   } catch (err) {
     console.error('Error fetching evidence:', err);
@@ -490,7 +504,7 @@ app.get('/api/v1/evidence/:id/verify', authenticateToken, async (req, res) => {
       verified: computedHash === evidence.merkleLeafHash,
       storedHash: evidence.merkleLeafHash,
       computedHash,
-      match: computedHash === evidence.merkleLeafHash
+      match: computedHash === evidence.merkleLeafHash,
     });
   } catch (err) {
     console.error('Error verifying evidence:', err);
@@ -531,7 +545,7 @@ app.get('/api/v1/compliance-status', authenticateToken, async (_req, res) => {
           regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
           evidenceCount: controlData.count,
           lastEvidence: controlData.lastEvidence,
-          status: controlData.count > 0 ? 'SATISFIED' : 'MISSING'
+          status: controlData.count > 0 ? 'SATISFIED' : 'MISSING',
         });
         if (obj.controls) processControls(obj.controls);
       }
@@ -544,17 +558,18 @@ app.get('/api/v1/compliance-status', authenticateToken, async (_req, res) => {
     const totalControls = controlStatus.length;
     const satisfied = controlStatus.filter(c => c.status === 'SATISFIED').length;
     const missing = controlStatus.filter(c => c.status === 'MISSING').length;
-    const compliancePercentage = totalControls > 0 ? Math.round((satisfied / totalControls) * 100) : 0;
+    const compliancePercentage =
+      totalControls > 0 ? Math.round((satisfied / totalControls) * 100) : 0;
 
     res.json({
       summary: {
         totalControls,
         satisfied,
         missing,
-        compliancePercentage
+        compliancePercentage,
       },
       controls: controlStatus,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
   } catch (err) {
     console.error('Error computing compliance status:', err);
@@ -576,9 +591,9 @@ app.get('/api/v1/enforcement-cases', (_req, res) => {
         name: c.content.case?.name,
         type: c.content.case?.type,
         status: c.content.case?.status,
-        filename: c.filename
+        filename: c.filename,
       })),
-      total: cases.length
+      total: cases.length,
     });
   } catch (err) {
     console.error('Error loading enforcement cases:', err);
@@ -589,9 +604,8 @@ app.get('/api/v1/enforcement-cases', (_req, res) => {
 app.get('/api/v1/enforcement-cases/:id', (req, res) => {
   try {
     const cases = loadEnforcementCases();
-    const caseData = cases.find(c =>
-      c.content.case?.id === req.params.id ||
-      c.filename.includes(req.params.id)
+    const caseData = cases.find(
+      c => c.content.case?.id === req.params.id || c.filename.includes(req.params.id)
     );
 
     if (!caseData) {
@@ -609,34 +623,39 @@ app.get('/api/v1/enforcement-cases/:id', (req, res) => {
 // AUDIT TRAIL ENDPOINTS
 // ===================
 
-app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'), async (req, res) => {
-  try {
-    const limit = safeParseInt(req.query.limit, 100);
-    const offset = safeParseInt(req.query.offset, 0);
-    const { eventType } = req.query;
+app.get(
+  '/api/v1/audit-trail',
+  authenticateToken,
+  requireRole('admin', 'auditor'),
+  async (req, res) => {
+    try {
+      const limit = safeParseInt(req.query.limit, 100);
+      const offset = safeParseInt(req.query.offset, 0);
+      const { eventType } = req.query;
 
-    const filters = { limit, offset };
-    if (eventType) filters.eventType = eventType;
+      const filters = { limit, offset };
+      if (eventType) filters.eventType = eventType;
 
-    let logs, total;
-    if (useDatabase) {
-      logs = await db.listAuditLog(filters);
-      total = await db.countAuditLog({ eventType });
-    } else {
-      logs = db.fallback.listAuditLog(filters);
-      total = db.fallback.countAuditLog({ eventType });
+      let logs, total;
+      if (useDatabase) {
+        logs = await db.listAuditLog(filters);
+        total = await db.countAuditLog({ eventType });
+      } else {
+        logs = db.fallback.listAuditLog(filters);
+        total = db.fallback.countAuditLog({ eventType });
+      }
+
+      res.json({
+        auditLog: logs,
+        total,
+        pagination: { limit, offset },
+      });
+    } catch (err) {
+      console.error('Error fetching audit trail:', err);
+      res.status(500).json({ error: 'Failed to fetch audit trail' });
     }
-
-    res.json({
-      auditLog: logs,
-      total,
-      pagination: { limit, offset }
-    });
-  } catch (err) {
-    console.error('Error fetching audit trail:', err);
-    res.status(500).json({ error: 'Failed to fetch audit trail' });
   }
-});
+);
 
 // ===================
 // AUDIT EXPORT ENDPOINT
@@ -648,140 +667,151 @@ app.get('/api/v1/audit-trail', authenticateToken, requireRole('admin', 'auditor'
  * Does NOT contain: actual evidence documents, PII, unmasked data.
  * To view actual evidence, auditors must access individual evidence endpoints.
  */
-app.get('/api/v1/audit-export', authenticateToken, requireRole('admin', 'auditor'), async (req, res) => {
-  try {
-    const { format = 'json' } = req.query;
+app.get(
+  '/api/v1/audit-export',
+  authenticateToken,
+  requireRole('admin', 'auditor'),
+  async (req, res) => {
+    try {
+      const { format = 'json' } = req.query;
 
-    // 1. Load control catalog
-    const controlCatalog = loadControls();
-    const flatControls = [];
-    function extractControls(obj) {
-      if (Array.isArray(obj)) {
-        obj.forEach(item => extractControls(item));
-      } else if (obj && typeof obj === 'object') {
-        if (obj.id) {
-          flatControls.push({
-            id: obj.id,
-            title: obj.title,
-            regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
-            regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value
-          });
+      // 1. Load control catalog
+      const controlCatalog = loadControls();
+      const flatControls = [];
+      function extractControls(obj) {
+        if (Array.isArray(obj)) {
+          obj.forEach(item => extractControls(item));
+        } else if (obj && typeof obj === 'object') {
+          if (obj.id) {
+            flatControls.push({
+              id: obj.id,
+              title: obj.title,
+              regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
+              regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value,
+            });
+          }
+          if (obj.controls) extractControls(obj.controls);
+          if (obj.groups) extractControls(obj.groups);
         }
-        if (obj.controls) extractControls(obj.controls);
-        if (obj.groups) extractControls(obj.groups);
       }
-    }
-    extractControls(controlCatalog);
+      extractControls(controlCatalog);
 
-    // 2. Get evidence summary (hashed, no actual content)
-    let evidenceList, evidenceByControl;
-    if (useDatabase) {
-      evidenceList = await db.listEvidence({ status: 'active' });
-      evidenceByControl = await db.getEvidenceByControl();
-    } else {
-      evidenceList = db.fallback.listEvidence({ status: 'active' });
-      evidenceByControl = db.fallback.getEvidenceByControl();
-    }
+      // 2. Get evidence summary (hashed, no actual content)
+      let evidenceList, evidenceByControl;
+      if (useDatabase) {
+        evidenceList = await db.listEvidence({ status: 'active' });
+        evidenceByControl = await db.getEvidenceByControl();
+      } else {
+        evidenceList = db.fallback.listEvidence({ status: 'active' });
+        evidenceByControl = db.fallback.getEvidenceByControl();
+      }
 
-    // 3. Build evidence manifest (hashes only, no document content)
-    const evidenceManifest = evidenceList.map(e => ({
-      id: e.id,
-      controlId: e.controlId,
-      artifactHash: e.artifactHash,
-      merkleLeafHash: e.merkleLeafHash,
-      contentType: e.contentType,
-      artifactSize: e.artifactSize,
-      collectedAt: e.collectedAt,
-      status: e.status
-      // Note: collectedBy, metadata, s3Key intentionally omitted to protect PII
-    }));
+      // 3. Build evidence manifest (hashes only, no document content)
+      const evidenceManifest = evidenceList.map(e => ({
+        id: e.id,
+        controlId: e.controlId,
+        artifactHash: e.artifactHash,
+        merkleLeafHash: e.merkleLeafHash,
+        contentType: e.contentType,
+        artifactSize: e.artifactSize,
+        collectedAt: e.collectedAt,
+        status: e.status,
+        // Note: collectedBy, metadata, s3Key intentionally omitted to protect PII
+      }));
 
-    // 4. Build control-evidence mapping
-    const controlMappings = flatControls.map(ctrl => ({
-      controlId: ctrl.id,
-      controlTitle: ctrl.title,
-      regulationCitation: ctrl.regulationCitation,
-      evidenceCount: evidenceByControl[ctrl.id]?.count || 0,
-      lastEvidenceAt: evidenceByControl[ctrl.id]?.lastEvidence || null,
-      status: evidenceByControl[ctrl.id]?.count > 0 ? 'satisfied' : 'missing'
-    }));
+      // 4. Build control-evidence mapping
+      const controlMappings = flatControls.map(ctrl => ({
+        controlId: ctrl.id,
+        controlTitle: ctrl.title,
+        regulationCitation: ctrl.regulationCitation,
+        evidenceCount: evidenceByControl[ctrl.id]?.count || 0,
+        lastEvidenceAt: evidenceByControl[ctrl.id]?.lastEvidence || null,
+        status: evidenceByControl[ctrl.id]?.count > 0 ? 'satisfied' : 'missing',
+      }));
 
-    // 5. Compute catalog hash for integrity verification
-    const catalogHash = createHash('sha256')
-      .update(JSON.stringify(flatControls))
-      .digest('hex');
+      // 5. Compute catalog hash for integrity verification
+      const catalogHash = createHash('sha256')
+        .update(JSON.stringify(flatControls))
+        .digest('hex');
 
-    // 6. Compute evidence manifest hash
-    const manifestHash = createHash('sha256')
-      .update(JSON.stringify(evidenceManifest))
-      .digest('hex');
+      // 6. Compute evidence manifest hash
+      const manifestHash = createHash('sha256')
+        .update(JSON.stringify(evidenceManifest))
+        .digest('hex');
 
-    // 7. Build export package
-    const exportPackage = {
-      exportMetadata: {
-        generatedAt: new Date().toISOString(),
-        generatedBy: req.user.email,
-        format: format,
-        version: '1.0.0'
-      },
-      integrity: {
+      // 7. Build export package
+      const exportPackage = {
+        exportMetadata: {
+          generatedAt: new Date().toISOString(),
+          generatedBy: req.user.email,
+          format: format,
+          version: '1.0.0',
+        },
+        integrity: {
+          catalogHash,
+          manifestHash,
+          combinedHash: createHash('sha256')
+            .update(catalogHash + manifestHash)
+            .digest('hex'),
+          // Note: For production, sign with HSM-backed key
+          signatureAlgorithm: 'SHA256',
+          signatureNote:
+            'Production deployment should use RFC 3161 TSA for legally admissible timestamps',
+        },
+        summary: {
+          totalControls: flatControls.length,
+          satisfiedControls: controlMappings.filter(c => c.status === 'satisfied').length,
+          missingControls: controlMappings.filter(c => c.status === 'missing').length,
+          totalEvidence: evidenceManifest.length,
+          compliancePercentage: Math.round(
+            (controlMappings.filter(c => c.status === 'satisfied').length / flatControls.length) *
+              100
+          ),
+        },
+        controlCatalog: flatControls,
+        controlMappings,
+        evidenceManifest,
+        accessInstructions: {
+          note: 'This export contains hashed evidence references only. To access actual evidence documents:',
+          endpoint: '/api/v1/evidence/{id}',
+          authentication: 'Bearer token with admin or auditor role required',
+          verification: 'Compare artifact hash against stored document SHA-256',
+        },
+      };
+
+      await logAudit('AUDIT_EXPORT_GENERATED', req.user.email, {
+        format,
+        controlCount: flatControls.length,
+        evidenceCount: evidenceManifest.length,
         catalogHash,
         manifestHash,
-        combinedHash: createHash('sha256')
-          .update(catalogHash + manifestHash)
-          .digest('hex'),
-        // Note: For production, sign with HSM-backed key
-        signatureAlgorithm: 'SHA256',
-        signatureNote: 'Production deployment should use RFC 3161 TSA for legally admissible timestamps'
-      },
-      summary: {
-        totalControls: flatControls.length,
-        satisfiedControls: controlMappings.filter(c => c.status === 'satisfied').length,
-        missingControls: controlMappings.filter(c => c.status === 'missing').length,
-        totalEvidence: evidenceManifest.length,
-        compliancePercentage: Math.round(
-          (controlMappings.filter(c => c.status === 'satisfied').length / flatControls.length) * 100
-        )
-      },
-      controlCatalog: flatControls,
-      controlMappings,
-      evidenceManifest,
-      accessInstructions: {
-        note: 'This export contains hashed evidence references only. To access actual evidence documents:',
-        endpoint: '/api/v1/evidence/{id}',
-        authentication: 'Bearer token with admin or auditor role required',
-        verification: 'Compare artifact hash against stored document SHA-256'
+      });
+
+      if (format === 'csv') {
+        // CSV export of control mappings only
+        const csv = [
+          'Control ID,Control Title,Regulation Citation,Evidence Count,Last Evidence,Status',
+          ...controlMappings.map(
+            c =>
+              `"${c.controlId}","${c.controlTitle}","${c.regulationCitation || ''}",${c.evidenceCount},"${c.lastEvidenceAt || ''}","${c.status}"`
+          ),
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="audit-export-${Date.now()}.csv"`
+        );
+        return res.send(csv);
       }
-    };
 
-    await logAudit('AUDIT_EXPORT_GENERATED', req.user.email, {
-      format,
-      controlCount: flatControls.length,
-      evidenceCount: evidenceManifest.length,
-      catalogHash,
-      manifestHash
-    });
-
-    if (format === 'csv') {
-      // CSV export of control mappings only
-      const csv = [
-        'Control ID,Control Title,Regulation Citation,Evidence Count,Last Evidence,Status',
-        ...controlMappings.map(c =>
-          `"${c.controlId}","${c.controlTitle}","${c.regulationCitation || ''}",${c.evidenceCount},"${c.lastEvidenceAt || ''}","${c.status}"`
-        )
-      ].join('\n');
-
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="audit-export-${Date.now()}.csv"`);
-      return res.send(csv);
+      res.json(exportPackage);
+    } catch (err) {
+      console.error('Error generating audit export:', err);
+      res.status(500).json({ error: 'Failed to generate audit export' });
     }
-
-    res.json(exportPackage);
-  } catch (err) {
-    console.error('Error generating audit export:', err);
-    res.status(500).json({ error: 'Failed to generate audit export' });
   }
-});
+);
 
 // ===================
 // GAP DETECTION ENDPOINTS
@@ -801,107 +831,117 @@ async function getGapDetector() {
  * Get current evidence gaps.
  * Returns controls missing evidence, stale evidence, or insufficient coverage.
  */
-app.get('/api/v1/gaps', authenticateToken, requireRole('admin', 'compliance', 'auditor'), async (req, res) => {
-  try {
-    const detector = await getGapDetector();
-    const controls = loadControls();
+app.get(
+  '/api/v1/gaps',
+  authenticateToken,
+  requireRole('admin', 'compliance', 'auditor'),
+  async (req, res) => {
+    try {
+      const detector = await getGapDetector();
+      const controls = loadControls();
 
-    // Flatten controls
-    const flatControls = [];
-    function extractControls(obj) {
-      if (Array.isArray(obj)) {
-        obj.forEach(item => extractControls(item));
-      } else if (obj && typeof obj === 'object') {
-        if (obj.id) {
-          flatControls.push({ id: obj.id, title: obj.title });
+      // Flatten controls
+      const flatControls = [];
+      function extractControls(obj) {
+        if (Array.isArray(obj)) {
+          obj.forEach(item => extractControls(item));
+        } else if (obj && typeof obj === 'object') {
+          if (obj.id) {
+            flatControls.push({ id: obj.id, title: obj.title });
+          }
+          if (obj.controls) extractControls(obj.controls);
+          if (obj.groups) extractControls(obj.groups);
         }
-        if (obj.controls) extractControls(obj.controls);
-        if (obj.groups) extractControls(obj.groups);
       }
-    }
-    extractControls(controls);
+      extractControls(controls);
 
-    // Get evidence by control
-    let evidenceByControl;
-    if (useDatabase) {
-      evidenceByControl = await db.getEvidenceByControl();
-    } else {
-      evidenceByControl = db.fallback.getEvidenceByControl();
-    }
-
-    // Run gap detection
-    const gaps = detector.detect(flatControls, evidenceByControl);
-
-    await logAudit('GAP_DETECTION_RUN', req.user.email, {
-      totalControls: flatControls.length,
-      gapsFound: gaps.length
-    });
-
-    res.json({
-      summary: detector.getSummary(),
-      config: {
-        staleDays: detector.config.staleDays,
-        criticalDays: detector.config.criticalDays,
-        criticalControls: detector.config.criticalControls
+      // Get evidence by control
+      let evidenceByControl;
+      if (useDatabase) {
+        evidenceByControl = await db.getEvidenceByControl();
+      } else {
+        evidenceByControl = db.fallback.getEvidenceByControl();
       }
-    });
-  } catch (err) {
-    console.error('Error detecting gaps:', err);
-    res.status(500).json({ error: 'Failed to detect evidence gaps' });
+
+      // Run gap detection
+      const gaps = detector.detect(flatControls, evidenceByControl);
+
+      await logAudit('GAP_DETECTION_RUN', req.user.email, {
+        totalControls: flatControls.length,
+        gapsFound: gaps.length,
+      });
+
+      res.json({
+        summary: detector.getSummary(),
+        config: {
+          staleDays: detector.config.staleDays,
+          criticalDays: detector.config.criticalDays,
+          criticalControls: detector.config.criticalControls,
+        },
+      });
+    } catch (err) {
+      console.error('Error detecting gaps:', err);
+      res.status(500).json({ error: 'Failed to detect evidence gaps' });
+    }
   }
-});
+);
 
 /**
  * Run gap detection and send alerts.
  * POST because it has side effects (sending notifications).
  */
-app.post('/api/v1/gaps/scan', authenticateToken, requireRole('admin', 'compliance'), async (req, res) => {
-  try {
-    const detector = await getGapDetector();
-    const controls = loadControls();
+app.post(
+  '/api/v1/gaps/scan',
+  authenticateToken,
+  requireRole('admin', 'compliance'),
+  async (req, res) => {
+    try {
+      const detector = await getGapDetector();
+      const controls = loadControls();
 
-    // Flatten controls
-    const flatControls = [];
-    function extractControls(obj) {
-      if (Array.isArray(obj)) {
-        obj.forEach(item => extractControls(item));
-      } else if (obj && typeof obj === 'object') {
-        if (obj.id) {
-          flatControls.push({ id: obj.id, title: obj.title });
+      // Flatten controls
+      const flatControls = [];
+      function extractControls(obj) {
+        if (Array.isArray(obj)) {
+          obj.forEach(item => extractControls(item));
+        } else if (obj && typeof obj === 'object') {
+          if (obj.id) {
+            flatControls.push({ id: obj.id, title: obj.title });
+          }
+          if (obj.controls) extractControls(obj.controls);
+          if (obj.groups) extractControls(obj.groups);
         }
-        if (obj.controls) extractControls(obj.controls);
-        if (obj.groups) extractControls(obj.groups);
       }
+      extractControls(controls);
+
+      // Get evidence by control
+      let evidenceByControl;
+      if (useDatabase) {
+        evidenceByControl = await db.getEvidenceByControl();
+      } else {
+        evidenceByControl = db.fallback.getEvidenceByControl();
+      }
+
+      // Run gap detection with alerts
+      const { gaps, alertsSent } = await detector.detectAndAlert(flatControls, evidenceByControl);
+
+      await logAudit('GAP_SCAN_WITH_ALERTS', req.user.email, {
+        gapsFound: gaps.length,
+        alertsSent,
+      });
+
+      res.json({
+        success: true,
+        gapsFound: gaps.length,
+        alertsSent,
+        summary: detector.getSummary(),
+      });
+    } catch (err) {
+      console.error('Error scanning gaps:', err);
+      res.status(500).json({ error: 'Failed to scan for evidence gaps' });
     }
-    extractControls(controls);
-
-    // Get evidence by control
-    let evidenceByControl;
-    if (useDatabase) {
-      evidenceByControl = await db.getEvidenceByControl();
-    } else {
-      evidenceByControl = db.fallback.getEvidenceByControl();
-    }
-
-    // Run gap detection with alerts
-    const { gaps, alertsSent } = await detector.detectAndAlert(flatControls, evidenceByControl);
-
-    await logAudit('GAP_SCAN_WITH_ALERTS', req.user.email, {
-      gapsFound: gaps.length,
-      alertsSent
-    });
-
-    res.json({
-      success: true,
-      gapsFound: gaps.length,
-      alertsSent,
-      summary: detector.getSummary()
-    });
-  } catch (err) {
-    console.error('Error scanning gaps:', err);
-    res.status(500).json({ error: 'Failed to scan for evidence gaps' });
   }
-});
+);
 
 /**
  * Configure gap detection thresholds.
@@ -927,7 +967,7 @@ app.put('/api/v1/gaps/config', authenticateToken, requireRole('admin'), async (r
     await logAudit('GAP_CONFIG_UPDATED', req.user.email, {
       staleDays: detector.config.staleDays,
       criticalDays: detector.config.criticalDays,
-      criticalControlsCount: detector.config.criticalControls.length
+      criticalControlsCount: detector.config.criticalControls.length,
     });
 
     res.json({
@@ -936,8 +976,8 @@ app.put('/api/v1/gaps/config', authenticateToken, requireRole('admin'), async (r
         staleDays: detector.config.staleDays,
         criticalDays: detector.config.criticalDays,
         criticalControls: detector.config.criticalControls,
-        minimumEvidence: detector.config.minimumEvidence
-      }
+        minimumEvidence: detector.config.minimumEvidence,
+      },
     });
   } catch (err) {
     console.error('Error updating gap config:', err);
@@ -957,7 +997,7 @@ async function getCollectorManager() {
     collectorManager = module.collectorManager;
 
     // Set up evidence submission function
-    collectorManager.setSubmitFunction(async (evidence) => {
+    collectorManager.setSubmitFunction(async evidence => {
       if (useDatabase) {
         await db.createEvidence(evidence);
       } else {
@@ -965,7 +1005,7 @@ async function getCollectorManager() {
       }
       await logAudit('EVIDENCE_COLLECTED', evidence.collectedBy, {
         controlId: evidence.controlId,
-        artifactHash: evidence.artifactHash
+        artifactHash: evidence.artifactHash,
       });
     });
   }
@@ -984,7 +1024,7 @@ app.get('/api/v1/collectors', authenticateToken, requireRole('admin'), async (re
       type: c.type,
       schedule: c.schedule,
       controlIds: c.controlIds,
-      enabled: c.enabled
+      enabled: c.enabled,
     }));
 
     res.json({ collectors, total: collectors.length });
@@ -1004,7 +1044,7 @@ app.get('/api/v1/collectors/test', authenticateToken, requireRole('admin'), asyn
 
     await logAudit('COLLECTORS_TESTED', req.user.email, {
       totalTested: Object.keys(results).length,
-      successful: Object.values(results).filter(r => r.success).length
+      successful: Object.values(results).filter(r => r.success).length,
     });
 
     res.json({ results });
@@ -1028,7 +1068,7 @@ app.post('/api/v1/collectors/run', authenticateToken, requireRole('admin'), asyn
     await logAudit('COLLECTORS_RUN', req.user.email, {
       collectorsRun: Object.keys(results).length,
       totalCollected,
-      totalErrors
+      totalErrors,
     });
 
     res.json({
@@ -1037,8 +1077,8 @@ app.post('/api/v1/collectors/run', authenticateToken, requireRole('admin'), asyn
       summary: {
         collectorsRun: Object.keys(results).length,
         totalCollected,
-        totalErrors
-      }
+        totalErrors,
+      },
     });
   } catch (err) {
     console.error('Error running collectors:', err);
@@ -1049,23 +1089,28 @@ app.post('/api/v1/collectors/run', authenticateToken, requireRole('admin'), asyn
 /**
  * Run a specific collector.
  */
-app.post('/api/v1/collectors/:id/run', authenticateToken, requireRole('admin'), async (req, res) => {
-  try {
-    const manager = await getCollectorManager();
-    const result = await manager.runCollector(req.params.id);
+app.post(
+  '/api/v1/collectors/:id/run',
+  authenticateToken,
+  requireRole('admin'),
+  async (req, res) => {
+    try {
+      const manager = await getCollectorManager();
+      const result = await manager.runCollector(req.params.id);
 
-    await logAudit('COLLECTOR_RUN', req.user.email, {
-      collectorId: req.params.id,
-      collected: result.collected,
-      errors: result.errors.length
-    });
+      await logAudit('COLLECTOR_RUN', req.user.email, {
+        collectorId: req.params.id,
+        collected: result.collected,
+        errors: result.errors.length,
+      });
 
-    res.json(result);
-  } catch (err) {
-    console.error('Error running collector:', err);
-    res.status(500).json({ error: 'Failed to run collector' });
+      res.json(result);
+    } catch (err) {
+      console.error('Error running collector:', err);
+      res.status(500).json({ error: 'Failed to run collector' });
+    }
   }
-});
+);
 
 // ===================
 // TOKEN ENDPOINTS (for demo)
@@ -1081,21 +1126,21 @@ app.post('/api/v1/auth/token', async (req, res) => {
 
     const validRoles = ['admin', 'compliance', 'viewer', 'auditor'];
     if (!validRoles.includes(role)) {
-      return res.status(400).json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
+      return res
+        .status(400)
+        .json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
     }
 
-    const token = jwt.sign(
-      { email, role, sub: email },
-      config.jwtSecret,
-      { expiresIn: role === 'auditor' ? '72h' : '24h' }
-    );
+    const token = jwt.sign({ email, role, sub: email }, config.jwtSecret, {
+      expiresIn: role === 'auditor' ? '72h' : '24h',
+    });
 
     await logAudit('TOKEN_ISSUED', 'system', { email, role });
 
     res.json({
       token,
       expiresIn: role === 'auditor' ? '72h' : '24h',
-      role
+      role,
     });
   } catch (err) {
     console.error('Error issuing token:', err);
@@ -1117,7 +1162,10 @@ app.use((_req, res) => {
 // Only start server if this file is run directly, not when imported
 let server = null;
 
-if (process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].includes('api/server'))) {
+if (
+  process.argv[1] &&
+  (process.argv[1].endsWith('server.js') || process.argv[1].includes('api/server'))
+) {
   server = app.listen(config.port, async () => {
     console.log(`\n========================================`);
     console.log(`Compliance API Server`);

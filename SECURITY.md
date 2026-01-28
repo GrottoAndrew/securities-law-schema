@@ -1,5 +1,7 @@
 # Security Policy
+
 ## For this Repo
+
 please email 'ops@irongrotto.com' or message the author if you find any issues.
 
 Below is generally an outline of what we think security policy should be if you plan to BYOC and fork.
@@ -27,9 +29,8 @@ We take security seriously. If you discover a security vulnerability, please fol
 
 ### DO
 
-1. **Email** security concerns to: `ops@irongrotto.com` __**Replace with your own email address for forked builds**__
-   
-3. **Include** in your report:
+1. **Email** security concerns to: `ops@irongrotto.com` \***\*Replace with your own email address for forked builds\*\***
+2. **Include** in your report:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
@@ -37,53 +38,53 @@ We take security seriously. If you discover a security vulnerability, please fol
 
 ### Response Timeline
 
-| Action | Timeline |
-|--------|----------|
-| Acknowledgment | Within 24 hours |
-| Initial assessment | Within 72 hours |
-| Status update | Every 7 days |
-| Resolution target | 90 days (critical: 30 days) |
+| Action             | Timeline                    |
+| ------------------ | --------------------------- |
+| Acknowledgment     | Within 24 hours             |
+| Initial assessment | Within 72 hours             |
+| Status update      | Every 7 days                |
+| Resolution target  | 90 days (critical: 30 days) |
 
 ## Security Architecture
 
 ### Data Protection
 
-| Layer | Control | Implementation |
-|-------|---------|----------------|
-| **At Rest** | AES-256 encryption | AWS KMS managed keys |
-| **In Transit** | TLS 1.3 | ALB termination, mTLS internal |
-| **Evidence Artifacts** | WORM storage | S3 Object Lock COMPLIANCE mode |
-| **Audit Trail** | Immutable hash chain | SHA-256 linked entries |
+| Layer                  | Control              | Implementation                 |
+| ---------------------- | -------------------- | ------------------------------ |
+| **At Rest**            | AES-256 encryption   | AWS KMS managed keys           |
+| **In Transit**         | TLS 1.3              | ALB termination, mTLS internal |
+| **Evidence Artifacts** | WORM storage         | S3 Object Lock COMPLIANCE mode |
+| **Audit Trail**        | Immutable hash chain | SHA-256 linked entries         |
 
 ### Authentication & Authorization
 
-| Component | Implementation |
-|-----------|----------------|
-| **Authentication** | JWT tokens with RSA-256 signing |
-| **Authorization** | Role-based access control (RBAC) |
-| **Session Management** | Token expiry, refresh rotation |
-| **MFA** | Required for admin/compliance roles |
+| Component              | Implementation                      |
+| ---------------------- | ----------------------------------- |
+| **Authentication**     | JWT tokens with RSA-256 signing     |
+| **Authorization**      | Role-based access control (RBAC)    |
+| **Session Management** | Token expiry, refresh rotation      |
+| **MFA**                | Required for admin/compliance roles |
 
 ### Role Definitions
 
-| Role | Permissions |
-|------|-------------|
-| `admin` | Full system access |
+| Role         | Permissions                             |
+| ------------ | --------------------------------------- |
+| `admin`      | Full system access                      |
 | `compliance` | Evidence submission, control management |
-| `viewer` | Read-only access to dashboard |
-| `auditor` | Time-limited read access with export |
-| `system` | Automated processes only |
+| `viewer`     | Read-only access to dashboard           |
+| `auditor`    | Time-limited read access with export    |
+| `system`     | Automated processes only                |
 
 ## Compliance Frameworks
 
 This system is designed to support compliance with:
 
-| Framework | Key Requirements |
-|-----------|------------------|
-| **SEC Rule 17a-4** | 7-year retention, WORM storage, audit trail |
-| **FINRA Rule 4511** | Books and records preservation |
-| **SOC 2 Type II** | Security, availability, confidentiality |
-| **NIST CSF** | Identify, Protect, Detect, Respond, Recover |
+| Framework           | Key Requirements                            |
+| ------------------- | ------------------------------------------- |
+| **SEC Rule 17a-4**  | 7-year retention, WORM storage, audit trail |
+| **FINRA Rule 4511** | Books and records preservation              |
+| **SOC 2 Type II**   | Security, availability, confidentiality     |
+| **NIST CSF**        | Identify, Protect, Detect, Respond, Recover |
 
 ## Security Checklist for Deployment
 
@@ -120,12 +121,12 @@ This system is designed to support compliance with:
 
 ### Severity Levels
 
-| Level | Definition | Response Time |
-|-------|------------|---------------|
-| **P1 Critical** | Active data breach, system compromise | 15 minutes |
-| **P2 High** | Exploitable vulnerability, data exposure risk | 1 hour |
-| **P3 Medium** | Security weakness, limited exposure | 24 hours |
-| **P4 Low** | Best practice deviation, hardening opportunity | 1 week |
+| Level           | Definition                                     | Response Time |
+| --------------- | ---------------------------------------------- | ------------- |
+| **P1 Critical** | Active data breach, system compromise          | 15 minutes    |
+| **P2 High**     | Exploitable vulnerability, data exposure risk  | 1 hour        |
+| **P3 Medium**   | Security weakness, limited exposure            | 24 hours      |
+| **P4 Low**      | Best practice deviation, hardening opportunity | 1 week        |
 
 ### Contact Chain
 
@@ -153,15 +154,16 @@ Every action that modifies data must be logged with:
 
 ## Third-Party Security
 
-| Vendor | Purpose | Security Review |
-|--------|---------|-----------------|
-| AWS | Infrastructure | SOC 2, ISO 27001, FedRAMP |
-| Anthropic | LLM (Claude) | Model card review, data processing agreement |
-| PostgreSQL | Database | Open source audit |
+| Vendor     | Purpose        | Security Review                              |
+| ---------- | -------------- | -------------------------------------------- |
+| AWS        | Infrastructure | SOC 2, ISO 27001, FedRAMP                    |
+| Anthropic  | LLM (Claude)   | Model card review, data processing agreement |
+| PostgreSQL | Database       | Open source audit                            |
 
 ## Security Updates
 
 Security patches are applied:
+
 - **Critical**: Within 24 hours
 - **High**: Within 7 days
 - **Medium**: Within 30 days
@@ -169,5 +171,5 @@ Security patches are applied:
 
 ---
 
-*Last Updated: 2026-01-21*
-*Version: 1.0.0*
+_Last Updated: 2026-01-21_
+_Version: 1.0.0_

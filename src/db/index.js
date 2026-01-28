@@ -82,8 +82,8 @@ async function sendNotification(subject, message) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: `*${subject}*\n${message}\n_${timestamp}_`
-        })
+          text: `*${subject}*\n${message}\n_${timestamp}_`,
+        }),
       });
     } catch (err) {
       console.error('Slack notification failed after 3 retries:', err.message);
@@ -100,12 +100,14 @@ async function sendNotification(subject, message) {
         body: JSON.stringify({
           '@type': 'MessageCard',
           summary: subject,
-          sections: [{
-            activityTitle: subject,
-            text: message,
-            facts: [{ name: 'Timestamp', value: timestamp }]
-          }]
-        })
+          sections: [
+            {
+              activityTitle: subject,
+              text: message,
+              facts: [{ name: 'Timestamp', value: timestamp }],
+            },
+          ],
+        }),
       });
     } catch (err) {
       console.error('Teams notification failed after 3 retries:', err.message);
@@ -169,7 +171,7 @@ export function initDatabase(databaseUrl) {
     connectionTimeoutMillis: 10000,
   });
 
-  pool.on('error', (err) => {
+  pool.on('error', err => {
     console.error('Unexpected database error:', err);
   });
 
@@ -287,7 +289,7 @@ export async function createEvidence(evidence) {
       evidence.merkleLeafHash,
       evidence.collectedAt,
       evidence.collectedBy,
-      evidence.status || 'active'
+      evidence.status || 'active',
     ]
   );
 
@@ -302,10 +304,7 @@ export async function createEvidence(evidence) {
 export async function getEvidence(id) {
   if (!pool) throw new Error('Database not connected');
 
-  const result = await pool.query(
-    'SELECT * FROM evidence WHERE id = $1',
-    [id]
-  );
+  const result = await pool.query('SELECT * FROM evidence WHERE id = $1', [id]);
 
   if (result.rows.length === 0) return null;
   return rowToEvidence(result.rows[0]);
@@ -403,7 +402,7 @@ export async function getEvidenceByControl() {
   for (const row of result.rows) {
     byControl[row.control_id] = {
       count: parseInt(row.evidence_count, 10),
-      lastEvidence: row.last_evidence
+      lastEvidence: row.last_evidence,
     };
   }
   return byControl;
@@ -422,7 +421,7 @@ function rowToEvidence(row) {
     collectedBy: row.collected_by,
     status: row.status,
     s3Key: row.s3_key,
-    createdAt: row.created_at?.toISOString()
+    createdAt: row.created_at?.toISOString(),
   };
 }
 
@@ -444,9 +443,8 @@ export async function createAuditEntry(event, actor, details) {
   const lastResult = await pool.query(
     'SELECT current_hash FROM audit_log ORDER BY timestamp DESC LIMIT 1'
   );
-  const previousHash = lastResult.rows.length > 0
-    ? lastResult.rows[0].current_hash
-    : '0'.repeat(64);
+  const previousHash =
+    lastResult.rows.length > 0 ? lastResult.rows[0].current_hash : '0'.repeat(64);
 
   const id = randomUUID();
   const timestamp = new Date().toISOString();
@@ -535,7 +533,7 @@ function rowToAuditEntry(row) {
     details: row.details,
     previousHash: row.previous_hash,
     hash: row.current_hash,
-    timestamp: row.timestamp?.toISOString()
+    timestamp: row.timestamp?.toISOString(),
   };
 }
 
@@ -677,7 +675,10 @@ export const fallback = {
         byControl[e.controlId] = { count: 0, lastEvidence: null };
       }
       byControl[e.controlId].count++;
-      if (!byControl[e.controlId].lastEvidence || e.collectedAt > byControl[e.controlId].lastEvidence) {
+      if (
+        !byControl[e.controlId].lastEvidence ||
+        e.collectedAt > byControl[e.controlId].lastEvidence
+      ) {
         byControl[e.controlId].lastEvidence = e.collectedAt;
       }
     }
@@ -703,6 +704,7 @@ export const fallback = {
     const timestamp = new Date().toISOString();
     const preimage = `${id}${timestamp}${event}${JSON.stringify(details)}${previousHash}`;
     const hash = createHash('sha256').update(preimage).digest('hex');
+    /** @type {AuditEntry} */
     const entry = {
       id,
       timestamp,
@@ -710,7 +712,7 @@ export const fallback = {
       actor,
       details,
       previousHash,
-      hash
+      hash,
     };
     inMemoryAuditLog.push(entry);
     schedulePersist();
@@ -753,14 +755,14 @@ export const fallback = {
         count: inMemoryEvidence.size,
         limit: SOFT_LIMIT_EVIDENCE,
         percentUsed: Math.round((inMemoryEvidence.size / SOFT_LIMIT_EVIDENCE) * 100),
-        limitWarned: evidenceLimitWarned
+        limitWarned: evidenceLimitWarned,
       },
       auditLog: {
         count: inMemoryAuditLog.length,
         limit: SOFT_LIMIT_AUDIT_LOG,
         percentUsed: Math.round((inMemoryAuditLog.length / SOFT_LIMIT_AUDIT_LOG) * 100),
-        limitWarned: auditLimitWarned
-      }
+        limitWarned: auditLimitWarned,
+      },
     };
-  }
+  },
 };
