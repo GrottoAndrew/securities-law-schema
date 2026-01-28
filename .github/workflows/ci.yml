@@ -274,10 +274,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           ECR_REPOSITORY: evidence-locker-api
           IMAGE_TAG: ${{ github.sha }}
+          REGISTRY: ghcr.io
+          IMAGE_NAME: ${{ github.repository }}
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest
+          docker pull $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+          docker tag $REGISTRY/$IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest
 
