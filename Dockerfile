@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 # Stage 1: Dependencies
 # -----------------------------------------------------------------------------
-FROM node:18-alpine AS deps
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
@@ -19,12 +19,12 @@ RUN apk add --no-cache python3 make g++
 COPY package.json package-lock.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
 # -----------------------------------------------------------------------------
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ RUN npm run test:unit
 # -----------------------------------------------------------------------------
 # Stage 3: Production
 # -----------------------------------------------------------------------------
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 # Security: Don't run as root
 RUN addgroup -g 1001 -S nodejs && \
