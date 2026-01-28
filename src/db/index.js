@@ -8,8 +8,10 @@
  */
 
 import pg from 'pg';
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import config from '../config/index.js';
 
 const { Pool } = pg;
@@ -201,6 +203,11 @@ export function getPool() {
 export async function setTenantContext(client, tenantId) {
   if (!tenantId) {
     throw new Error('Tenant ID is required for RLS');
+  }
+  // Validate UUID format to prevent SQL injection (SET doesn't support $1 parameterization)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(tenantId)) {
+    throw new Error('Invalid tenant ID format: must be a valid UUID');
   }
   await client.query(`SET app.current_tenant_id = '${tenantId}'`);
 }
@@ -441,7 +448,7 @@ export async function createAuditEntry(event, actor, details) {
     ? lastResult.rows[0].current_hash
     : '0'.repeat(64);
 
-  const id = crypto.randomUUID();
+  const id = randomUUID();
   const timestamp = new Date().toISOString();
   const preimage = `${id}${timestamp}${event}${JSON.stringify(details)}${previousHash}`;
   const currentHash = createHash('sha256').update(preimage).digest('hex');
@@ -542,7 +549,9 @@ function rowToAuditEntry(row) {
 const inMemoryEvidence = new Map();
 const inMemoryAuditLog = [];
 
-const DEMO_DB_DIR = new URL('../../data/demo-db', import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const DEMO_DB_DIR = join(__dirname, '..', '..', 'data', 'demo-db');
 const DEMO_EVIDENCE_FILE = `${DEMO_DB_DIR}/evidence.json`;
 const DEMO_AUDIT_FILE = `${DEMO_DB_DIR}/audit-log.json`;
 
@@ -592,6 +601,29 @@ function schedulePersist() {
 
 // Load any previously persisted demo data
 loadPersistedData();
+
+// Flush pending writes on process exit to prevent data loss
+function flushPersist() {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  try {
+    if (inMemoryEvidence.size > 0 || inMemoryAuditLog.length > 0) {
+      if (!existsSync(DEMO_DB_DIR)) {
+        mkdirSync(DEMO_DB_DIR, { recursive: true });
+      }
+      const evidenceObj = Object.fromEntries(inMemoryEvidence);
+      writeFileSync(DEMO_EVIDENCE_FILE, JSON.stringify(evidenceObj, null, 2));
+      writeFileSync(DEMO_AUDIT_FILE, JSON.stringify(inMemoryAuditLog, null, 2));
+    }
+  } catch (err) {
+    console.warn(`[demo-db] Exit flush failed: ${err.message}`);
+  }
+}
+process.on('SIGTERM', flushPersist);
+process.on('SIGINT', flushPersist);
+process.on('exit', flushPersist);
 
 /**
  * In-memory fallback for development/testing when DATABASE_URL is not set.
@@ -667,7 +699,7 @@ export const fallback = {
       auditLimitWarned = true;
     }
     const previousHash = inMemoryAuditLog.length > 0 ? inMemoryAuditLog[inMemoryAuditLog.length - 1].hash : '0'.repeat(64);
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const timestamp = new Date().toISOString();
     const preimage = `${id}${timestamp}${event}${JSON.stringify(details)}${previousHash}`;
     const hash = createHash('sha256').update(preimage).digest('hex');

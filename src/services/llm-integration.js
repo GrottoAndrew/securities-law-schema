@@ -251,24 +251,31 @@ class LLMClient {
     };
     if (systemPrompt) body.system = systemPrompt;
 
-    const response = await fetch(`${this.baseUrl}/messages`, {
-      method: 'POST',
-      headers: this._buildHeaders(),
-      body: JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Claude API error (${response.status}): ${error}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/messages`, {
+        method: 'POST',
+        headers: this._buildHeaders(),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Claude API error (${response.status})`);
+      }
+
+      const data = await response.json();
+      return {
+        content: data.content[0]?.text || '',
+        model: data.model,
+        provider: 'claude',
+        usage: data.usage,
+      };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = await response.json();
-    return {
-      content: data.content[0]?.text || '',
-      model: data.model,
-      provider: 'claude',
-      usage: data.usage,
-    };
   }
 
   async _completeOpenAICompatible(prompt, systemPrompt, maxTokens, temperature) {
@@ -276,29 +283,36 @@ class LLMClient {
     if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
     messages.push({ role: 'user', content: prompt });
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: this._buildHeaders(),
-      body: JSON.stringify({
-        model: this.model,
-        messages,
-        max_tokens: maxTokens,
-        temperature,
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`${this.providerConfig.name} API error (${response.status}): ${error}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: this._buildHeaders(),
+        body: JSON.stringify({
+          model: this.model,
+          messages,
+          max_tokens: maxTokens,
+          temperature,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`${this.providerConfig.name} API error (${response.status})`);
+      }
+
+      const data = await response.json();
+      return {
+        content: data.choices[0]?.message?.content || '',
+        model: data.model,
+        provider: this.provider,
+        usage: data.usage,
+      };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = await response.json();
-    return {
-      content: data.choices[0]?.message?.content || '',
-      model: data.model,
-      provider: this.provider,
-      usage: data.usage,
-    };
   }
 
   async _completeOllama(prompt, systemPrompt, maxTokens, temperature) {
@@ -312,27 +326,34 @@ class LLMClient {
       },
     };
 
-    const response = await fetch(`${this.baseUrl}/generate`, {
-      method: 'POST',
-      headers: this._buildHeaders(),
-      body: JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Ollama API error (${response.status}): ${error}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/generate`, {
+        method: 'POST',
+        headers: this._buildHeaders(),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama API error (${response.status})`);
+      }
+
+      const data = await response.json();
+      return {
+        content: data.response || '',
+        model: data.model,
+        provider: 'llama-ollama',
+        usage: {
+          prompt_tokens: data.prompt_eval_count,
+          completion_tokens: data.eval_count,
+        },
+      };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = await response.json();
-    return {
-      content: data.response || '',
-      model: data.model,
-      provider: 'llama-ollama',
-      usage: {
-        prompt_tokens: data.prompt_eval_count,
-        completion_tokens: data.eval_count,
-      },
-    };
   }
 }
 

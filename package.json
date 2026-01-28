@@ -11,7 +11,7 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "vitest run tests/e2e",
-    "test:redteam": "node tests/redteam/red_team_analysis.js",
+    "test:redteam": "vitest run tests/redteam",
     "test:all": "npm run test:unit && npm run test:redteam",
     "test:hot": "TEST_CADENCE=hot npm run test:all",
     "test:cold": "TEST_CADENCE=cold npm run test:all",
