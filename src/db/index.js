@@ -567,8 +567,8 @@ function loadPersistedData() {
       inMemoryAuditLog.push(...data);
       console.log(`[demo-db] Loaded ${inMemoryAuditLog.length} audit entries from disk`);
     }
-  } catch {
-    // First run or test environment — no persisted data
+  } catch (err) {
+    console.warn(`[demo-db] Could not load persisted data: ${err.message}`);
   }
 }
 
@@ -584,8 +584,8 @@ function schedulePersist() {
       const evidenceObj = Object.fromEntries(inMemoryEvidence);
       writeFileSync(DEMO_EVIDENCE_FILE, JSON.stringify(evidenceObj, null, 2));
       writeFileSync(DEMO_AUDIT_FILE, JSON.stringify(inMemoryAuditLog, null, 2));
-    } catch {
-      // Persistence is best-effort for demo
+    } catch (err) {
+      console.warn(`[demo-db] Persistence write failed: ${err.message}`);
     }
   }, 1000);
 }

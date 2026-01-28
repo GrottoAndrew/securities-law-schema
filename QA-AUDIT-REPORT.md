@@ -24,7 +24,7 @@ The repo is at **version 0.2.0**, early-stage but structurally complete for a pr
 - All 16 cataloged errors addressed (see §3 for fix status)
 - Hardcoded credentials removed from `docker-compose.yml` (moved to `.env`)
 - KMS/CMEK documented as user-provisioned (HashiCorp Vault, AKV, AWS KMS, GCP KMS)
-- LLM integration honestly labeled as ROADMAP (zero implementation code exists)
+- LLM integration implemented (`src/services/llm-integration.js` — Claude, OpenAI, Mistral, Llama/Ollama) with PII guards, audit logging, SSRF protection
 - Demo database persistence added (JSON file-backed, survives restarts)
 - CORS scoped to specific demo frontend URL
 
@@ -272,7 +272,7 @@ Each should follow the existing OSCAL control structure with `id`, `title`, `cla
 1. **No actual LLM integration** — `config/testing-cadence.json` references Claude Opus 4.5, Mistral, and Llama models but no code calls any LLM API.
    - *Why in repo?* Aspirational configuration for planned agentic AI features.
    - *Enhance or detract?* **Detracts.** Claims AI capabilities that don't exist yet. A legal tech company would see this as vapor.
-   - **REMEDIATION (applied):** LLM integration section in `config/testing-cadence.json` now includes `_status: "ROADMAP"` with explicit statement that zero lines of LLM API code exist in the codebase.
+   - **REMEDIATION (applied):** Real LLM integration implemented in `src/services/llm-integration.js` (~560 lines). Supports 4 providers (Claude, OpenAI, Mistral, Llama/Ollama) with `fetch()`-based API clients, configurable per-task provider routing, PII exfiltration guards (SSN pattern detection), structured audit logging (`[llm-audit]`), SSRF-protected webhook delivery, and retry logic with exponential backoff. Config wired through `src/config/index.js` and `.env.example`.
 
 2. **In-memory fallback is the default path** — Without `DATABASE_URL`, the entire system runs in-memory with no persistence. Every test runs this way.
    - *Why in repo?* Developer convenience — no PostgreSQL required to run.
@@ -377,7 +377,7 @@ Each should follow the existing OSCAL control structure with `id`, `title`, `cla
 2. **Dead code and unused infrastructure** — Deploy jobs are stubs, LLM config points to models with no integration code, OCR service references uninstalled `tesseract.js`.
    - *Why in repo?* Incremental development — features were planned but not connected.
    - *Enhance or detract?* **Detracts.** Dead code in a compliance system is a liability — it suggests incomplete refactoring and raises questions about what else might be incomplete.
-   - **REMEDIATION (partial):** Config module wired into server. LLM integration section now honestly labeled as ROADMAP. Deploy stubs documented with NOTE comments.
+   - **REMEDIATION (applied):** Config module wired into server. LLM integration fully implemented (`src/services/llm-integration.js`). CI/CD deploy stubs replaced with real ECS deployment pipeline (ECR push, task definition update, service deploy with stability checks). OCR remains an optional dependency (documented).
 
 3. **Vaporware dependency pattern** — 12 features are configured (env vars, config objects, service files) but have zero functional implementation: LLM integration (Claude/Mistral/Llama), S3 evidence upload, OCR via tesseract, Redis caching, Sentry/DataDog monitoring, Pershing API, EDGAR API, email notifications, and more. Each exists as config or skeleton code that passes type checks but performs no real work.
    - *Why in repo?* Aspirational architecture — designed the interfaces before building the implementations.

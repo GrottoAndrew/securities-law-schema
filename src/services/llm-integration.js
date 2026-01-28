@@ -203,14 +203,43 @@ class LLMClient {
   async complete(prompt, options = {}) {
     const { systemPrompt, maxTokens = 2048, temperature = 0.3 } = options;
 
+    // PII exfiltration guard: warn when sending data to external LLM providers
+    if (!this.isOllama) {
+      const piiPatterns = /\b\d{3}-\d{2}-\d{4}\b|\b\d{9}\b|SSN|social.security/i;
+      if (piiPatterns.test(prompt)) {
+        console.warn(
+          `[llm-integration] WARNING: Prompt sent to external provider "${this.provider}" ` +
+          `may contain PII (SSN pattern detected). Use Llama/Ollama for PII processing.`
+        );
+      }
+    }
+
+    // Audit log: record LLM request metadata (not prompt content)
+    console.log(
+      `[llm-audit] provider=${this.provider} model=${this.model} ` +
+      `prompt_chars=${prompt.length} max_tokens=${maxTokens} ` +
+      `timestamp=${new Date().toISOString()}`
+    );
+
+    let result;
     if (this.provider === 'claude') {
-      return this._completeClaude(prompt, systemPrompt, maxTokens, temperature);
+      result = await this._completeClaude(prompt, systemPrompt, maxTokens, temperature);
     } else if (this.provider === 'llama' && this.isOllama) {
-      return this._completeOllama(prompt, systemPrompt, maxTokens, temperature);
+      result = await this._completeOllama(prompt, systemPrompt, maxTokens, temperature);
     } else {
       // OpenAI-compatible API (OpenAI, Mistral, Together AI)
-      return this._completeOpenAICompatible(prompt, systemPrompt, maxTokens, temperature);
+      result = await this._completeOpenAICompatible(prompt, systemPrompt, maxTokens, temperature);
     }
+
+    // Audit log: record response metadata
+    console.log(
+      `[llm-audit] provider=${result.provider} model=${result.model} ` +
+      `response_chars=${result.content.length} ` +
+      `usage=${JSON.stringify(result.usage)} ` +
+      `timestamp=${new Date().toISOString()}`
+    );
+
+    return result;
   }
 
   async _completeClaude(prompt, systemPrompt, maxTokens, temperature) {
@@ -473,6 +502,38 @@ export async function processSensitiveData(content, operation) {
  * @returns {Promise<boolean>} - Whether the webhook was delivered successfully
  */
 export async function sendToWebhook(webhookUrl, payload) {
+  // SSRF protection: validate webhook URL
+  let parsed;
+  try {
+    parsed = new URL(webhookUrl);
+  } catch {
+    console.error(`LLM webhook rejected: invalid URL "${webhookUrl}"`);
+    return false;
+  }
+
+  // Only allow HTTPS in production
+  if (process.env.NODE_ENV === 'production' && parsed.protocol !== 'https:') {
+    console.error(`LLM webhook rejected: HTTPS required in production (got ${parsed.protocol})`);
+    return false;
+  }
+
+  // Block private/internal IPs to prevent SSRF
+  const hostname = parsed.hostname;
+  if (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1' ||
+    hostname === '0.0.0.0' ||
+    hostname.startsWith('10.') ||
+    hostname.startsWith('172.') ||
+    hostname.startsWith('192.168.') ||
+    hostname.endsWith('.internal') ||
+    hostname.endsWith('.local')
+  ) {
+    console.error(`LLM webhook rejected: private/internal host "${hostname}" blocked (SSRF protection)`);
+    return false;
+  }
+
   const body = {
     source: 'evidence-locker-llm',
     timestamp: new Date().toISOString(),
@@ -488,11 +549,18 @@ export async function sendToWebhook(webhookUrl, payload) {
         body: JSON.stringify(body),
       });
       if (response.ok) return true;
+
+      // Don't retry on 4xx client errors — the request itself is wrong
+      if (response.status >= 400 && response.status < 500) {
+        console.error(`LLM webhook rejected by server: ${response.status} (not retrying)`);
+        return false;
+      }
+
       lastError = new Error(`Webhook returned ${response.status}`);
     } catch (err) {
       lastError = err;
     }
-    // Exponential backoff: 1s, 2s, 4s
+    // Exponential backoff for 5xx/network errors only: 1s, 2s, 4s
     await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
   }
 
