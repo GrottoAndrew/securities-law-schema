@@ -33,7 +33,7 @@ const config = {
   jwtSecret: centralConfig.auth.jwtSecret,
   corsOrigins: centralConfig.cors.origins,
   nodeEnv: centralConfig.env,
-  databaseUrl: centralConfig.database.url
+  databaseUrl: centralConfig.database.url,
 };
 
 // Initialize database connection
@@ -41,7 +41,10 @@ db.initDatabase(config.databaseUrl);
 const useDatabase = db.isConnected();
 
 // Fail fast on insecure JWT secret in production
-if (config.nodeEnv === 'production' && config.jwtSecret === 'development-secret-change-in-production') {
+if (
+  config.nodeEnv === 'production' &&
+  config.jwtSecret === 'development-secret-change-in-production'
+) {
   console.error('FATAL: JWT_SECRET must be changed from default value in production');
   process.exit(1);
 }
@@ -694,7 +697,7 @@ app.get(
           if (obj.groups) extractControls(obj.groups);
         }
       }
-      extractControls(controlCatalog);
+      extractControls(controlCatalog?.catalog || controlCatalog);
 
       // 2. Get evidence summary (hashed, no actual content)
       let evidenceList, evidenceByControl;
@@ -730,9 +733,7 @@ app.get(
       }));
 
       // 5. Compute catalog hash for integrity verification
-      const catalogHash = createHash('sha256')
-        .update(JSON.stringify(flatControls))
-        .digest('hex');
+      const catalogHash = createHash('sha256').update(JSON.stringify(flatControls)).digest('hex');
 
       // 6. Compute evidence manifest hash
       const manifestHash = createHash('sha256')
@@ -853,7 +854,7 @@ app.get(
           if (obj.groups) extractControls(obj.groups);
         }
       }
-      extractControls(controls);
+      extractControls(controls?.catalog || controls);
 
       // Get evidence by control
       let evidenceByControl;
@@ -912,7 +913,7 @@ app.post(
           if (obj.groups) extractControls(obj.groups);
         }
       }
-      extractControls(controls);
+      extractControls(controls?.catalog || controls);
 
       // Get evidence by control
       let evidenceByControl;
