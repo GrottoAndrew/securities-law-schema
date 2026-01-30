@@ -336,7 +336,7 @@ class Migrator {
         'SELECT version, name, checksum FROM migrations ORDER BY version'
       );
       return result.rows;
-    } catch (err) {
+    } catch (_err) {
       // migrations table doesn't exist yet
       return [];
     }

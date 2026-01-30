@@ -34,7 +34,7 @@ async function waitForDatabase(pool, maxRetries = 30) {
       client.release();
       console.log('PostgreSQL is ready!');
       return true;
-    } catch (err) {
+    } catch (_err) {
       console.log(`Waiting for PostgreSQL... (${i + 1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
