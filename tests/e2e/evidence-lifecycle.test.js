@@ -461,7 +461,267 @@ describe('Merkle Hash Chain Integrity', () => {
 });
 
 // =============================================================================
-// E2E Workflow 6: Gap Detection
+// E2E Workflow 6: Diverse Content Types and Evidence Export
+// =============================================================================
+describe('Diverse Evidence Content Types and Export', () => {
+  let complianceToken;
+  let auditorToken;
+  let controlId;
+
+  const evidenceTypes = [
+    {
+      contentType: 'application/pdf',
+      filename: 'accredited-investor-verification.pdf',
+      artifactSize: 524288,
+      description: 'PDF investor accreditation document',
+    },
+    {
+      contentType: 'application/json',
+      filename: 'form-d-filing-data.json',
+      artifactSize: 8192,
+      description: 'JSON structured filing data',
+    },
+    {
+      contentType: 'image/png',
+      filename: 'signed-subscription-agreement-scan.png',
+      artifactSize: 2097152,
+      description: 'Scanned image of signed agreement',
+    },
+    {
+      contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      filename: 'investor-cap-table.xlsx',
+      artifactSize: 131072,
+      description: 'Excel cap table spreadsheet',
+    },
+    {
+      contentType: 'text/csv',
+      filename: 'transaction-ledger-export.csv',
+      artifactSize: 65536,
+      description: 'CSV ledger export',
+    },
+    {
+      contentType: 'application/xml',
+      filename: 'xbrl-financial-report.xml',
+      artifactSize: 262144,
+      description: 'XBRL financial report',
+    },
+    {
+      contentType: 'message/rfc822',
+      filename: 'legal-counsel-opinion.eml',
+      artifactSize: 32768,
+      description: 'Email from legal counsel',
+    },
+  ];
+
+  it('step 1: authenticate and get a control', async () => {
+    complianceToken = await getToken('diverse-evidence@irongrotto.com', 'compliance');
+    const { data } = await fetchJson('/api/v1/controls');
+    controlId = data.controls[0].id;
+    expect(controlId).toBeDefined();
+  });
+
+  it('step 2: submit evidence with each content type', async () => {
+    for (const evidenceType of evidenceTypes) {
+      const { response, data } = await fetchJson('/api/v1/evidence', {
+        method: 'POST',
+        headers: authHeader(complianceToken),
+        body: JSON.stringify({
+          controlId,
+          artifactHash: `sha256:diverse-${evidenceType.contentType}-${Date.now()}`,
+          contentType: evidenceType.contentType,
+          artifactSize: evidenceType.artifactSize,
+          metadata: {
+            filename: evidenceType.filename,
+            description: evidenceType.description,
+            source: 'e2e-diverse-content-test',
+          },
+        }),
+      });
+
+      expect(response.status).toBe(201);
+      expect(data.id).toBeDefined();
+      expect(data.merkleLeafHash).toMatch(/^[a-f0-9]{64}$/);
+    }
+  });
+
+  it('step 3: JSON export includes all content types in evidence manifest', async () => {
+    auditorToken = await getToken('export-auditor@irongrotto.com', 'auditor');
+
+    const { response, data } = await fetchJson('/api/v1/audit-export', {
+      headers: authHeader(auditorToken),
+    });
+
+    expect(response.status).toBe(200);
+
+    // Verify the evidence manifest contains diverse content types
+    const contentTypes = new Set(data.evidenceManifest.map(e => e.contentType));
+    for (const evidenceType of evidenceTypes) {
+      expect(contentTypes.has(evidenceType.contentType)).toBe(true);
+    }
+
+    // Verify artifact sizes are preserved
+    const pdfEvidence = data.evidenceManifest.find(e => e.contentType === 'application/pdf');
+    expect(pdfEvidence).toBeDefined();
+    expect(pdfEvidence.artifactSize).toBe(524288);
+  });
+
+  it('step 4: evidence-csv export includes content types and sizes', async () => {
+    const response = await fetch(`${API_BASE}/api/v1/audit-export?format=evidence-csv`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(auditorToken),
+      },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/csv');
+    expect(response.headers.get('content-disposition')).toContain('evidence-manifest');
+
+    const csv = await response.text();
+    const lines = csv.split('\n').filter(line => line.trim().length > 0);
+
+    // Header + evidence rows
+    expect(lines.length).toBeGreaterThanOrEqual(8); // header + 7 diverse types
+    expect(lines[0]).toContain('Evidence ID');
+    expect(lines[0]).toContain('Content Type');
+    expect(lines[0]).toContain('Artifact Size');
+    expect(lines[0]).toContain('Merkle Leaf Hash');
+
+    // Verify diverse content types appear in CSV body
+    const csvBody = lines.slice(1).join('\n');
+    expect(csvBody).toContain('application/pdf');
+    expect(csvBody).toContain('application/json');
+    expect(csvBody).toContain('image/png');
+    expect(csvBody).toContain('text/csv');
+    expect(csvBody).toContain('application/xml');
+  });
+
+  it('step 5: control-level CSV export reflects evidence counts', async () => {
+    const response = await fetch(`${API_BASE}/api/v1/audit-export?format=csv`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(auditorToken),
+      },
+    });
+
+    expect(response.status).toBe(200);
+    const csv = await response.text();
+    const lines = csv.split('\n').filter(line => line.trim().length > 0);
+
+    // Find the row for our control — evidence count should be >= 7
+    const controlRow = lines.find(line => line.includes(controlId));
+    expect(controlRow).toBeDefined();
+    expect(controlRow).toContain('"satisfied"');
+  });
+});
+
+// =============================================================================
+// E2E Workflow 7: Audit Trail Event Type Coverage
+// =============================================================================
+describe('Audit Trail Event Type Coverage', () => {
+  let adminToken;
+  let auditorToken;
+
+  it('step 1: authenticate as admin and auditor', async () => {
+    adminToken = await getToken('admin-events@irongrotto.com', 'admin');
+    auditorToken = await getToken('auditor-events@irongrotto.com', 'auditor');
+  });
+
+  it('step 2: trigger multiple event types', async () => {
+    // TOKEN_ISSUED already triggered by getToken calls above
+
+    // EVIDENCE_SUBMITTED
+    const { data: evidenceData } = await fetchJson('/api/v1/evidence', {
+      method: 'POST',
+      headers: authHeader(adminToken),
+      body: JSON.stringify({
+        controlId: 'ctrl-anti-evasion',
+        artifactHash: `sha256:event-coverage-test-${Date.now()}`,
+        contentType: 'application/pdf',
+        metadata: { filename: 'event-test.pdf' },
+      }),
+    });
+    expect(evidenceData.id).toBeDefined();
+
+    // GAP_DETECTION_RUN
+    const { response: gapResponse } = await fetchJson('/api/v1/gaps', {
+      headers: authHeader(adminToken),
+    });
+    expect(gapResponse.status).toBe(200);
+
+    // GAP_SCAN_WITH_ALERTS
+    const { response: scanResponse } = await fetchJson('/api/v1/gaps/scan', {
+      method: 'POST',
+      headers: authHeader(adminToken),
+    });
+    expect(scanResponse.status).toBe(200);
+
+    // AUDIT_EXPORT_GENERATED (JSON)
+    const { response: jsonExportResponse } = await fetchJson('/api/v1/audit-export', {
+      headers: authHeader(auditorToken),
+    });
+    expect(jsonExportResponse.status).toBe(200);
+
+    // AUDIT_EXPORT_GENERATED (CSV)
+    const csvExportResponse = await fetch(`${API_BASE}/api/v1/audit-export?format=csv`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(auditorToken),
+      },
+    });
+    expect(csvExportResponse.status).toBe(200);
+
+    // AUDIT_EXPORT_GENERATED (evidence-csv)
+    const evidenceCsvResponse = await fetch(`${API_BASE}/api/v1/audit-export?format=evidence-csv`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeader(auditorToken),
+      },
+    });
+    expect(evidenceCsvResponse.status).toBe(200);
+  });
+
+  it('step 3: audit trail contains all event types', async () => {
+    const { response, data } = await fetchJson('/api/v1/audit-trail?limit=200', {
+      headers: authHeader(auditorToken),
+    });
+
+    expect(response.status).toBe(200);
+
+    const eventTypes = new Set(data.auditLog.map(entry => entry.event || entry.eventType));
+
+    const expectedEvents = [
+      'TOKEN_ISSUED',
+      'EVIDENCE_SUBMITTED',
+      'GAP_DETECTION_RUN',
+      'GAP_SCAN_WITH_ALERTS',
+      'AUDIT_EXPORT_GENERATED',
+    ];
+
+    for (const eventType of expectedEvents) {
+      expect(eventTypes.has(eventType)).toBe(true);
+    }
+  });
+
+  it('step 4: audit trail entries have required fields', async () => {
+    const { data } = await fetchJson('/api/v1/audit-trail?limit=10', {
+      headers: authHeader(auditorToken),
+    });
+
+    for (const entry of data.auditLog) {
+      expect(entry.id).toBeDefined();
+      expect(entry.timestamp).toBeDefined();
+      expect(entry.event || entry.eventType).toBeDefined();
+      expect(entry.actor).toBeDefined();
+      expect(entry.hash).toBeDefined();
+      expect(entry.hash).toMatch(/^[a-f0-9]{64}$/);
+      expect(entry.previousHash).toBeDefined();
+    }
+  });
+});
+
+// =============================================================================
+// E2E Workflow 8: Gap Detection
 // =============================================================================
 describe('Gap Detection Workflow', () => {
   let complianceToken;

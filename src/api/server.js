@@ -789,7 +789,7 @@ app.get(
       });
 
       if (format === 'csv') {
-        // CSV export of control mappings only
+        // CSV export of control mappings
         const csv = [
           'Control ID,Control Title,Regulation Citation,Evidence Count,Last Evidence,Status',
           ...controlMappings.map(
@@ -802,6 +802,24 @@ app.get(
         res.setHeader(
           'Content-Disposition',
           `attachment; filename="audit-export-${Date.now()}.csv"`
+        );
+        return res.send(csv);
+      }
+
+      if (format === 'evidence-csv') {
+        // CSV export of evidence manifest with content types and artifact details
+        const csv = [
+          'Evidence ID,Control ID,Artifact Hash,Merkle Leaf Hash,Content Type,Artifact Size,Collected At,Status',
+          ...evidenceManifest.map(
+            e =>
+              `"${e.id}","${e.controlId}","${e.artifactHash}","${e.merkleLeafHash}","${e.contentType}",${e.artifactSize},"${e.collectedAt}","${e.status}"`
+          ),
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="evidence-manifest-${Date.now()}.csv"`
         );
         return res.send(csv);
       }
