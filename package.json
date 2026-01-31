@@ -38,6 +38,7 @@
     "regulatory:weekly": "node scripts/regulatory-check.js --weekly",
     "regulatory:full": "node scripts/regulatory-check.js --full",
     "verify:amendments": "node tests/verify-amendment-dates.js",
+    "verify:ecfr": "node scripts/verify-ecfr.js",
     "prepare": "husky || true"
   },
   "keywords": [

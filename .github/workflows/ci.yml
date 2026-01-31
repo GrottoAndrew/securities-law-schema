@@ -86,6 +86,27 @@ jobs:
         run: npm run validate:regulation-d
 
   # ============================================================================
+  # eCFR Source Verification
+  # ============================================================================
+  verify-ecfr:
+    name: Verify eCFR Source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify local eCFR matches live API
+        run: npm run verify:ecfr
+
+  # ============================================================================
   # Red Team Security Analysis
   # ============================================================================
   security-analysis:

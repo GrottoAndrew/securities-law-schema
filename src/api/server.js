@@ -108,6 +108,43 @@ app.use((req, res, next) => {
   next();
 });
 
+/**
+ * Flatten all controls (and sub-controls) from the OSCAL catalog.
+ * Walks groups → controls → sub-controls recursively.
+ * Only includes actual controls, NOT group containers.
+ */
+function flattenCatalogControls(catalogData) {
+  const results = [];
+
+  function walkControls(items, parentId) {
+    if (!Array.isArray(items)) return;
+    for (const ctrl of items) {
+      if (!ctrl || !ctrl.id) continue;
+      results.push({
+        id: ctrl.id,
+        title: ctrl.title,
+        parentId: parentId || null,
+        props: ctrl.props,
+        regulationCitation: ctrl.props?.find(p => p.name === 'regulation-citation')?.value,
+        regulationRef: ctrl.props?.find(p => p.name === 'regulation-ref')?.value,
+        hasSubControls: !!ctrl.controls,
+      });
+      if (ctrl.controls) {
+        walkControls(ctrl.controls, ctrl.id);
+      }
+    }
+  }
+
+  const groups = catalogData?.catalog?.groups || catalogData?.groups || [];
+  for (const group of groups) {
+    if (group.controls) {
+      walkControls(group.controls, null);
+    }
+  }
+
+  return results;
+}
+
 // Load data helpers with proper error handling
 function loadControls() {
   const controlsPath = join(projectRoot, 'controls', 'regulation-d-controls.json');
@@ -257,31 +294,7 @@ app.get('/api/v1/controls', (_req, res) => {
       return res.status(404).json({ error: 'Controls catalog not found' });
     }
 
-    const flatControls = [];
-
-    function extractControls(obj, parentId = null) {
-      if (Array.isArray(obj)) {
-        obj.forEach(item => extractControls(item, parentId));
-      } else if (obj && typeof obj === 'object') {
-        if (obj.id) {
-          flatControls.push({
-            id: obj.id,
-            title: obj.title,
-            parentId,
-            regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
-            regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value,
-            hasSubControls: !!obj.controls,
-          });
-        }
-        if (obj.controls) {
-          extractControls(obj.controls, obj.id);
-        }
-      }
-    }
-
-    controls.catalog.groups.forEach(group => {
-      if (group.controls) extractControls(group.controls);
-    });
+    const flatControls = flattenCatalogControls(controls);
 
     res.json({
       catalog: {
@@ -534,28 +547,17 @@ app.get('/api/v1/compliance-status', authenticateToken, async (_req, res) => {
       evidenceByControl = db.fallback.getEvidenceByControl();
     }
 
-    const controlStatus = [];
-
-    function processControls(obj) {
-      if (Array.isArray(obj)) {
-        obj.forEach(processControls);
-      } else if (obj && typeof obj === 'object' && obj.id) {
-        const controlData = evidenceByControl[obj.id] || { count: 0, lastEvidence: null };
-
-        controlStatus.push({
-          controlId: obj.id,
-          title: obj.title,
-          regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
-          evidenceCount: controlData.count,
-          lastEvidence: controlData.lastEvidence,
-          status: controlData.count > 0 ? 'SATISFIED' : 'MISSING',
-        });
-        if (obj.controls) processControls(obj.controls);
-      }
-    }
-
-    controls.catalog.groups.forEach(group => {
-      if (group.controls) processControls(group.controls);
+    const flatControls = flattenCatalogControls(controls);
+    const controlStatus = flatControls.map(ctrl => {
+      const controlData = evidenceByControl[ctrl.id] || { count: 0, lastEvidence: null };
+      return {
+        controlId: ctrl.id,
+        title: ctrl.title,
+        regulationCitation: ctrl.regulationCitation,
+        evidenceCount: controlData.count,
+        lastEvidence: controlData.lastEvidence,
+        status: controlData.count > 0 ? 'SATISFIED' : 'MISSING',
+      };
     });
 
     const totalControls = controlStatus.length;
@@ -680,24 +682,7 @@ app.get(
 
       // 1. Load control catalog
       const controlCatalog = loadControls();
-      const flatControls = [];
-      function extractControls(obj) {
-        if (Array.isArray(obj)) {
-          obj.forEach(item => extractControls(item));
-        } else if (obj && typeof obj === 'object') {
-          if (obj.id) {
-            flatControls.push({
-              id: obj.id,
-              title: obj.title,
-              regulationCitation: obj.props?.find(p => p.name === 'regulation-citation')?.value,
-              regulationRef: obj.props?.find(p => p.name === 'regulation-ref')?.value,
-            });
-          }
-          if (obj.controls) extractControls(obj.controls);
-          if (obj.groups) extractControls(obj.groups);
-        }
-      }
-      extractControls(controlCatalog?.catalog || controlCatalog);
+      const flatControls = flattenCatalogControls(controlCatalog);
 
       // 2. Get evidence summary (hashed, no actual content)
       let evidenceList, evidenceByControl;
@@ -858,21 +843,7 @@ app.get(
     try {
       const detector = await getGapDetector();
       const controls = loadControls();
-
-      // Flatten controls
-      const flatControls = [];
-      function extractControls(obj) {
-        if (Array.isArray(obj)) {
-          obj.forEach(item => extractControls(item));
-        } else if (obj && typeof obj === 'object') {
-          if (obj.id) {
-            flatControls.push({ id: obj.id, title: obj.title });
-          }
-          if (obj.controls) extractControls(obj.controls);
-          if (obj.groups) extractControls(obj.groups);
-        }
-      }
-      extractControls(controls?.catalog || controls);
+      const flatControls = flattenCatalogControls(controls);
 
       // Get evidence by control
       let evidenceByControl;
@@ -917,21 +888,7 @@ app.post(
     try {
       const detector = await getGapDetector();
       const controls = loadControls();
-
-      // Flatten controls
-      const flatControls = [];
-      function extractControls(obj) {
-        if (Array.isArray(obj)) {
-          obj.forEach(item => extractControls(item));
-        } else if (obj && typeof obj === 'object') {
-          if (obj.id) {
-            flatControls.push({ id: obj.id, title: obj.title });
-          }
-          if (obj.controls) extractControls(obj.controls);
-          if (obj.groups) extractControls(obj.groups);
-        }
-      }
-      extractControls(controls?.catalog || controls);
+      const flatControls = flattenCatalogControls(controls);
 
       // Get evidence by control
       let evidenceByControl;
