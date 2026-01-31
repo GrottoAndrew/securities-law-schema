@@ -1105,6 +1105,70 @@
             ]
           },
           {
+            "id": "ctrl-final-order-def",
+            "title": "Final Order Determination",
+            "props": [
+              { "name": "regulation-citation", "value": "17 CFR 230.501(g)" },
+              { "name": "regulation-ref", "value": "cfr:17/230.501(g)" },
+              { "name": "control-family", "value": "definitions" }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-final-order-def-stmt",
+                "name": "statement",
+                "prose": "Final order shall mean a written directive or declaratory statement issued by a federal or state agency described in 230.506(d)(1)(iii) under applicable statutory authority that provides for notice and an opportunity for hearing, which constitutes a final disposition or action by that federal or state agency."
+              },
+              {
+                "id": "ctrl-final-order-def-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-final-order-def-ev-1",
+                    "name": "evidence-item",
+                    "prose": "Regulatory order search results for all covered persons from federal and state agencies described in 506(d)(1)(iii)"
+                  },
+                  {
+                    "id": "ctrl-final-order-def-ev-2",
+                    "name": "evidence-item",
+                    "prose": "Analysis documenting whether any identified orders constitute 'final orders' (written directive, statutory authority, notice and hearing, final disposition)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ctrl-issuer-def",
+            "title": "Issuer Determination",
+            "props": [
+              { "name": "regulation-citation", "value": "17 CFR 230.501(h)" },
+              { "name": "regulation-ref", "value": "cfr:17/230.501(h)" },
+              { "name": "control-family", "value": "definitions" }
+            ],
+            "parts": [
+              {
+                "id": "ctrl-issuer-def-stmt",
+                "name": "statement",
+                "prose": "The definition of issuer in section 2(a)(4) of the Act shall apply, except that in a proceeding under the Federal Bankruptcy Code (11 U.S.C. 101 et seq.), the trustee or debtor in possession shall be considered the issuer in an offering under a plan of reorganization, if the securities are to be issued under the plan."
+              },
+              {
+                "id": "ctrl-issuer-def-evidence",
+                "name": "evidence-requirements",
+                "parts": [
+                  {
+                    "id": "ctrl-issuer-def-ev-1",
+                    "name": "evidence-item",
+                    "prose": "Issuer identification documentation confirming the entity meets section 2(a)(4) definition"
+                  },
+                  {
+                    "id": "ctrl-issuer-def-ev-2",
+                    "name": "evidence-item",
+                    "prose": "Bankruptcy proceeding documentation identifying trustee or debtor in possession as issuer (if applicable)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
             "id": "ctrl-purchaser-representative",
             "title": "Purchaser Representative Qualification",
             "props": [
@@ -2009,7 +2073,7 @@
               {
                 "id": "ctrl-investor-records-stmt",
                 "name": "statement",
-                "prose": "Organization shall maintain complete records of investor qualification documentation, verification methods used, and all investor communications for a minimum of 5 years after the offering closes."
+                "prose": "Organization shall maintain complete records of investor qualification documentation, verification methods used, and all investor communications for a minimum of 7 years after the offering closes."
               },
               {
                 "id": "ctrl-investor-records-items",
@@ -2049,7 +2113,7 @@
                   {
                     "id": "ctrl-investor-records-ev-1",
                     "name": "evidence-item",
-                    "prose": "Record retention policy document with minimum 5-year retention period"
+                    "prose": "Record retention policy document with minimum 7-year retention period"
                   },
                   {
                     "id": "ctrl-investor-records-ev-2",
