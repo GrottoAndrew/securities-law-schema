@@ -1023,14 +1023,6 @@
       "condition": "506(c) offerings — within 5 years of prior verification"
     },
     {
-      "@id": "edge:sub-agree-to-resale-limitations",
-      "@type": "SatisfactionEdge",
-      "evidenceType": "ev-type:subscription-agreement",
-      "control": "ctrl-resale-limitations",
-      "sufficiency": "necessary",
-      "scope": "Investment intent representation, restricted securities legend, unregistered status disclosure"
-    },
-    {
       "@id": "edge:form-d-to-filing",
       "@type": "SatisfactionEdge",
       "evidenceType": "ev-type:form-d-edgar-confirmation",
@@ -1281,6 +1273,43 @@
       "condition": "Rule 504 offerings on or after January 20, 2017"
     },
     {
+      "@id": "edge:bad-actor-questionnaire-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bad-actor-questionnaire",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "necessary",
+      "scope": "Self-disclosure from each covered person — same 506(d) framework applies via 504(b)(3)",
+      "limitations": "Must be corroborated by independent searches",
+      "condition": "Rule 504 offerings on or after January 20, 2017"
+    },
+    {
+      "@id": "edge:federal-court-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:federal-court-records-search",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "necessary",
+      "scope": "Federal convictions and injunctions for all covered persons per 506(d)(1)(i)-(ii)",
+      "condition": "Rule 504 offerings on or after January 20, 2017"
+    },
+    {
+      "@id": "edge:state-court-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-court-records-search",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "necessary",
+      "scope": "State convictions and injunctions for all covered persons per 506(d)(1)(i)-(ii)",
+      "condition": "Rule 504 offerings on or after January 20, 2017"
+    },
+    {
+      "@id": "edge:state-regulator-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-securities-regulator-search",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "necessary",
+      "scope": "State regulatory final orders for all covered persons per 506(d)(1)(iii)",
+      "condition": "Rule 504 offerings on or after January 20, 2017"
+    },
+    {
       "@id": "edge:deviation-to-508-safe-harbor",
       "@type": "SatisfactionEdge",
       "evidenceType": "ev-type:deviation-remediation-docs",
@@ -1405,6 +1434,74 @@
       "sufficiency": "partial",
       "scope": "No general solicitation compliance",
       "condition": "506(b) offerings only"
+    },
+    {
+      "@id": "edge:exemption-memo-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:exemption-determination-memo",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "necessary",
+      "scope": "Documents that issuer elected 506(c) pathway and understands all-accredited purchaser requirement",
+      "condition": "506(c) offerings only"
+    },
+    {
+      "@id": "edge:aiq-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:accredited-investor-questionnaire",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "necessary",
+      "scope": "Each purchaser must be accredited — questionnaire identifies claimed category",
+      "limitations": "Self-certification insufficient for 506(c) — must be corroborated by verification method per 506(c)(2)(ii)",
+      "condition": "506(c) offerings only"
+    },
+    {
+      "@id": "edge:third-party-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:third-party-verification-letter",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "partial",
+      "scope": "One of the reasonable steps verification methods per 506(c)(2)(ii)(C)",
+      "limitations": "Satisfies verification for the individual investor only — still need questionnaire and exemption memo for the offering as a whole",
+      "condition": "506(c) offerings — per-investor verification"
+    },
+    {
+      "@id": "edge:irs-returns-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:irs-tax-returns",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "partial",
+      "scope": "Income-based reasonable steps verification per 506(c)(2)(ii)(A)",
+      "limitations": "Only proves income prong for two prior years — also need written representation of current year expectation",
+      "condition": "506(c) offerings — income verification method"
+    },
+    {
+      "@id": "edge:bank-credit-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bank-brokerage-statements",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "partial",
+      "scope": "Net-worth reasonable steps verification per 506(c)(2)(ii)(B) — asset side",
+      "limitations": "MUST be paired with consumer credit report",
+      "condition": "506(c) offerings — net worth verification method"
+    },
+    {
+      "@id": "edge:credit-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:consumer-credit-report",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "partial",
+      "scope": "Net-worth reasonable steps verification per 506(c)(2)(ii)(B) — liability side",
+      "limitations": "MUST be paired with bank/brokerage statements",
+      "condition": "506(c) offerings — net worth verification method"
+    },
+    {
+      "@id": "edge:marketing-to-506c",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:marketing-materials-log",
+      "control": "ctrl-506c-offering",
+      "sufficiency": "partial",
+      "scope": "Documents all solicitation materials used — general solicitation is permitted under 506(c) but must be documented",
+      "condition": "506(c) offerings only"
     },
     {
       "@id": "edge:record-policy-to-investor-records",
