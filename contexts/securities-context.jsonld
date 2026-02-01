@@ -82,6 +82,32 @@
       }
     },
 
+    "compliance": "https://securities-law-schema.example/compliance/",
+
+    "EvidenceType": {
+      "@id": "compliance:EvidenceType",
+      "@context": {
+        "name": { "@id": "dcterms:title", "@type": "xsd:string" },
+        "description": { "@id": "dcterms:description", "@type": "xsd:string" },
+        "category": { "@id": "compliance:evidenceCategory", "@type": "xsd:string" },
+        "sourceType": { "@id": "compliance:sourceType", "@type": "xsd:string" },
+        "retentionYears": { "@id": "compliance:retentionYears", "@type": "xsd:integer" },
+        "freshnessDays": { "@id": "compliance:freshnessDays", "@type": "xsd:integer" }
+      }
+    },
+
+    "SatisfactionEdge": {
+      "@id": "compliance:SatisfactionEdge",
+      "@context": {
+        "evidenceType": { "@id": "compliance:evidenceType", "@type": "@id" },
+        "control": { "@id": "compliance:satisfiesControl", "@type": "xsd:string" },
+        "sufficiency": { "@id": "compliance:sufficiency", "@type": "xsd:string" },
+        "scope": { "@id": "compliance:scope", "@type": "xsd:string" },
+        "limitations": { "@id": "compliance:limitations", "@type": "xsd:string" },
+        "condition": { "@id": "compliance:condition", "@type": "xsd:string" }
+      }
+    },
+
     "citation": { "@id": "cfr:citation", "@type": "xsd:string" },
     "effectiveDate": { "@id": "dcterms:valid", "@type": "xsd:date" },
     "amendedDate": { "@id": "dcterms:modified", "@type": "xsd:date" },

@@ -1,0 +1,1526 @@
+{
+  "@context": "../contexts/securities-context.jsonld",
+  "@id": "compliance:reg-d-evidence-graph",
+  "@type": "compliance:EvidenceGraph",
+
+  "metadata": {
+    "title": "Regulation D Bipartite Evidence-to-Control Satisfaction Graph",
+    "version": "1.0.0",
+    "lastModified": "2026-02-01T00:00:00Z",
+    "catalogRef": "./regulation-d-controls.json",
+    "disclaimer": "Sufficiency classifications require case-by-case legal review. This graph is illustrative, not legal advice.",
+    "sufficiencyLegend": {
+      "necessary": "Required — control cannot be satisfied without this evidence type",
+      "sufficient": "Alone satisfies the control (rare — most controls need multiple evidence types)",
+      "partial": "Contributes toward satisfying the control but is not alone sufficient",
+      "supporting": "Corroborates other evidence but does not independently prove compliance",
+      "conditional": "Only relevant when a specific offering condition applies"
+    }
+  },
+
+  "evidenceTypes": [
+    {
+      "@id": "ev-type:subscription-agreement",
+      "@type": "EvidenceType",
+      "name": "Subscription Agreement",
+      "description": "Executed agreement between issuer and investor containing representations, warranties, investment intent, suitability acknowledgments, and restrictive legends.",
+      "category": "investor-documentation",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:accredited-investor-questionnaire",
+      "@type": "EvidenceType",
+      "name": "Accredited Investor Questionnaire",
+      "description": "Self-certification form completed by investor identifying which 501(a) category they qualify under and attesting to factual basis.",
+      "category": "investor-documentation",
+      "sourceType": "investor-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:irs-tax-returns",
+      "@type": "EvidenceType",
+      "name": "IRS Tax Returns (W-2, 1099, K-1, 1040)",
+      "description": "Federal tax documents for two most recent years showing individual or joint income. Used for income-based accredited investor verification under 506(c)(2)(ii)(A).",
+      "category": "financial-verification",
+      "sourceType": "government-issued",
+      "retentionYears": 7,
+      "freshnessDays": 365
+    },
+    {
+      "@id": "ev-type:bank-brokerage-statements",
+      "@type": "EvidenceType",
+      "name": "Bank and Brokerage Account Statements",
+      "description": "Financial institution statements showing account balances, investment holdings, and asset values. Used for net worth and asset threshold verification.",
+      "category": "financial-verification",
+      "sourceType": "third-party-institution",
+      "retentionYears": 7,
+      "freshnessDays": 90
+    },
+    {
+      "@id": "ev-type:consumer-credit-report",
+      "@type": "EvidenceType",
+      "name": "Consumer Credit Report",
+      "description": "Credit bureau report showing liabilities. Required alongside asset statements for net-worth-based verification under 506(c)(2)(ii)(B) to establish that net worth is not overstated by omitting liabilities.",
+      "category": "financial-verification",
+      "sourceType": "third-party-institution",
+      "retentionYears": 7,
+      "freshnessDays": 90
+    },
+    {
+      "@id": "ev-type:third-party-verification-letter",
+      "@type": "EvidenceType",
+      "name": "Third-Party Verification Letter (BD/RIA/Attorney/CPA)",
+      "description": "Written confirmation from a registered broker-dealer, SEC-registered investment adviser, licensed attorney, or licensed CPA that the investor is accredited. Per 506(c)(2)(ii)(C).",
+      "category": "professional-verification",
+      "sourceType": "licensed-professional",
+      "retentionYears": 7,
+      "freshnessDays": 365
+    },
+    {
+      "@id": "ev-type:prior-506b-certification",
+      "@type": "EvidenceType",
+      "name": "Prior 506(b) Investor Self-Certification",
+      "description": "Written representation from investor who previously invested in issuer's 506(b) offering that they remain accredited. Valid method under 506(c)(2)(ii)(D).",
+      "category": "investor-documentation",
+      "sourceType": "investor-generated",
+      "retentionYears": 7,
+      "freshnessDays": 1825
+    },
+    {
+      "@id": "ev-type:prior-verified-representation",
+      "@type": "EvidenceType",
+      "name": "Prior Verified Investor Written Representation",
+      "description": "Written representation from investor previously verified as accredited that they remain accredited. Valid for 5 years from initial verification. Per 506(c)(2)(ii)(E).",
+      "category": "investor-documentation",
+      "sourceType": "investor-generated",
+      "retentionYears": 7,
+      "freshnessDays": 1825
+    },
+    {
+      "@id": "ev-type:finra-brokercheck",
+      "@type": "EvidenceType",
+      "name": "FINRA BrokerCheck Report",
+      "description": "Search results from FINRA BrokerCheck system. ONLY covers persons with a CRD number (registered representatives, associated persons of broker-dealers and investment advisers). Returns registration status, exam history, employment history, disciplinary disclosures, and customer complaints. Does NOT cover persons who have never been registered.",
+      "category": "regulatory-search",
+      "sourceType": "government-sro-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:sec-edgar-enforcement-search",
+      "@type": "EvidenceType",
+      "name": "SEC EDGAR Enforcement Action Search",
+      "description": "Search of SEC EDGAR full-text search and litigation releases for enforcement actions, administrative proceedings, cease-and-desist orders, and civil actions against a named person or entity. Covers ALL persons regardless of registration status.",
+      "category": "regulatory-search",
+      "sourceType": "government-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:federal-court-records-search",
+      "@type": "EvidenceType",
+      "name": "Federal Court Records Search (PACER)",
+      "description": "Search of PACER/CM-ECF federal court records for felony/misdemeanor convictions, injunctions, and civil actions. Required for all covered persons regardless of registration status. Covers 506(d)(1)(i) convictions and 506(d)(1)(ii) court injunctions.",
+      "category": "court-records",
+      "sourceType": "government-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:state-court-records-search",
+      "@type": "EvidenceType",
+      "name": "State Court Records Search",
+      "description": "Search of state court records for felony/misdemeanor convictions and injunctions in relevant jurisdictions. Required because many securities-related criminal cases are prosecuted at the state level. Covers all covered persons.",
+      "category": "court-records",
+      "sourceType": "government-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:state-securities-regulator-search",
+      "@type": "EvidenceType",
+      "name": "State Securities Regulator Search",
+      "description": "Search of state securities regulator records (e.g., NASAA CRD, individual state databases) for bars, suspensions, cease-and-desist orders, and final orders. Required for all covered persons. Covers 506(d)(1)(iii) state regulatory orders.",
+      "category": "regulatory-search",
+      "sourceType": "government-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:commercial-background-check",
+      "@type": "EvidenceType",
+      "name": "Commercial Background Check Report",
+      "description": "Comprehensive background check from a commercial provider (e.g., LexisNexis, Sterling) covering criminal records, civil judgments, liens, bankruptcies, and media searches across multiple jurisdictions. Supplements but does not replace direct regulatory database searches.",
+      "category": "background-verification",
+      "sourceType": "commercial-provider",
+      "retentionYears": 7,
+      "freshnessDays": 90
+    },
+    {
+      "@id": "ev-type:bad-actor-questionnaire",
+      "@type": "EvidenceType",
+      "name": "Bad Actor Questionnaire (Covered Person Responses)",
+      "description": "Completed questionnaire from each covered person addressing all 8 disqualifying event categories under 506(d)(1)(i)-(viii). Self-disclosure is necessary but not independently sufficient — must be corroborated by independent searches.",
+      "category": "self-disclosure",
+      "sourceType": "covered-person-generated",
+      "retentionYears": 7,
+      "freshnessDays": 365
+    },
+    {
+      "@id": "ev-type:sro-disciplinary-search",
+      "@type": "EvidenceType",
+      "name": "SRO Disciplinary History Search",
+      "description": "Search of self-regulatory organization disciplinary records beyond FINRA — includes CBOE, NYSE, CME, NFA, MSRB as applicable. Covers 506(d)(1)(vi) SRO suspension/expulsion. Only relevant for persons subject to SRO jurisdiction.",
+      "category": "regulatory-search",
+      "sourceType": "government-sro-database",
+      "retentionYears": 7,
+      "freshnessDays": 30
+    },
+    {
+      "@id": "ev-type:usps-fraud-order-search",
+      "@type": "EvidenceType",
+      "name": "USPS False Representation Order Search",
+      "description": "Search for U.S. Postal Service false representation orders under 39 U.S.C. 3005. Covers 506(d)(1)(viii). Low-frequency but specifically enumerated in the statute.",
+      "category": "regulatory-search",
+      "sourceType": "government-database",
+      "retentionYears": 7,
+      "freshnessDays": 90
+    },
+    {
+      "@id": "ev-type:legal-opinion-letter",
+      "@type": "EvidenceType",
+      "name": "Legal Opinion Letter",
+      "description": "Written opinion from securities counsel addressing specific legal conclusions: exemption availability, bad actor analysis, integration analysis, or other legal determinations.",
+      "category": "professional-verification",
+      "sourceType": "licensed-professional",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:form-d-edgar-confirmation",
+      "@type": "EvidenceType",
+      "name": "Form D EDGAR Filing Confirmation",
+      "description": "Filing confirmation from SEC EDGAR system showing accession number, date filed, and accepted status. Proves timely filing under Rule 503.",
+      "category": "regulatory-filing",
+      "sourceType": "government-database",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:form-d-amendment",
+      "@type": "EvidenceType",
+      "name": "Form D Amendment Filing",
+      "description": "Amended Form D filing for material changes or annual update. Separate from initial filing.",
+      "category": "regulatory-filing",
+      "sourceType": "government-database",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:authorized-signatory-docs",
+      "@type": "EvidenceType",
+      "name": "Authorized Signatory Documentation",
+      "description": "Board resolution, power of attorney, or corporate authorization documenting who is authorized to sign Form D and other offering documents on behalf of the issuer.",
+      "category": "corporate-governance",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:ppm",
+      "@type": "EvidenceType",
+      "name": "Private Placement Memorandum (PPM)",
+      "description": "Offering document describing the investment, risks, terms, and issuer. Primary disclosure document for non-accredited purchasers under 502(b). Version-controlled with distribution records.",
+      "category": "disclosure-document",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:financial-statements",
+      "@type": "EvidenceType",
+      "name": "Financial Statements (GAAP/IFRS)",
+      "description": "Audited or reviewed financial statements prepared under GAAP or IFRS. Required for non-accredited purchaser disclosure under 502(b). Also used for entity asset threshold verification.",
+      "category": "financial-verification",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:entity-organizational-docs",
+      "@type": "EvidenceType",
+      "name": "Entity Organizational Documents",
+      "description": "Articles of incorporation, operating agreement, partnership agreement, bylaws, trust instrument, or equivalent formation documents. Used to verify entity type, ownership structure, formation purpose, and officer/director status.",
+      "category": "corporate-governance",
+      "sourceType": "entity-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:trust-agreement",
+      "@type": "EvidenceType",
+      "name": "Trust Agreement / Trust Instrument",
+      "description": "The governing document of a trust, showing trustee identity, beneficiaries, formation purpose, and terms. Required for 501(a)(7) trust verification.",
+      "category": "corporate-governance",
+      "sourceType": "entity-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:marketing-materials-log",
+      "@type": "EvidenceType",
+      "name": "Marketing Materials Log",
+      "description": "Comprehensive log of all marketing, advertising, and solicitation materials used in connection with the offering, with dates, channels, and audience descriptions.",
+      "category": "solicitation-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:pre-existing-relationship-docs",
+      "@type": "EvidenceType",
+      "name": "Pre-Existing Substantive Relationship Documentation",
+      "description": "Documentation establishing a substantive pre-existing relationship with each investor contacted in a 506(b) offering. Typically includes CRM records, prior investment history, or introduction records.",
+      "category": "solicitation-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:advertising-audit-records",
+      "@type": "EvidenceType",
+      "name": "Advertising/Media Monitoring Records",
+      "description": "Records of advertising audits, media monitoring, or internet searches confirming no general solicitation occurred (for 506(b)) or documenting all solicitation used (for 506(c)).",
+      "category": "solicitation-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:purchaser-tracking-log",
+      "@type": "EvidenceType",
+      "name": "Purchaser Tracking Log",
+      "description": "Running log tracking each purchaser, their accredited/non-accredited status, applicable 501(e) counting exclusions, and running total of non-accredited purchasers per 90-day period.",
+      "category": "offering-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:sophistication-evaluation",
+      "@type": "EvidenceType",
+      "name": "Sophistication Evaluation Documentation",
+      "description": "Documentation of the issuer's evaluation that a non-accredited purchaser (or trust director, or family office designee) has sufficient knowledge and experience in financial and business matters to evaluate investment merits and risks. Per 506(b)(2)(ii).",
+      "category": "investor-documentation",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:purchaser-rep-acknowledgment",
+      "@type": "EvidenceType",
+      "name": "Purchaser Representative Written Acknowledgment",
+      "description": "Written acknowledgment by purchaser that a named person is acting as their purchaser representative for THIS SPECIFIC investment. Blanket acknowledgments are insufficient per 501(i).",
+      "category": "investor-documentation",
+      "sourceType": "investor-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:purchaser-rep-disclosure",
+      "@type": "EvidenceType",
+      "name": "Purchaser Representative Material Relationship Disclosure",
+      "description": "Written disclosure by the purchaser representative of all material relationships between the representative (and affiliates) and the issuer (and affiliates). Required per 501(i)(4).",
+      "category": "investor-documentation",
+      "sourceType": "representative-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:integration-analysis",
+      "@type": "EvidenceType",
+      "name": "Rule 152 Integration Analysis",
+      "description": "Written analysis under Rule 152 documenting why concurrent or proximate offerings should not be integrated. Includes timeline, investor overlap analysis, and exemption basis for each offering.",
+      "category": "legal-analysis",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:offering-timeline",
+      "@type": "EvidenceType",
+      "name": "Offering Timeline Documentation",
+      "description": "Chronological record of offering events: board authorization, first contact, first sale, each subsequent sale, closing. Used for integration analysis, Form D timing, and 504 12-month lookback.",
+      "category": "offering-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:state-registration-filing",
+      "@type": "EvidenceType",
+      "name": "State Securities Registration Filing",
+      "description": "Blue sky filing with state securities regulators. Required under 500(b). Also relevant for Rule 504(b)(1) state registration pathway that exempts from 502(c)/(d).",
+      "category": "regulatory-filing",
+      "sourceType": "government-database",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:compliance-attestation",
+      "@type": "EvidenceType",
+      "name": "Compliance Attestation",
+      "description": "Written attestation by issuer or compliance officer acknowledging specific regulatory obligations and confirming compliance. General-purpose evidence for controls that require demonstrated awareness.",
+      "category": "issuer-attestation",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:antifraud-policy",
+      "@type": "EvidenceType",
+      "name": "Antifraud Policy and Disclosure Review",
+      "description": "Written policy documenting antifraud compliance procedures. Includes disclosure review process ensuring no material misstatements or omissions in offering materials.",
+      "category": "policy-document",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:affiliate-analysis",
+      "@type": "EvidenceType",
+      "name": "Affiliate Relationship Analysis",
+      "description": "Written analysis documenting all direct and indirect control relationships for 501(b) affiliate determination. Includes organizational charts showing intermediary chains.",
+      "category": "legal-analysis",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:offering-price-worksheet",
+      "@type": "EvidenceType",
+      "name": "Aggregate Offering Price Calculation Worksheet",
+      "description": "Calculation documenting all forms of consideration (cash, property, notes, debt cancellation, services) per 501(c), non-cash valuations, foreign currency translations, and 504 12-month lookback.",
+      "category": "financial-verification",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:covered-persons-list",
+      "@type": "EvidenceType",
+      "name": "Covered Persons Identification List",
+      "description": "Comprehensive list identifying every covered person under 506(d): the issuer, predecessors, affiliated issuers, all directors/officers/GPs/managing members, 20%+ beneficial owners, promoters, investment managers (for pooled funds), compensated solicitors, and directors/officers/GPs of managers and solicitors.",
+      "category": "bad-actor-verification",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:net-worth-calculation-worksheet",
+      "@type": "EvidenceType",
+      "name": "Net Worth Calculation Worksheet (Primary Residence Exclusion)",
+      "description": "Detailed calculation applying 501(a)(5)(i) rules: primary residence excluded from assets, mortgage up to FMV excluded from liabilities, mortgage exceeding FMV included as liability, 60-day lookback for new mortgage debt.",
+      "category": "financial-verification",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:investment-company-analysis",
+      "@type": "EvidenceType",
+      "name": "Investment Company Act Analysis",
+      "description": "Written analysis confirming the issuer is not an investment company, or documenting reliance on 3(c)(1) or 3(c)(7) exclusion. Required for 504(a) eligibility and 501(a)(11) knowledgeable employee verification.",
+      "category": "legal-analysis",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:record-retention-policy",
+      "@type": "EvidenceType",
+      "name": "Record Retention Policy",
+      "description": "Written policy establishing minimum 7-year retention for all offering records, investor documentation, and compliance evidence.",
+      "category": "policy-document",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:record-inventory",
+      "@type": "EvidenceType",
+      "name": "Record Inventory / Document Index",
+      "description": "Comprehensive inventory of all retained records with locations, custodians, and retention dates. Demonstrates that required records actually exist and are accessible.",
+      "category": "offering-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:distribution-log",
+      "@type": "EvidenceType",
+      "name": "Material Distribution Log",
+      "description": "Log documenting which offering materials (PPM versions, term sheets, supplements) were provided to which investors, with dates. Proves 502(b) delivery obligations were met.",
+      "category": "offering-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:exemption-determination-memo",
+      "@type": "EvidenceType",
+      "name": "Exemption Determination Memo",
+      "description": "Written memo documenting which exemption(s) the offering relies on (504, 506(b), 506(c)), the factual basis for eligibility, and alternatives if the primary exemption fails.",
+      "category": "legal-analysis",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:family-office-qualification",
+      "@type": "EvidenceType",
+      "name": "Family Office Qualification Documentation",
+      "description": "Documentation establishing family office status under Rule 202(a)(11)(G)-1 of the Advisers Act, including AUM documentation showing >$5M, formation purpose, and family relationship structure.",
+      "category": "investor-documentation",
+      "sourceType": "entity-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:registration-license-charter",
+      "@type": "EvidenceType",
+      "name": "Registration, License, or Charter Documentation",
+      "description": "Copies of bank charters, broker-dealer registrations, RIA registrations, insurance company licenses, SBIC licenses, or other institutional registrations. Proves 501(a)(1) institutional accredited investor status.",
+      "category": "institutional-verification",
+      "sourceType": "government-database",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:spousal-equivalent-attestation",
+      "@type": "EvidenceType",
+      "name": "Spousal Equivalent Relationship Attestation",
+      "description": "Written attestation from investor and cohabitant establishing spousal equivalent status under 501(j), for joint net worth or joint income calculations.",
+      "category": "investor-documentation",
+      "sourceType": "investor-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:good-cause-waiver-petition",
+      "@type": "EvidenceType",
+      "name": "Good Cause Waiver Petition and SEC Determination",
+      "description": "Petition submitted to SEC requesting good cause waiver under 507(b) or 506(d)(2)(ii), and the SEC determination letter. Only applicable if a disqualifying event exists.",
+      "category": "regulatory-filing",
+      "sourceType": "government-database",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:deviation-remediation-docs",
+      "@type": "EvidenceType",
+      "name": "Deviation / Remediation Documentation",
+      "description": "Documentation of any identified deviation from Reg D requirements, the insignificance analysis under 508(a), good faith compliance efforts, and remediation steps taken.",
+      "category": "compliance-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:historical-offering-records",
+      "@type": "EvidenceType",
+      "name": "Historical Offering Records",
+      "description": "Records of prior offerings including pre-2017 Rule 505 reliance, prior Rule 504 sales within 12-month lookback, and predecessor/affiliate offering history.",
+      "category": "offering-records",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    },
+    {
+      "@id": "ev-type:delivery-confirmation",
+      "@type": "EvidenceType",
+      "name": "Disclosure Delivery Confirmation",
+      "description": "Timestamped confirmation that required disclosures were furnished to non-accredited purchasers a reasonable time prior to sale. Includes delivery method, date, and recipient acknowledgment.",
+      "category": "disclosure-document",
+      "sourceType": "issuer-generated",
+      "retentionYears": 7
+    }
+  ],
+
+  "satisfactionEdges": [
+    {
+      "@id": "edge:sub-agree-to-resale",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:subscription-agreement",
+      "control": "ctrl-resale-limitations",
+      "sufficiency": "necessary",
+      "scope": "Contains investment intent representations, restricted securities acknowledgment, and restrictive legend",
+      "limitations": "Must include all three elements: (1) acquisition purpose inquiry, (2) unregistered status disclosure, (3) restrictive legend. A subscription agreement missing any element is insufficient."
+    },
+    {
+      "@id": "edge:sub-agree-to-investor-records",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:subscription-agreement",
+      "control": "ctrl-investor-records",
+      "sufficiency": "partial",
+      "scope": "One of the required record types to be retained",
+      "limitations": "Satisfies the subscription agreement sub-requirement only; other records (questionnaires, verification docs, communications) also needed"
+    },
+    {
+      "@id": "edge:sub-agree-to-offering-materials",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:subscription-agreement",
+      "control": "ctrl-offering-materials",
+      "sufficiency": "partial",
+      "scope": "Subscription agreement is itself an offering material that must be version-controlled",
+      "limitations": "Does not cover PPM, term sheets, or other marketing materials"
+    },
+    {
+      "@id": "edge:sub-agree-to-purchaser-count",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:subscription-agreement",
+      "control": "ctrl-purchaser-count",
+      "sufficiency": "supporting",
+      "scope": "Contains investor representations about accredited status which feed into purchaser counting",
+      "limitations": "Does not itself establish the count; the purchaser tracking log is the primary evidence"
+    },
+    {
+      "@id": "edge:aiq-to-ai-verification",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:accredited-investor-questionnaire",
+      "control": "ctrl-ai-verification",
+      "sufficiency": "necessary",
+      "scope": "Identifies which 501(a) category the investor claims to qualify under",
+      "limitations": "Self-certification alone is insufficient for 506(c) offerings — must be corroborated by independent verification. For 506(b), self-certification may be adequate if issuer reasonably believes."
+    },
+    {
+      "@id": "edge:aiq-to-ai-financial-institutions",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:accredited-investor-questionnaire",
+      "control": "ctrl-ai-financial-institutions",
+      "sufficiency": "partial",
+      "scope": "Investor identifies as institutional investor under 501(a)(1)",
+      "limitations": "Must be corroborated by registration/license/charter documentation"
+    },
+    {
+      "@id": "edge:reg-license-to-ai-financial-institutions",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:registration-license-charter",
+      "control": "ctrl-ai-financial-institutions",
+      "sufficiency": "necessary",
+      "scope": "Proves the entity is actually a bank, broker-dealer, RIA, insurance company, RIC, BDC, SBIC, RBIC, or qualifying plan",
+      "limitations": "Must be current and in good standing; expired or revoked registrations do not qualify"
+    },
+    {
+      "@id": "edge:aiq-to-ai-private-bdc",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:accredited-investor-questionnaire",
+      "control": "ctrl-ai-private-bdc",
+      "sufficiency": "partial",
+      "scope": "Investor identifies as private BDC",
+      "limitations": "Must be corroborated by Advisers Act 202(a)(22) analysis"
+    },
+    {
+      "@id": "edge:entity-docs-to-ai-private-bdc",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-private-bdc",
+      "sufficiency": "partial",
+      "scope": "Shows entity structure and purpose",
+      "limitations": "Alone does not prove BDC status; needs Advisers Act analysis"
+    },
+    {
+      "@id": "edge:investment-co-analysis-to-ai-private-bdc",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:investment-company-analysis",
+      "control": "ctrl-ai-private-bdc",
+      "sufficiency": "necessary",
+      "scope": "Demonstrates entity qualifies as BDC under Advisers Act 202(a)(22)",
+      "limitations": "Legal analysis — subject to interpretation"
+    },
+    {
+      "@id": "edge:entity-docs-to-ai-entity-assets",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-entity-assets",
+      "sufficiency": "partial",
+      "scope": "Confirms entity type (501(c)(3), corp, partnership, LLC, trust) and formation purpose",
+      "limitations": "Does not prove >$5M asset threshold"
+    },
+    {
+      "@id": "edge:financials-to-ai-entity-assets",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:financial-statements",
+      "control": "ctrl-ai-entity-assets",
+      "sufficiency": "necessary",
+      "scope": "Proves total assets exceed $5,000,000",
+      "limitations": "Must be recent enough to reflect current financial position"
+    },
+    {
+      "@id": "edge:entity-docs-to-ai-company-insiders",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-company-insiders",
+      "sufficiency": "necessary",
+      "scope": "Corporate records (bylaws, operating agreement) confirming director/officer/GP status",
+      "limitations": "Must reflect current status at time of sale, not historical"
+    },
+    {
+      "@id": "edge:bank-statements-to-ai-net-worth",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bank-brokerage-statements",
+      "control": "ctrl-ai-natural-person-net-worth",
+      "sufficiency": "partial",
+      "scope": "Establishes asset values for net worth calculation",
+      "limitations": "Does not show liabilities — must be paired with credit report. Does not establish primary residence exclusion calculation."
+    },
+    {
+      "@id": "edge:credit-report-to-ai-net-worth",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:consumer-credit-report",
+      "control": "ctrl-ai-natural-person-net-worth",
+      "sufficiency": "partial",
+      "scope": "Establishes liabilities for net worth calculation, including mortgage debt",
+      "limitations": "Does not show assets. Must be combined with asset statements and primary residence exclusion worksheet."
+    },
+    {
+      "@id": "edge:net-worth-worksheet-to-ai-net-worth",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:net-worth-calculation-worksheet",
+      "control": "ctrl-ai-natural-person-net-worth",
+      "sufficiency": "necessary",
+      "scope": "Applies 501(a)(5)(i) rules: excludes primary residence value, handles mortgage debt calculation, 60-day lookback",
+      "limitations": "Worksheet is only as good as the underlying asset/liability documentation"
+    },
+    {
+      "@id": "edge:third-party-to-ai-net-worth",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:third-party-verification-letter",
+      "control": "ctrl-ai-natural-person-net-worth",
+      "sufficiency": "sufficient",
+      "scope": "Written confirmation from BD/RIA/attorney/CPA that net worth exceeds $1M per 501(a)(5) rules",
+      "limitations": "Only sufficient for 506(c) if the verifier applied reasonable verification steps",
+      "condition": "Verifier must be a registered BD, SEC-registered RIA, licensed attorney, or licensed CPA"
+    },
+    {
+      "@id": "edge:irs-returns-to-ai-income",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:irs-tax-returns",
+      "control": "ctrl-ai-natural-person-income",
+      "sufficiency": "partial",
+      "scope": "Proves income exceeded $200K individual / $300K joint for two most recent years",
+      "limitations": "Does not establish reasonable expectation of reaching same level in current year — need written representation for that"
+    },
+    {
+      "@id": "edge:third-party-to-ai-income",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:third-party-verification-letter",
+      "control": "ctrl-ai-natural-person-income",
+      "sufficiency": "sufficient",
+      "scope": "Written confirmation from BD/RIA/attorney/CPA that income thresholds are met",
+      "limitations": "Only sufficient for 506(c) if the verifier applied reasonable verification steps",
+      "condition": "Verifier must be a registered BD, SEC-registered RIA, licensed attorney, or licensed CPA"
+    },
+    {
+      "@id": "edge:trust-agreement-to-ai-trust",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:trust-agreement",
+      "control": "ctrl-ai-trust",
+      "sufficiency": "necessary",
+      "scope": "Proves trust existence, formation purpose, trustee identity, and governance terms",
+      "limitations": "Does not prove >$5M assets or sophistication of directing person"
+    },
+    {
+      "@id": "edge:financials-to-ai-trust",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:financial-statements",
+      "control": "ctrl-ai-trust",
+      "sufficiency": "partial",
+      "scope": "Shows trust total assets exceed $5,000,000",
+      "limitations": "Does not prove formation purpose or sophistication"
+    },
+    {
+      "@id": "edge:sophistication-to-ai-trust",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sophistication-evaluation",
+      "control": "ctrl-ai-trust",
+      "sufficiency": "partial",
+      "scope": "Documents sophistication of person directing the trust's purchase per 506(b)(2)(ii)",
+      "limitations": "Only one of four required elements for 501(a)(7)"
+    },
+    {
+      "@id": "edge:entity-docs-to-ai-all-owners",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-all-owners-accredited",
+      "sufficiency": "necessary",
+      "scope": "Identifies ALL equity owners for look-through analysis",
+      "limitations": "Does not prove each owner is accredited — separate verification needed for each"
+    },
+    {
+      "@id": "edge:aiq-to-ai-all-owners",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:accredited-investor-questionnaire",
+      "control": "ctrl-ai-all-owners-accredited",
+      "sufficiency": "partial",
+      "scope": "Each owner must complete individual accredited investor verification",
+      "limitations": "Must have one per equity owner — a single entity-level questionnaire is insufficient"
+    },
+    {
+      "@id": "edge:entity-docs-to-ai-entity-investments",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-entity-investments",
+      "sufficiency": "partial",
+      "scope": "Confirms entity type is not listed in (a)(1),(2),(3),(7),(8) and formation purpose",
+      "limitations": "Does not prove >$5M investments"
+    },
+    {
+      "@id": "edge:bank-statements-to-ai-entity-investments",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bank-brokerage-statements",
+      "control": "ctrl-ai-entity-investments",
+      "sufficiency": "partial",
+      "scope": "Documents investment portfolio per Rule 2a51-1(b) definition",
+      "limitations": "Must use Rule 2a51-1(b) investment definition, not general assets"
+    },
+    {
+      "@id": "edge:finra-to-ai-prof-cert",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:finra-brokercheck",
+      "control": "ctrl-ai-professional-certification",
+      "sufficiency": "necessary",
+      "scope": "Verifies Series 7, Series 65, or Series 82 license status and good standing",
+      "limitations": "Only covers FINRA-registered exams. If the certification is from a non-FINRA body, need that body's verification instead."
+    },
+    {
+      "@id": "edge:employment-to-ai-knowledgeable-employee",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-ai-knowledgeable-employee",
+      "sufficiency": "partial",
+      "scope": "Confirms employment relationship with issuer",
+      "limitations": "Does not prove 3(c)(1)/3(c)(7) exclusion or Rule 3c-5(a)(4) status"
+    },
+    {
+      "@id": "edge:investment-co-to-ai-knowledgeable-employee",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:investment-company-analysis",
+      "control": "ctrl-ai-knowledgeable-employee",
+      "sufficiency": "necessary",
+      "scope": "Confirms issuer would be an investment company but for 3(c)(1) or 3(c)(7) exclusion",
+      "limitations": "Without this analysis, knowledgeable employee category does not apply"
+    },
+    {
+      "@id": "edge:family-office-to-ai-family-office",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:family-office-qualification",
+      "control": "ctrl-ai-family-office",
+      "sufficiency": "necessary",
+      "scope": "Proves family office status under Rule 202(a)(11)(G)-1, AUM >$5M, formation purpose",
+      "limitations": "Does not prove sophistication of person directing the investment"
+    },
+    {
+      "@id": "edge:sophistication-to-ai-family-office",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sophistication-evaluation",
+      "control": "ctrl-ai-family-office",
+      "sufficiency": "partial",
+      "scope": "Documents that person directing investment has knowledge and experience per 501(a)(12)(iii)",
+      "limitations": "Must be paired with family office qualification docs and AUM documentation"
+    },
+    {
+      "@id": "edge:family-office-to-ai-family-client",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:family-office-qualification",
+      "control": "ctrl-ai-family-client",
+      "sufficiency": "necessary",
+      "scope": "The family office itself must qualify under 501(a)(12) before any family client can qualify under 501(a)(13)",
+      "limitations": "Also need documentation that this person is a family client under Rule 202(a)(11)(G)-1"
+    },
+    {
+      "@id": "edge:affiliate-analysis-to-affiliate-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:affiliate-analysis",
+      "control": "ctrl-affiliate-definition",
+      "sufficiency": "sufficient",
+      "scope": "Documents all direct and indirect control relationships",
+      "limitations": "Must be updated when ownership or control structures change"
+    },
+    {
+      "@id": "edge:offering-price-to-agg-price",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:offering-price-worksheet",
+      "control": "ctrl-aggregate-offering-price",
+      "sufficiency": "sufficient",
+      "scope": "Complete calculation of all consideration per 501(c)",
+      "limitations": "Non-cash valuations must be supported by bona fide sales or fair value documentation"
+    },
+    {
+      "@id": "edge:offering-price-to-504-conditions",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:offering-price-worksheet",
+      "control": "ctrl-504-conditions",
+      "sufficiency": "necessary",
+      "scope": "Proves aggregate offering price does not exceed $10M after 12-month lookback deduction",
+      "condition": "Only for Rule 504 offerings"
+    },
+    {
+      "@id": "edge:purchaser-log-to-purchaser-count",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:purchaser-tracking-log",
+      "control": "ctrl-purchaser-count",
+      "sufficiency": "necessary",
+      "scope": "Running count of non-accredited purchasers with 501(e) exclusion documentation",
+      "condition": "Only for 506(b) offerings with non-accredited purchasers"
+    },
+    {
+      "@id": "edge:purchaser-log-to-506b",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:purchaser-tracking-log",
+      "control": "ctrl-506b-offering",
+      "sufficiency": "partial",
+      "scope": "Proves no more than 35 non-accredited purchasers per 90-day period",
+      "condition": "506(b) offerings only"
+    },
+    {
+      "@id": "edge:entity-docs-to-exec-officer",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-executive-officer-def",
+      "sufficiency": "sufficient",
+      "scope": "Bylaws, officer list, and org chart identify all executive officers per 501(f)",
+      "limitations": "Must identify policy-making functions, not just titles"
+    },
+    {
+      "@id": "edge:purchaser-rep-ack-to-purchaser-rep",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:purchaser-rep-acknowledgment",
+      "control": "ctrl-purchaser-representative",
+      "sufficiency": "necessary",
+      "scope": "Written per-deal acknowledgment from purchaser per 501(i)(3)",
+      "limitations": "Must be specific to THIS investment — blanket acknowledgments are insufficient"
+    },
+    {
+      "@id": "edge:purchaser-rep-disc-to-purchaser-rep",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:purchaser-rep-disclosure",
+      "control": "ctrl-purchaser-representative",
+      "sufficiency": "necessary",
+      "scope": "Written disclosure of all material relationships per 501(i)(4)",
+      "limitations": "Must cover representative AND representative's affiliates"
+    },
+    {
+      "@id": "edge:spousal-attestation-to-spousal-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:spousal-equivalent-attestation",
+      "control": "ctrl-spousal-equivalent-def",
+      "sufficiency": "sufficient",
+      "scope": "Establishes cohabitant relationship for joint calculations",
+      "condition": "Only needed when relying on joint net worth or joint income"
+    },
+    {
+      "@id": "edge:integration-to-integration",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:integration-analysis",
+      "control": "ctrl-integration",
+      "sufficiency": "necessary",
+      "scope": "Rule 152 analysis documenting why offerings are not integrated",
+      "condition": "Required when issuer has concurrent or proximate offerings"
+    },
+    {
+      "@id": "edge:timeline-to-integration",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:offering-timeline",
+      "control": "ctrl-integration",
+      "sufficiency": "partial",
+      "scope": "Timeline facts supporting the integration analysis",
+      "limitations": "Timeline alone does not constitute legal analysis"
+    },
+    {
+      "@id": "edge:ppm-to-info-requirements",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:ppm",
+      "control": "ctrl-information-requirements",
+      "sufficiency": "partial",
+      "scope": "Primary disclosure document for non-accredited purchasers under 502(b)",
+      "condition": "506(b) offerings with non-accredited purchasers"
+    },
+    {
+      "@id": "edge:financials-to-info-requirements",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:financial-statements",
+      "control": "ctrl-information-requirements",
+      "sufficiency": "necessary",
+      "scope": "GAAP/IFRS financial statements required for non-accredited purchaser disclosure",
+      "condition": "506(b) non-reporting issuer offerings with non-accredited purchasers"
+    },
+    {
+      "@id": "edge:delivery-to-info-requirements",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:delivery-confirmation",
+      "control": "ctrl-information-requirements",
+      "sufficiency": "necessary",
+      "scope": "Proves information was furnished a reasonable time prior to sale per 502(b)",
+      "condition": "506(b) offerings with non-accredited purchasers"
+    },
+    {
+      "@id": "edge:marketing-log-to-gen-solicitation",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:marketing-materials-log",
+      "control": "ctrl-general-solicitation",
+      "sufficiency": "necessary",
+      "scope": "Documents all materials used — proves scope of solicitation or absence thereof"
+    },
+    {
+      "@id": "edge:pre-existing-to-506b-no-solicit",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:pre-existing-relationship-docs",
+      "control": "ctrl-506b-no-solicitation",
+      "sufficiency": "necessary",
+      "scope": "Proves each investor was contacted through a pre-existing substantive relationship, not general solicitation",
+      "condition": "506(b) offerings only"
+    },
+    {
+      "@id": "edge:advertising-audit-to-506b-no-solicit",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:advertising-audit-records",
+      "control": "ctrl-506b-no-solicitation",
+      "sufficiency": "partial",
+      "scope": "Confirms no public advertising or general solicitation occurred",
+      "condition": "506(b) offerings only"
+    },
+    {
+      "@id": "edge:marketing-log-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:marketing-materials-log",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "partial",
+      "scope": "Documents all solicitation materials used in the 506(c) offering",
+      "condition": "506(c) offerings only"
+    },
+    {
+      "@id": "edge:irs-returns-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:irs-tax-returns",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "partial",
+      "scope": "Income-based verification method per 506(c)(2)(ii)(A)",
+      "condition": "506(c) offerings — income verification method",
+      "limitations": "Only proves income prong; investor must also represent reasonable expectation for current year"
+    },
+    {
+      "@id": "edge:bank-credit-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bank-brokerage-statements",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "partial",
+      "scope": "Net-worth verification method per 506(c)(2)(ii)(B) — asset side",
+      "condition": "506(c) offerings — net worth verification method",
+      "limitations": "MUST be paired with consumer credit report per 506(c)(2)(ii)(B)"
+    },
+    {
+      "@id": "edge:credit-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:consumer-credit-report",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "partial",
+      "scope": "Net-worth verification method per 506(c)(2)(ii)(B) — liability side",
+      "condition": "506(c) offerings — net worth verification method",
+      "limitations": "MUST be paired with bank/brokerage statements"
+    },
+    {
+      "@id": "edge:third-party-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:third-party-verification-letter",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "sufficient",
+      "scope": "Third-party confirmation method per 506(c)(2)(ii)(C)",
+      "condition": "506(c) offerings — third-party verification method"
+    },
+    {
+      "@id": "edge:prior-506b-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:prior-506b-certification",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "sufficient",
+      "scope": "Prior 506(b) investor certification method per 506(c)(2)(ii)(D)",
+      "condition": "506(c) offerings — investor previously invested in issuer's 506(b) offering"
+    },
+    {
+      "@id": "edge:prior-verified-to-506c-verified",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:prior-verified-representation",
+      "control": "ctrl-506c-verified-solicitation",
+      "sufficiency": "sufficient",
+      "scope": "Written representation from previously verified investor per 506(c)(2)(ii)(E)",
+      "condition": "506(c) offerings — within 5 years of prior verification"
+    },
+    {
+      "@id": "edge:sub-agree-to-resale-limitations",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:subscription-agreement",
+      "control": "ctrl-resale-limitations",
+      "sufficiency": "necessary",
+      "scope": "Investment intent representation, restricted securities legend, unregistered status disclosure"
+    },
+    {
+      "@id": "edge:form-d-to-filing",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:form-d-edgar-confirmation",
+      "control": "ctrl-form-d-filing",
+      "sufficiency": "necessary",
+      "scope": "Proves Form D was filed with the Commission",
+      "limitations": "Must also prove timeliness — within 15 days of first sale"
+    },
+    {
+      "@id": "edge:timeline-to-filing",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:offering-timeline",
+      "control": "ctrl-form-d-filing",
+      "sufficiency": "partial",
+      "scope": "Documents first sale date, establishing the 15-day deadline",
+      "limitations": "Must be paired with EDGAR confirmation to prove timely filing"
+    },
+    {
+      "@id": "edge:form-d-amendment-to-filing",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:form-d-amendment",
+      "control": "ctrl-form-d-filing",
+      "sufficiency": "partial",
+      "scope": "Documents material change amendments and annual amendments",
+      "condition": "Required when material facts change or offering continues past first anniversary"
+    },
+    {
+      "@id": "edge:form-d-to-electronic-filing",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:form-d-edgar-confirmation",
+      "control": "ctrl-form-d-electronic",
+      "sufficiency": "partial",
+      "scope": "EDGAR accession number confirms electronic filing via Reg S-T",
+      "limitations": "Must also document authorized signatory"
+    },
+    {
+      "@id": "edge:signatory-to-electronic-filing",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:authorized-signatory-docs",
+      "control": "ctrl-form-d-electronic",
+      "sufficiency": "partial",
+      "scope": "Proves the person who signed the Form D was duly authorized"
+    },
+    {
+      "@id": "edge:form-d-to-507-disqualification",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:form-d-edgar-confirmation",
+      "control": "ctrl-507-filing-disqualification",
+      "sufficiency": "partial",
+      "scope": "Current Form D compliance",
+      "limitations": "Must also search for injunctions against predecessors and affiliates for prior Form D failures"
+    },
+    {
+      "@id": "edge:federal-court-to-507-disqualification",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:federal-court-records-search",
+      "control": "ctrl-507-filing-disqualification",
+      "sufficiency": "necessary",
+      "scope": "Searches for court injunctions enjoining issuer/predecessors/affiliates for Rule 503 non-compliance"
+    },
+    {
+      "@id": "edge:historical-to-507-disqualification",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:historical-offering-records",
+      "control": "ctrl-507-filing-disqualification",
+      "sufficiency": "partial",
+      "scope": "Documents predecessor and affiliate filing compliance history"
+    },
+    {
+      "@id": "edge:waiver-to-507-waiver",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:good-cause-waiver-petition",
+      "control": "ctrl-507-good-cause-waiver",
+      "sufficiency": "sufficient",
+      "scope": "SEC good cause determination waiving 507(a) disqualification",
+      "condition": "Only applicable if a 507(a) disqualifying event exists"
+    },
+    {
+      "@id": "edge:investment-co-to-504-exemption",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:investment-company-analysis",
+      "control": "ctrl-504-exemption",
+      "sufficiency": "partial",
+      "scope": "Confirms issuer is not an investment company per 504(a)(2)",
+      "condition": "Rule 504 offerings only"
+    },
+    {
+      "@id": "edge:exemption-memo-to-504-exemption",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:exemption-determination-memo",
+      "control": "ctrl-504-exemption",
+      "sufficiency": "necessary",
+      "scope": "Documents issuer eligibility: non-reporting, non-investment company, specific business plan",
+      "condition": "Rule 504 offerings only"
+    },
+    {
+      "@id": "edge:state-reg-to-504-conditions",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-registration-filing",
+      "control": "ctrl-504-conditions",
+      "sufficiency": "partial",
+      "scope": "State registration that may exempt from 502(c)/(d) restrictions per 504(b)(1)",
+      "condition": "Rule 504 state registration pathway"
+    },
+    {
+      "@id": "edge:historical-to-504-conditions",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:historical-offering-records",
+      "control": "ctrl-504-conditions",
+      "sufficiency": "partial",
+      "scope": "12-month lookback of prior Rule 504 sales and section 5(a) violations",
+      "condition": "Rule 504 offerings only"
+    },
+    {
+      "@id": "edge:covered-persons-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:covered-persons-list",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Identifies every person who must be checked: issuer, predecessors, affiliated issuers, directors, officers, GPs, managing members, 20%+ beneficial owners, promoters, investment managers, compensated solicitors, and officers/directors/GPs of managers and solicitors",
+      "limitations": "The list itself does not constitute the check — each person on it must be independently searched"
+    },
+    {
+      "@id": "edge:questionnaire-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bad-actor-questionnaire",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Self-disclosure covering all 8 disqualifying event categories for each covered person",
+      "limitations": "Self-disclosure alone is NOT sufficient — people lie, forget, or don't understand the questions. Must be corroborated by independent searches."
+    },
+    {
+      "@id": "edge:finra-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:finra-brokercheck",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "partial",
+      "scope": "Covers 506(d)(1)(iv) SEC broker-dealer bars, 506(d)(1)(vi) SRO suspension/expulsion, and regulatory disclosures for CRD holders",
+      "limitations": "ONLY covers persons with a CRD number. A 20%+ beneficial owner, promoter, or officer who has never been registered in the securities industry will NOT appear in BrokerCheck. Negative result for non-CRD persons is meaningless — it means they were never registered, not that they are clean."
+    },
+    {
+      "@id": "edge:sec-edgar-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sec-edgar-enforcement-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Covers 506(d)(1)(iv) SEC suspension/revocation orders and 506(d)(1)(v) SEC cease-and-desist orders for ALL covered persons regardless of registration status",
+      "limitations": "Only covers SEC actions. Does not cover state regulatory actions, criminal convictions, or court injunctions."
+    },
+    {
+      "@id": "edge:federal-court-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:federal-court-records-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Covers 506(d)(1)(i) federal felony/misdemeanor convictions in connection with securities and 506(d)(1)(ii) federal court injunctions/restraining orders for ALL covered persons",
+      "limitations": "Does not cover state court records. A state fraud conviction would be missed."
+    },
+    {
+      "@id": "edge:state-court-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-court-records-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Covers 506(d)(1)(i) state felony/misdemeanor convictions and 506(d)(1)(ii) state court injunctions for ALL covered persons",
+      "limitations": "Must cover all relevant jurisdictions — residence, business operations, and prior locations"
+    },
+    {
+      "@id": "edge:state-regulator-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-securities-regulator-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "necessary",
+      "scope": "Covers 506(d)(1)(iii) state regulatory final orders (bars, suspensions, cease-and-desist) for ALL covered persons",
+      "limitations": "Must search in all states where covered persons reside, operate, or have operated"
+    },
+    {
+      "@id": "edge:sro-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sro-disciplinary-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "partial",
+      "scope": "Covers 506(d)(1)(vi) SRO suspension/expulsion beyond FINRA — CBOE, NYSE, CME, NFA, MSRB",
+      "limitations": "Only relevant for covered persons subject to SRO jurisdiction. Not needed for persons who have never been associated with an SRO member.",
+      "condition": "Covered person is or was associated with an SRO member"
+    },
+    {
+      "@id": "edge:usps-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:usps-fraud-order-search",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "partial",
+      "scope": "Covers 506(d)(1)(viii) USPS false representation orders under 39 U.S.C. 3005",
+      "limitations": "Low-frequency event but specifically enumerated in the statute — cannot be omitted"
+    },
+    {
+      "@id": "edge:commercial-bg-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:commercial-background-check",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "supporting",
+      "scope": "Supplements direct regulatory searches with broader criminal, civil, and media coverage",
+      "limitations": "Commercial databases have gaps and lag times. Does NOT replace direct searches of SEC EDGAR, PACER, state courts, and state regulators. Use as a catch-all supplement, not a substitute."
+    },
+    {
+      "@id": "edge:legal-opinion-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "supporting",
+      "scope": "Legal conclusion that no disqualifying events exist based on the underlying searches",
+      "limitations": "Only as reliable as the underlying factual inquiry. Does not substitute for the searches themselves."
+    },
+    {
+      "@id": "edge:bad-actor-disclosure-to-506e",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:bad-actor-questionnaire",
+      "control": "ctrl-bad-actor-disclosure",
+      "sufficiency": "partial",
+      "scope": "Identifies pre-September 23, 2013 events that must be disclosed under 506(e)",
+      "limitations": "Must result in actual written disclosure to purchasers"
+    },
+    {
+      "@id": "edge:ppm-to-506e-disclosure",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:ppm",
+      "control": "ctrl-bad-actor-disclosure",
+      "sufficiency": "partial",
+      "scope": "Vehicle for delivering pre-2013 event disclosures to purchasers",
+      "condition": "Only if pre-September 23, 2013 events exist"
+    },
+    {
+      "@id": "edge:covered-persons-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:covered-persons-list",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "partial",
+      "scope": "Same covered persons list used for 506(d) applies to 504(b)(3)",
+      "condition": "Rule 504 offerings only"
+    },
+    {
+      "@id": "edge:bad-actor-searches-to-504-disqual",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sec-edgar-enforcement-search",
+      "control": "ctrl-504-disqualification",
+      "sufficiency": "partial",
+      "scope": "Same 506(d) search requirements apply via 504(b)(3) reference",
+      "condition": "Rule 504 offerings on or after January 20, 2017"
+    },
+    {
+      "@id": "edge:deviation-to-508-safe-harbor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:deviation-remediation-docs",
+      "control": "ctrl-508-safe-harbor",
+      "sufficiency": "necessary",
+      "scope": "Documents the deviation, insignificance analysis, and good faith compliance effort",
+      "condition": "Only when a deviation from Reg D terms has been identified"
+    },
+    {
+      "@id": "edge:legal-opinion-to-508-safe-harbor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-508-safe-harbor",
+      "sufficiency": "supporting",
+      "scope": "Legal analysis that the deviation meets 508(a) insignificance criteria",
+      "condition": "Only when a deviation from Reg D terms has been identified"
+    },
+    {
+      "@id": "edge:compliance-attest-to-508-enforcement",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:compliance-attestation",
+      "control": "ctrl-508-enforcement",
+      "sufficiency": "necessary",
+      "scope": "Acknowledgment that SEC enforcement authority under section 20 is preserved regardless of 508(a) safe harbor"
+    },
+    {
+      "@id": "edge:deviation-to-508-enforcement",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:deviation-remediation-docs",
+      "control": "ctrl-508-enforcement",
+      "sufficiency": "partial",
+      "scope": "Documents remediation of identified failures",
+      "condition": "Only when a deviation has been identified"
+    },
+    {
+      "@id": "edge:compliance-attest-to-registration-exemption",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:compliance-attestation",
+      "control": "ctrl-registration-exemption",
+      "sufficiency": "partial",
+      "scope": "Attestation that antifraud obligations are understood and met"
+    },
+    {
+      "@id": "edge:antifraud-to-registration-exemption",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:antifraud-policy",
+      "control": "ctrl-registration-exemption",
+      "sufficiency": "partial",
+      "scope": "Documented procedures for preventing antifraud violations"
+    },
+    {
+      "@id": "edge:state-reg-to-state-compliance",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-registration-filing",
+      "control": "ctrl-state-compliance",
+      "sufficiency": "necessary",
+      "scope": "Blue sky filings proving compliance with state securities laws"
+    },
+    {
+      "@id": "edge:exemption-memo-to-non-exclusive",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:exemption-determination-memo",
+      "control": "ctrl-non-exclusive-election",
+      "sufficiency": "sufficient",
+      "scope": "Documents which exemption(s) are relied on and alternatives if primary fails"
+    },
+    {
+      "@id": "edge:affiliate-analysis-to-issuer-only",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:affiliate-analysis",
+      "control": "ctrl-issuer-only",
+      "sufficiency": "partial",
+      "scope": "Identifies affiliates who must not resell under the issuer's exemption"
+    },
+    {
+      "@id": "edge:legal-opinion-to-business-comb",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-business-combinations",
+      "sufficiency": "sufficient",
+      "scope": "Rule 145 analysis and control determination",
+      "condition": "Only for transactions involving business combinations"
+    },
+    {
+      "@id": "edge:compliance-attest-to-anti-evasion",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:compliance-attestation",
+      "control": "ctrl-anti-evasion",
+      "sufficiency": "partial",
+      "scope": "Attestation that offering structure has legitimate business purpose"
+    },
+    {
+      "@id": "edge:legal-opinion-to-anti-evasion",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-anti-evasion",
+      "sufficiency": "sufficient",
+      "scope": "Legal analysis that structure is not a scheme to evade registration"
+    },
+    {
+      "@id": "edge:exemption-memo-to-506-exemption",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:exemption-determination-memo",
+      "control": "ctrl-506-exemption",
+      "sufficiency": "sufficient",
+      "scope": "Section 4(a)(2) analysis and 506(b) vs 506(c) pathway determination"
+    },
+    {
+      "@id": "edge:sophistication-to-506b",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sophistication-evaluation",
+      "control": "ctrl-506b-offering",
+      "sufficiency": "partial",
+      "scope": "Sophistication documentation for each non-accredited purchaser per 506(b)(2)(ii)",
+      "condition": "506(b) offerings with non-accredited purchasers"
+    },
+    {
+      "@id": "edge:pre-existing-to-506b",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:pre-existing-relationship-docs",
+      "control": "ctrl-506b-offering",
+      "sufficiency": "partial",
+      "scope": "No general solicitation compliance",
+      "condition": "506(b) offerings only"
+    },
+    {
+      "@id": "edge:record-policy-to-investor-records",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:record-retention-policy",
+      "control": "ctrl-investor-records",
+      "sufficiency": "partial",
+      "scope": "Written policy establishing 7-year retention minimum"
+    },
+    {
+      "@id": "edge:record-inventory-to-investor-records",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:record-inventory",
+      "control": "ctrl-investor-records",
+      "sufficiency": "partial",
+      "scope": "Proves required records actually exist and are accessible"
+    },
+    {
+      "@id": "edge:ppm-to-offering-materials",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:ppm",
+      "control": "ctrl-offering-materials",
+      "sufficiency": "partial",
+      "scope": "Version-controlled PPM is the primary offering material"
+    },
+    {
+      "@id": "edge:distribution-log-to-offering-materials",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:distribution-log",
+      "control": "ctrl-offering-materials",
+      "sufficiency": "partial",
+      "scope": "Records which materials went to which investors and when"
+    },
+    {
+      "@id": "edge:entity-docs-to-issuer-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:entity-organizational-docs",
+      "control": "ctrl-issuer-def",
+      "sufficiency": "sufficient",
+      "scope": "Formation documents confirming entity meets section 2(a)(4) issuer definition"
+    },
+    {
+      "@id": "edge:sec-edgar-to-final-order-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:sec-edgar-enforcement-search",
+      "control": "ctrl-final-order-def",
+      "sufficiency": "partial",
+      "scope": "Identifies SEC final orders for bad actor analysis",
+      "limitations": "Does not cover state regulatory final orders"
+    },
+    {
+      "@id": "edge:state-regulator-to-final-order-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:state-securities-regulator-search",
+      "control": "ctrl-final-order-def",
+      "sufficiency": "partial",
+      "scope": "Identifies state regulatory final orders per 506(d)(1)(iii) agencies"
+    },
+    {
+      "@id": "edge:legal-opinion-to-final-order-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-final-order-def",
+      "sufficiency": "supporting",
+      "scope": "Legal analysis of whether identified orders constitute 'final orders' under 501(g) criteria"
+    },
+    {
+      "@id": "edge:historical-to-505-reserved",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:historical-offering-records",
+      "control": "ctrl-505-reserved",
+      "sufficiency": "sufficient",
+      "scope": "Documents any pre-2017 Rule 505 reliance and transition to Rule 504 or 506"
+    },
+    {
+      "@id": "edge:legal-opinion-to-business-comb-def",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:legal-opinion-letter",
+      "control": "ctrl-business-combination-def",
+      "sufficiency": "sufficient",
+      "scope": "Rule 145 analysis and post-acquisition control determination"
+    },
+    {
+      "@id": "edge:exemption-memo-to-offshore",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:exemption-determination-memo",
+      "control": "ctrl-offshore-offerings",
+      "sufficiency": "sufficient",
+      "scope": "Documents Reg S vs Reg D applicability for offshore purchasers",
+      "condition": "Only for offerings with offshore component"
+    },
+    {
+      "@id": "edge:covered-persons-to-bad-actor-disclosure",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:covered-persons-list",
+      "control": "ctrl-bad-actor-disclosure",
+      "sufficiency": "partial",
+      "scope": "Identifies persons whose pre-September 23, 2013 events must be disclosed"
+    },
+    {
+      "@id": "edge:delivery-to-bad-actor-disclosure",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:delivery-confirmation",
+      "control": "ctrl-bad-actor-disclosure",
+      "sufficiency": "partial",
+      "scope": "Proves pre-2013 event disclosures were furnished a reasonable time prior to sale",
+      "condition": "Only if pre-September 23, 2013 events exist"
+    },
+    {
+      "@id": "edge:waiver-to-bad-actor",
+      "@type": "SatisfactionEdge",
+      "evidenceType": "ev-type:good-cause-waiver-petition",
+      "control": "ctrl-bad-actor-check",
+      "sufficiency": "conditional",
+      "scope": "SEC or court/regulatory waiver preventing disqualification despite existence of a disqualifying event per 506(d)(2)(ii) or 506(d)(2)(iii)",
+      "condition": "Only applicable when a disqualifying event exists but a waiver has been granted"
+    }
+  ]
+}
